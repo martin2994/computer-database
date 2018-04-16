@@ -58,7 +58,11 @@ public class FacadeImpl implements Facade {
 
 	@Override
 	public void createComputer(Computer computer) {
-		computerDAO.add(computer);
+		try {
+			computerDAO.add(computer);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

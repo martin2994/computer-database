@@ -1,18 +1,18 @@
 package main.java.com.excilys.cdb.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 public class Computer {
 
 	private int id;
 	private String name;
-	private LocalDate introduced;
-	private LocalDate discontinued;
+	private Date introduced;
+	private Date discontinued;
 	private Company manufacturer;
 	
 	public Computer() {}
 	
-	public Computer(int id, String name, LocalDate introduced, LocalDate discontinued, Company manufacturer) {
+	public Computer(int id, String name, Date introduced, Date discontinued, Company manufacturer) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -38,16 +38,16 @@ public class Computer {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public LocalDate getIntroduced() {
+	public Date getIntroduced() {
 		return introduced;
 	}
-	public void setIntroduced(LocalDate introduced) {
+	public void setIntroduced(Date introduced) {
 		this.introduced = introduced;
 	}
-	public LocalDate getDiscontinued() {
+	public Date getDiscontinued() {
 		return discontinued;
 	}
-	public void setDiscontinued(LocalDate discontinued) {
+	public void setDiscontinued(Date discontinued) {
 		this.discontinued = discontinued;
 	}
 	public Company getManufacturer() {
@@ -55,6 +55,18 @@ public class Computer {
 	}
 	public void setManufacturer(Company manufacturer) {
 		this.manufacturer = manufacturer;
+	}
+
+	@Override
+	public String toString() {
+		String s = "Computer [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued=" + discontinued + ", manufacturer=";
+		if(manufacturer != null) {
+			s += manufacturer.getName();
+		}else {
+			s+= "null";
+		}
+		s += "]";
+		return s;
 	}
 	
 	

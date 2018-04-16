@@ -7,7 +7,7 @@ import java.util.List;
 public interface DAO<T> {
 	  List<T> findAll() throws SQLException;
 	  T findOneById(int id) throws SQLException;
-	  void add(T t);
+	  void add(T t) throws SQLException;
 	  void delete(int id);
 	  void update(T t);
 }
