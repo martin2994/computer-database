@@ -7,26 +7,44 @@ import java.util.List;
 import main.java.com.excilys.cdb.dao.CompanyDAO;
 import main.java.com.excilys.cdb.dao.ComputerDAO;
 import main.java.com.excilys.cdb.dao.DAOFactory;
+import main.java.com.excilys.cdb.enums.DAOType;
 import main.java.com.excilys.cdb.exceptions.NoDAOException;
 import main.java.com.excilys.cdb.exceptions.NoFactoryException;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 
-public class FacadeImpl implements Facade {
+/**
+ * Facade
+ * Regroupe les différentes actions de l'utilisateur
+ */
+public class Facade {
 
+	/**
+	 * DAO de company
+	 */
 	private CompanyDAO companyDAO;
+	
+	/**
+	 * DAO de computer
+	 */
 	private ComputerDAO computerDAO;
 	
-	public FacadeImpl() {
+	/**
+	 * Constructeur qui récupère les différentes DAO
+	 */
+	public Facade() {
 		try {
-			this.companyDAO = (CompanyDAO) DAOFactory.getDAO("Company");
-			this.computerDAO = (ComputerDAO) DAOFactory.getDAO("Computer");
+			this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
+			this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
 		} catch (NoDAOException | NoFactoryException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	@Override
+	/**
+	 * Récupère la liste des computer
+	 * @return La liste des computer
+	 */
 	public List<Computer> getComputers() {
 		try {
 			return computerDAO.findAll();
@@ -36,7 +54,10 @@ public class FacadeImpl implements Facade {
 		return null;
 	}
 
-	@Override
+	/**
+	 * Récupère la liste des company
+	 * @return La liste des company
+	 */
 	public List<Company> getCompanies() {
 		try {
 			return companyDAO.findAll();
@@ -46,17 +67,33 @@ public class FacadeImpl implements Facade {
 		return null;
 	}
 
-	@Override
+	public Company getCompany(int id) {
+		try {
+			return companyDAO.findById(id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Récupère un computer spécifique
+	 * @param id l'id du computer à chercher
+	 */
 	public Computer getComputerDetails(int id) {
 		try {
-			return computerDAO.findOneById(id);
+			return computerDAO.findById(id);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	@Override
+	/**
+	 * Crée un computer
+	 * @param computer le computer à créer
+	 */
 	public void createComputer(Computer computer) {
 		try {
 			computerDAO.add(computer);
@@ -65,14 +102,28 @@ public class FacadeImpl implements Facade {
 		}
 	}
 
-	@Override
+	/**
+	 * Modifie un computer
+	 * @param computer les nouvelles informations du computer à modifier
+	 */
 	public void updateComputer(Computer computer) {
-		computerDAO.update(computer);
+		try {
+			computerDAO.update(computer);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
-	@Override
+	/**
+	 * Supprime un computer
+	 * @param id l'id du computer à supprimer
+	 */
 	public void deleteCompute(int id) {
-		computerDAO.delete(id);
+		try {
+			computerDAO.delete(id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
