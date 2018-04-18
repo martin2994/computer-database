@@ -9,6 +9,7 @@ import java.util.List;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+import main.java.com.excilys.cdb.utils.Page;
 
 /**
  * DAO des Computer
@@ -29,7 +30,7 @@ public class ComputerDAO implements DAO<Computer> {
 	/**
 	 * Requete pour le findAll
 	 */
-	private final String ALL_COMPUTERS = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id";
+	private final String ALL_COMPUTERS = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id LIMIT ?,?";
 	
 	/**
 	 * Requete pour le findById
@@ -51,6 +52,8 @@ public class ComputerDAO implements DAO<Computer> {
 	 */
 	private final String INSERT_COMPUTER = "INSERT INTO computer (name,introduced,discontinued,company_id) values (?,?,?,?)";
 	
+	private final String MAX_PAGE = "SELECT COUNT(id) FROM computer";
+	
 	/**
 	 * Constructeur pour initialiser la connexion
 	 * @param connection La connexion en cours
@@ -65,10 +68,12 @@ public class ComputerDAO implements DAO<Computer> {
 	 * @return La liste des computer
 	 */
 	@Override
-	public List<Computer> findAll() throws SQLException {
+	public Page<Computer> findAll(int page) throws SQLException {
+		Page<Computer> computers = new Page<>();
 		statement = connection.prepareStatement(ALL_COMPUTERS,ResultSet.CONCUR_READ_ONLY);
+		statement.setInt(1,page*Page.resultsPerPage);
+		statement.setInt(2,Page.resultsPerPage);
 		ResultSet rs = statement.executeQuery();
-		List<Computer> computers = new ArrayList<>();
 		while (rs.next()) {
 			Company company;
 			if(rs.getInt("company.id") > 0){
@@ -161,6 +166,13 @@ public class ComputerDAO implements DAO<Computer> {
 		}
 		statement.setInt(5, computer.getId());
 		statement.executeUpdate();
+	}
+	
+	@Override
+	public int getMaxPage() throws SQLException {
+		statement = connection.prepareStatement(MAX_PAGE);
+		ResultSet rs = statement.executeQuery();
+		return rs.getInt(1);
 	}
 
 }

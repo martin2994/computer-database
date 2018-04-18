@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.services.Facade;
+import main.java.com.excilys.cdb.utils.Page;
 
 /**
  * Controleur de l'application
@@ -40,16 +41,16 @@ public class CDBController {
 	 * Permet de récupérer la liste des computer
 	 * @return la liste des computers
 	 */
-	public List<Computer> getComputers() {
-		return facade.getComputers();
+	public Page<Computer> getComputers(String page) {
+		return facade.getComputers(Integer.parseInt(page));
 	}
 
 	/**
 	 * Permet de récupérer la liste des company
 	 * @return la liste des company
 	 */
-	public List<Company> getCompanies() {
-		return facade.getCompanies();
+	public Page<Company> getCompanies(String page) {
+		return facade.getCompanies(Integer.parseInt(page));
 	}
 
 	/**
@@ -162,5 +163,6 @@ public class CDBController {
 	public boolean isComputer(String computer_id) {
 		return facade.getComputerDetails(Integer.parseInt(computer_id)) != null;
 	}
+
 
 }

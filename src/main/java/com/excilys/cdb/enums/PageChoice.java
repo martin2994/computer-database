@@ -1,9 +1,8 @@
 package main.java.com.excilys.cdb.enums;
 
 public enum PageChoice {
-	PREVIOUS("1","1 - PREVIOUS"),
-	NEXT("2","2 - NEXT"),
-	BACK("3","3 - Back to the menu");
+	SELECTPAGE("1","1 - Select the page to show"),
+	BACK("2","2 - Back to the menu");
 	
 	private String value = "";
 	private String text = "";

@@ -14,6 +14,7 @@ import main.java.com.excilys.cdb.exceptions.NoDAOException;
 import main.java.com.excilys.cdb.exceptions.NoFactoryException;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+import main.java.com.excilys.cdb.utils.Page;
 
 /**
  * Facade
@@ -50,9 +51,9 @@ public class Facade {
 	 * Récupère la liste des computer
 	 * @return La liste des computer
 	 */
-	public List<Computer> getComputers() {
+	public Page<Computer> getComputers(int page) {
 		try {
-			return computerDAO.findAll();
+			return computerDAO.findAll(page);
 		} catch (SQLException e) {
 			logger.debug("FIND ALL COMPUTERS: "+ e);
 		}
@@ -63,9 +64,9 @@ public class Facade {
 	 * Récupère la liste des company
 	 * @return La liste des company
 	 */
-	public List<Company> getCompanies() {
+	public Page<Company> getCompanies(int page) {
 		try {
-			return companyDAO.findAll();
+			return companyDAO.findAll(page);
 		} catch (SQLException e) {
 			logger.debug("FIND ALL COMPANIES: "+ e);
 		}
