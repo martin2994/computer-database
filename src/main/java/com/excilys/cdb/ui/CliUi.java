@@ -182,7 +182,7 @@ public class CliUi {
 		String s, name, intro, disco, company_id;
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
+		} while (!s.matches("[a-zA-Z-0-9]+"));
 		name = s;
 		System.out.println("Introduced date:");
 		do {
@@ -199,8 +199,11 @@ public class CliUi {
 			s = scanner.nextLine();
 		} while (!s.matches("[0-9]+") && !s.equals(""));
 		company_id = s;
-		controller.createComputer(name, intro, disco, company_id);
-		System.out.println("CREATION EFFECTUEE");
+		if(controller.createComputer(name, intro, disco, company_id)) {
+			System.out.println("CREATION EFFECTUEE");
+		}else {
+			System.out.println("CREATION NON EFFECTUEE");
+		}
 	}
 
 	/**
@@ -225,7 +228,7 @@ public class CliUi {
 		System.out.println("Name:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
+		} while (!s.matches("[a-zA-Z-0-9]+"));
 		name = s;
 		System.out.println("Introduced date:");
 		do {
@@ -242,8 +245,11 @@ public class CliUi {
 			s = scanner.nextLine();
 		} while (!s.matches("[0-9]+") && !s.equals(""));
 		company_id = s;
-		controller.updateComputer(computer_id, name, intro, disco, company_id);
-		System.out.println("MISE A JOUR EFFECTUEE");
+		if(controller.updateComputer(computer_id, name, intro, disco, company_id)) {
+			System.out.println("MISE A JOUR EFFECTUEE");
+		}else {
+			System.out.println("MISE A JOUR NON EFFECTUEE");
+		}
 	}
 
 	/**

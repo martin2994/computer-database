@@ -3,9 +3,9 @@ package main.java.com.excilys.cdb.services;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Logger;
 import main.java.com.excilys.cdb.dao.CompanyDAO;
 import main.java.com.excilys.cdb.dao.ComputerDAO;
 import main.java.com.excilys.cdb.dao.DAOFactory;
@@ -32,7 +32,7 @@ public class Facade {
 	private ComputerDAO computerDAO;
 	
 	
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Facade.class);
+	private static final Logger logger = LoggerFactory.getLogger(Facade.class);
 	
 	/**
 	 * Constructeur qui récupère les différentes DAO
@@ -101,7 +101,11 @@ public class Facade {
 	 */
 	public void createComputer(Computer computer) {
 		try {
-			computerDAO.add(computer);
+			if(computer != null) {
+				computerDAO.add(computer);
+			}else {
+				logger.info("COMPUTER NULL");
+			}
 		} catch (SQLException e) {
 			logger.debug("CREATE COMPUTER "+ computer.getId() +": "+ e);
 		}
@@ -113,7 +117,11 @@ public class Facade {
 	 */
 	public void updateComputer(Computer computer) {
 		try {
-			computerDAO.update(computer);
+			if(computer != null) {
+				computerDAO.update(computer);
+			}else {
+				logger.info("COMPUTER NULL");
+			}
 		} catch (SQLException e) {
 			logger.debug("UPDATE COMPUTER "+ computer.getId() +": "+ e);
 		}

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import main.java.com.excilys.cdb.model.Company;
@@ -25,7 +26,7 @@ public class CDBController {
 	/**
 	 * logger
 	 */
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CDBController.class);
+	private static final Logger logger = LoggerFactory.getLogger(CDBController.class);
 
 	/**
 	 * Constructeur qui assigne la facade au controleur
@@ -74,20 +75,27 @@ public class CDBController {
 		try {
 			if (!name.equals(""))
 				newComputer.setName(name);
-			Date d = null;
+			Date introD=null, discoD=null;
 			if (!intro.equals("")) {
-				d = format.parse(intro);
-				newComputer.setIntroduced(d);
+				introD = format.parse(intro);
+				newComputer.setIntroduced(introD);
 			}
 			if (!disco.equals("")) {
-				d = format.parse(disco);
-				newComputer.setDiscontinued(d);
+				discoD = format.parse(disco);
+				newComputer.setDiscontinued(discoD);
 			}
-			if (!company_id.equals(""))
+			if(discoD != null && introD != null) {
+				if(discoD.before(introD)) return null;
+			}
+			if (!company_id.equals("")) {
 				newComputer.setManufacturer(facade.getCompany(Integer.parseInt(company_id)));
+			}else {
+				newComputer.setManufacturer(null);
+			}
 		} catch (Exception e) {
 			logger.debug("Date exception: "+ e);
 		}
+		System.out.println(newComputer);
 		return newComputer;
 	}
 	
@@ -98,11 +106,16 @@ public class CDBController {
 	 * @param intro la date d'introduced du computer
 	 * @param disco la date de discontinued du computer
 	 * @param company_id l'id de la company du computer
+	 * @return booleen de mise à jour ou non du computer
 	 */
-	public void updateComputer(String computer_id, String name, String intro, String disco, String company_id) {
+	public boolean updateComputer(String computer_id, String name, String intro, String disco, String company_id) {
 		Computer computerToUpdate = facade.getComputerDetails(Integer.parseInt(computer_id));
 		Computer computerUpdate = fillComputer(computerToUpdate,name,intro,disco,company_id);
-		facade.updateComputer(computerUpdate);
+		if(null != computerUpdate){
+			facade.updateComputer(computerUpdate);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -129,12 +142,16 @@ public class CDBController {
 	 * @param intro la date d'introduced du computer
 	 * @param disco la date de discontinued du computer
 	 * @param company_id l'id de la company du computer
+	 * @return booleen de création ou non du computer
 	 */
-	public void createComputer(String name, String intro, String disco, String company_id) {
+	public boolean createComputer(String name, String intro, String disco, String company_id) {
 		Computer computer = new Computer();
 		Computer newComputer = fillComputer(computer, name, intro, disco, company_id);
-		facade.createComputer(newComputer);
-
+		if(null != newComputer){
+			facade.createComputer(newComputer);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -143,7 +160,7 @@ public class CDBController {
 	 * @return un booléen (true: existe, false: n'existe pas)
 	 */
 	public boolean isComputer(String computer_id) {
-		return facade.getCompany(Integer.parseInt(computer_id)) != null;
+		return facade.getComputerDetails(Integer.parseInt(computer_id)) != null;
 	}
 
 }
