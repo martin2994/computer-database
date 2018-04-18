@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 
@@ -110,16 +109,15 @@ public class ComputerDAO implements DAO<Computer> {
 	public void add(Computer computer) throws SQLException {
 		statement = connection.prepareStatement(INSERT_COMPUTER);
 		statement.setString(1, computer.getName());
-		java.sql.Date intro = null;
+		java.sql.Date d = null;
 		if(computer.getIntroduced() != null) {
-			intro =  new java.sql.Date(computer.getIntroduced().getTime());
+			d =  new java.sql.Date(computer.getIntroduced().getTime());
 		}
-		statement.setDate(2,intro);
-		java.sql.Date disco = null;
+		statement.setDate(2,d);
 		if(computer.getDiscontinued() != null) {
-			disco =  new java.sql.Date(computer.getDiscontinued().getTime());
+			d =  new java.sql.Date(computer.getDiscontinued().getTime());
 		}
-		statement.setDate(3,disco);
+		statement.setDate(3,d);
 		if(computer.getManufacturer() != null) {
 			statement.setInt(4, computer.getManufacturer().getId());
 		}else {
@@ -147,16 +145,15 @@ public class ComputerDAO implements DAO<Computer> {
 	public void update(Computer computer) throws SQLException {
 		statement = connection.prepareStatement(UPDATE_COMPUTER);
 		statement.setString(1, computer.getName());
-		java.sql.Date intro = null;
+		java.sql.Date d = null;
 		if(computer.getIntroduced() != null) {
-			intro =  new java.sql.Date(computer.getIntroduced().getTime());
+			d =  new java.sql.Date(computer.getIntroduced().getTime());
 		}
-		statement.setDate(2,intro);
-		java.sql.Date disco = null;
+		statement.setDate(2,d);
 		if(computer.getDiscontinued() != null) {
-			intro =  new java.sql.Date(computer.getDiscontinued().getTime());
+			d =  new java.sql.Date(computer.getDiscontinued().getTime());
 		}
-		statement.setDate(3,disco);
+		statement.setDate(3,d);
 		if(computer.getManufacturer() != null) {
 			statement.setInt(4, computer.getManufacturer().getId());
 		}else {

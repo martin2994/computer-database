@@ -1,7 +1,5 @@
 package main.java.com.excilys.cdb.ui;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,13 +8,39 @@ import main.java.com.excilys.cdb.enums.ComputerChoice;
 import main.java.com.excilys.cdb.enums.MenuChoice;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
+
+/**
+ * Interface utilisateur CLI
+ * Regroupe toutes les fonctions d'affichage 
+ *
+ */
+
 public class CliUi {
 
+	/**
+	 * Scanner pour lire les entrées clavier
+	 */
 	private Scanner scanner;
-	private boolean whileMenu = true;
-	private boolean computerWhile = true;
-	private CDBController controller;
 	
+	/**
+	 * Booléen pour rester ou non dans le menu principal
+	 */
+	private boolean whileMenu = true;
+	
+	/**
+	 * Booléen pour rester ou non dans le menu des computers
+	 */
+	private boolean computerWhile = true;
+	
+	/**
+	 * Controleur
+	 */
+	private CDBController controller;
+
+	/**
+	 * Constructeur pour attribuer le controler, le scanner et message d'arrivé
+	 * @param cdbController le controleur de l'application
+	 */
 	public CliUi(CDBController cdbController) {
 		controller = cdbController;
 		scanner = new Scanner(System.in);
@@ -27,6 +51,10 @@ public class CliUi {
 		goToMenu();
 	}
 
+	/**
+	 * Affiche le menu de l'application
+	 * Redirige en fonction des actions choisies: MenuChoice
+	 */
 	public void goToMenu() {
 		while (whileMenu) {
 			System.out.println("#############");
@@ -56,6 +84,11 @@ public class CliUi {
 		}
 	}
 
+	/**
+	 * Affiche la liste des computers et le sous-menu des computers
+	 * Redirige en fonction des actions choisies: ComputerChoice
+	 * @param computers la liste des computers
+	 */
 	public void showListComputers(List<Computer> computers) {
 		System.out.println("###############");
 		System.out.println("#COMPUTER LIST#");
@@ -104,6 +137,11 @@ public class CliUi {
 		}
 	}
 
+	/**
+	 * Affiche la liste des company
+	 * Retourne sur le menu principal
+	 * @param companies la liste des company
+	 */
 	public void showListCompanies(List<Company> companies) {
 		System.out.println("###############");
 		System.out.println("#COMPANY LIST#");
@@ -114,6 +152,9 @@ public class CliUi {
 		}
 	}
 
+	/**
+	 * Affiche les détails d'un computer
+	 */
 	public void showDetailsComputer() {
 		System.out.println("##################");
 		System.out.println("#COMPUTER DETAILS#");
@@ -124,107 +165,90 @@ public class CliUi {
 		do {
 			id = scanner.nextLine();
 		} while (!id.matches("[0-9]+"));
-		Computer computer = controller.getComputerDetails(Integer.parseInt(id));
+		Computer computer = controller.getComputerDetails(id);
 		System.out.println(computer);
 	}
 
+	/**
+	 * Affichage de création d'un computer
+	 */
 	public void createComputer() {
-		try {
-			System.out.println("#################");
-			System.out.println("#CREATE COMPUTER#");
-			System.out.println("#################");
-			System.out.println();
-			System.out.println("Tap ENTER if you don't want to specify this filed");
-			System.out.println("Name:");
-			Computer computer = new Computer();
-			String s = null;
-			Date d = null;
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
-			computer.setName(s);
-			System.out.println("Introduced date:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
-			if (!s.equals("")) {
-				d = format.parse(s);
-				computer.setIntroduced(d);
-			}
-			System.out.println("Discontinued date:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
-			if (!s.equals("")) {
-				d = format.parse(s);
-				computer.setDiscontinued(d);
-			}
-			System.out.println("Company id:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("[0-9]+") && !s.equals(""));
-			if(!s.equals("")) {
-				computer.setManufacturer(controller.getCompany(Integer.parseInt(s)));
-			}
-			controller.createComputer(computer);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		System.out.println("#################");
+		System.out.println("#CREATE COMPUTER#");
+		System.out.println("#################");
+		System.out.println();
+		System.out.println("Tap ENTER if you don't want to specify this filed");
+		System.out.println("Name:");
+		String s, name, intro, disco, company_id;
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
+		name = s;
+		System.out.println("Introduced date:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		intro = s;
+		System.out.println("Discontinued date:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		disco = s;
+		System.out.println("Company id:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("[0-9]+") && !s.equals(""));
+		company_id = s;
+		controller.createComputer(name, intro, disco, company_id);
+		System.out.println("CREATION EFFECTUEE");
 	}
 
+	/**
+	 * Affichage de mise à jour d'un computer
+	 */
 	public void updateComputer() {
-		try {
-			System.out.println("#################");
-			System.out.println("#UPDATE COMPUTER#");
-			System.out.println("#################");
-			System.out.println();
-			System.out.println("Tap ENTER if you don't want to specify this filed");
-			System.out.println("Computer id:");
-			String s = null;
-			Computer computerUpdate = null;
-			Date d = null;
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			do {
-				do {
-					s = scanner.nextLine();
-				} while (!s.matches("[0-9]+"));
-				computerUpdate = controller.getComputerDetails(Integer.parseInt(s));
-			} while (computerUpdate == null);
-			System.out.println("Name:");
+		System.out.println("#################");
+		System.out.println("#UPDATE COMPUTER#");
+		System.out.println("#################");
+		System.out.println();
+		System.out.println("Tap ENTER if you don't want to specify this filed");
+		System.out.println("Computer id:");
+		String s, computer_id, name, intro, disco, company_id;
+		do {
 			do {
 				s = scanner.nextLine();
-			} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
-			if (!s.equals(""))
-				computerUpdate.setName(s);
-			System.out.println("Introduced date:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
-			if (!s.equals("")) {
-				d = format.parse(s);
-				computerUpdate.setIntroduced(d);
-			}
-			System.out.println("Discontinued date:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
-			if (!s.equals("")) {
-				d = format.parse(s);
-				computerUpdate.setDiscontinued(d);
-			}
-			System.out.println("Company id:");
-			do {
-				s = scanner.nextLine();
-			} while (!s.matches("[0-9]+") && !s.equals(""));
-			if (!s.equals(""))
-				computerUpdate.setManufacturer(controller.getCompany(Integer.parseInt(s)));
-			controller.updateComputer(computerUpdate);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			} while (!s.matches("[0-9]+"));
+		} while (!controller.isComputer(s));
+		System.out.println("COMPUTER "+s);
+		System.out.println(controller.getComputerDetails(s));
+		computer_id = s;
+		System.out.println("Name:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("[a-zA-Z-0-9]+") && !s.equals(""));
+		name = s;
+		System.out.println("Introduced date:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		intro = s;
+		System.out.println("Discontinued date:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		disco = s;
+		System.out.println("Company id:");
+		do {
+			s = scanner.nextLine();
+		} while (!s.matches("[0-9]+") && !s.equals(""));
+		company_id = s;
+		controller.updateComputer(computer_id, name, intro, disco, company_id);
+		System.out.println("MISE A JOUR EFFECTUEE");
 	}
 
+	/**
+	 * Affichage de suppression d'un computer
+	 */
 	public void deleteComputer() {
 		System.out.println("#################");
 		System.out.println("#DELETE COMPUTER#");
@@ -235,17 +259,18 @@ public class CliUi {
 		do {
 			s = scanner.nextLine();
 		} while (!s.matches("[0-9]+"));
-		controller.deleteCompute(Integer.parseInt(s));
+		controller.deleteCompute(s);
+		System.out.println("SUPPRESION EFFECTUEE");
 	}
 
+	/**
+	 * Affichage de fin
+	 */
 	public void goToEnd() {
+		scanner.close();
 		System.out.println("###################");
 		System.out.println("########BYE########");
 		System.out.println("###################");
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		scanner.close();
-	}
 }

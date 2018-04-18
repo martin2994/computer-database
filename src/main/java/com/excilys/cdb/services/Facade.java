@@ -3,7 +3,9 @@ package main.java.com.excilys.cdb.services;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Logger;
 import main.java.com.excilys.cdb.dao.CompanyDAO;
 import main.java.com.excilys.cdb.dao.ComputerDAO;
 import main.java.com.excilys.cdb.dao.DAOFactory;
@@ -29,6 +31,9 @@ public class Facade {
 	 */
 	private ComputerDAO computerDAO;
 	
+	
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Facade.class);
+	
 	/**
 	 * Constructeur qui récupère les différentes DAO
 	 */
@@ -37,7 +42,7 @@ public class Facade {
 			this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
 			this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
 		} catch (NoDAOException | NoFactoryException e) {
-			e.printStackTrace();
+			logger.debug("DAO exception: "+ e);
 		}
 	}
 	
@@ -49,7 +54,7 @@ public class Facade {
 		try {
 			return computerDAO.findAll();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("FIND ALL COMPUTERS: "+ e);
 		}
 		return null;
 	}
@@ -62,7 +67,7 @@ public class Facade {
 		try {
 			return companyDAO.findAll();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("FIND ALL COMPANIES: "+ e);
 		}
 		return null;
 	}
@@ -71,7 +76,7 @@ public class Facade {
 		try {
 			return companyDAO.findById(id);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("GET COMPANY "+ id +": "+ e);
 		}
 		return null;
 	}
@@ -85,7 +90,7 @@ public class Facade {
 		try {
 			return computerDAO.findById(id);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("GET COMPUTER "+ id +": "+ e);
 		}
 		return null;
 	}
@@ -98,7 +103,7 @@ public class Facade {
 		try {
 			computerDAO.add(computer);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("CREATE COMPUTER "+ computer.getId() +": "+ e);
 		}
 	}
 
@@ -110,7 +115,7 @@ public class Facade {
 		try {
 			computerDAO.update(computer);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("UPDATE COMPUTER "+ computer.getId() +": "+ e);
 		}
 	}
 
@@ -122,7 +127,7 @@ public class Facade {
 		try {
 			computerDAO.delete(id);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.debug("DELETE COMPUTER "+ id +": "+ e);
 		}
 	}
 
