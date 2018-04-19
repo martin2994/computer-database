@@ -48,6 +48,12 @@ public class CliUi {
 	 */
 	private CDBController controller;
 
+	
+	private final String R_NUMBER = "[0-9]+";
+	private final String R_TEXT = "[a-zA-Z-0-9]+";
+	private final String R_DATE = "^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])";
+	
+	
 	/**
 	 * Constructeur pour attribuer le controler, le scanner et message d'arrivé
 	 * 
@@ -168,7 +174,7 @@ public class CliUi {
 		String page;
 		do {
 			page = scanner.nextLine();
-		} while (!page.matches("[0-9]+"));
+		} while (!page.matches(R_NUMBER));
 		return page;
 	}
 
@@ -179,7 +185,7 @@ public class CliUi {
 	 *            la liste des company
 	 */
 	public void showListCompanies(Page<Company> companies) {
-		while (whileMenu) {
+		while (companyWhile) {
 			System.out.println("###############");
 			System.out.println("#COMPANY MENU#");
 			System.out.println("###############");
@@ -223,7 +229,7 @@ public class CliUi {
 		String id;
 		do {
 			id = scanner.nextLine();
-		} while (!id.matches("[0-9]+"));
+		} while (!id.matches(R_NUMBER));
 		Computer computer = controller.getComputerDetails(id);
 		System.out.println(computer);
 	}
@@ -241,22 +247,22 @@ public class CliUi {
 		String s, name, intro, disco, company_id;
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[a-zA-Z-0-9]+"));
+		} while (!s.matches(R_TEXT));
 		name = s;
 		System.out.println("Introduced date:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		} while (!s.matches(R_DATE) && !s.equals(""));
 		intro = s;
 		System.out.println("Discontinued date:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		} while (!s.matches(R_DATE) && !s.equals(""));
 		disco = s;
 		System.out.println("Company id:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[0-9]+") && !s.equals(""));
+		} while (!s.matches(R_NUMBER) && !s.equals(""));
 		company_id = s;
 		if (controller.createComputer(name, intro, disco, company_id)) {
 			System.out.println("CREATION EFFECTUEE");
@@ -279,7 +285,7 @@ public class CliUi {
 		do {
 			do {
 				s = scanner.nextLine();
-			} while (!s.matches("[0-9]+"));
+			} while (!s.matches(R_NUMBER));
 		} while (!controller.isComputer(s));
 		System.out.println("COMPUTER " + s);
 		System.out.println(controller.getComputerDetails(s));
@@ -287,22 +293,22 @@ public class CliUi {
 		System.out.println("Name:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[a-zA-Z-0-9]+"));
+		} while (!s.matches(R_TEXT));
 		name = s;
 		System.out.println("Introduced date:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		} while (!s.matches(R_DATE) && !s.equals(""));
 		intro = s;
 		System.out.println("Discontinued date:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && !s.equals(""));
+		} while (!s.matches(R_DATE) && !s.equals(""));
 		disco = s;
 		System.out.println("Company id:");
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[0-9]+") && !s.equals(""));
+		} while (!s.matches(R_NUMBER) && !s.equals(""));
 		company_id = s;
 		if (controller.updateComputer(computer_id, name, intro, disco, company_id)) {
 			System.out.println("MISE A JOUR EFFECTUEE");
@@ -323,7 +329,7 @@ public class CliUi {
 		String s = null;
 		do {
 			s = scanner.nextLine();
-		} while (!s.matches("[0-9]+"));
+		} while (!s.matches(R_NUMBER));
 		controller.deleteCompute(s);
 		System.out.println("SUPPRESION EFFECTUEE");
 	}

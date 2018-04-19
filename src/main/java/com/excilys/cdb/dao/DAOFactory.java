@@ -84,8 +84,8 @@ public class DAOFactory {
 		if (factory == null) {
 			factory = new DAOFactory();
 		}
-		if (factory == null) {
-			throw new NoFactoryException("pas de factory");
+		if (type == null) {
+			throw new NoDAOException("pas de type donné");
 		}
 		switch (type) {
 		case COMPANY:
@@ -100,7 +100,6 @@ public class DAOFactory {
 	/**
 	 * Cloture la connexion
 	 */
-	@Override
 	protected void finalize() throws Throwable {
 		connection.close();
 	}

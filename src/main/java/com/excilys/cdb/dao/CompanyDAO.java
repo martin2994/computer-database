@@ -5,8 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.utils.Page;
@@ -102,20 +100,14 @@ public class CompanyDAO implements DAO<Company> {
 
 	@Override
 	public void add(Company t) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void delete(int id) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void update(Company t) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -1,7 +1,6 @@
 package main.java.com.excilys.cdb.services;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
