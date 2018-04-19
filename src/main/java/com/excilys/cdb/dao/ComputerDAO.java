@@ -52,6 +52,9 @@ public class ComputerDAO implements DAO<Computer> {
 	 */
 	private final String INSERT_COMPUTER = "INSERT INTO computer (name,introduced,discontinued,company_id) values (?,?,?,?)";
 	
+	/**
+	 * Requete pour le nombre de page
+	 */
 	private final String MAX_PAGE = "SELECT COUNT(id) FROM computer";
 	
 	/**
@@ -168,11 +171,17 @@ public class ComputerDAO implements DAO<Computer> {
 		statement.executeUpdate();
 	}
 	
+	/**
+	 * Récupère le nombre de page total
+	 */
 	@Override
 	public int getMaxPage() throws SQLException {
 		statement = connection.prepareStatement(MAX_PAGE);
 		ResultSet rs = statement.executeQuery();
-		return rs.getInt(1);
+		if(rs.next()) {
+			return rs.getInt(1)/Page.resultsPerPage;
+		}
+		return 0;
 	}
 
 }

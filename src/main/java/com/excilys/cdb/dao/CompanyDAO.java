@@ -36,7 +36,10 @@ public class CompanyDAO implements DAO<Company> {
 	 */
 	private final String COMPANY_BY_ID = "SELECT id,name FROM company WHERE id=?";
 
-	private final String MAX_PAGE = "SELECT COUNT(id) FROM computer";
+	/**
+	 * Requete pour le nombre de page
+	 */
+	private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
 	
 	/**
 	 * Constructeur pour initialiser la connexion
@@ -84,11 +87,17 @@ public class CompanyDAO implements DAO<Company> {
 		return null;
 	}
 	
+	/**
+	 * Récupère le nombre de page total
+	 */
 	@Override
 	public int getMaxPage() throws SQLException {
 		statement = connection.prepareStatement(MAX_PAGE);
 		ResultSet rs = statement.executeQuery();
-		return rs.getInt(1);
+		if(rs.next()) {
+			return rs.getInt(1)/Page.resultsPerPage;
+		}
+		return 0;
 	}
 
 	@Override

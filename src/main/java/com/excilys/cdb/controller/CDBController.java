@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.java.com.excilys.cdb.enums.DAOType;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.services.Facade;
@@ -162,6 +163,10 @@ public class CDBController {
 	 */
 	public boolean isComputer(String computer_id) {
 		return facade.getComputerDetails(Integer.parseInt(computer_id)) != null;
+	}
+
+	public String getMaxPage(DAOType type) {
+		return facade.getMaxPage(type);
 	}
 
 

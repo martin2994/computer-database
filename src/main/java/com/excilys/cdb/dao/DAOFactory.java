@@ -39,7 +39,8 @@ public class DAOFactory {
 	private static final Logger logger = LoggerFactory.getLogger(DAOFactory.class);
 
 	/**
-	 * Constructeur qui crée la connexion à la DB à partir d'un fichier de properties
+	 * Constructeur qui crée la connexion à la DB à partir d'un fichier de
+	 * properties
 	 * 
 	 */
 	private DAOFactory() {
@@ -51,9 +52,9 @@ public class DAOFactory {
 			input = getClass().getClassLoader().getResourceAsStream("main/resources/config.properties");
 			prop.load(input);
 			String database = prop.getProperty("database");
-			String user= prop.getProperty("dbuser");
+			String user = prop.getProperty("dbuser");
 			String password = prop.getProperty("dbpassword");
-			connection = DriverManager.getConnection(database,user,password);
+			connection = DriverManager.getConnection(database, user, password);
 
 		} catch (IOException | SQLException e) {
 			logger.warn("PROBLEME DE CONNEXION A LA BD" + e);

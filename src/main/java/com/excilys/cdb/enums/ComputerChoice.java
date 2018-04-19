@@ -1,5 +1,9 @@
 package main.java.com.excilys.cdb.enums;
 
+/**
+ * Enum pour la gestion des choix dans le menu des computers
+ * 
+ */
 public enum ComputerChoice {
 
 	SELECTPAGE("1","1 - Select the page to show"),

@@ -1,5 +1,9 @@
 package main.java.com.excilys.cdb.enums;
 
+/**
+ * Enum pour la gestion des choix dans le menu principal
+ *
+ */
 public enum MenuChoice { 
 	LISTCOMPUTER("1","1 - Show the computer list"),
 	LISTCOMPANY("2","2 - Show the company list"),

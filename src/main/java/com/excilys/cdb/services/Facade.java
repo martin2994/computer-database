@@ -17,8 +17,7 @@ import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
 
 /**
- * Facade
- * Regroupe les différentes actions de l'utilisateur
+ * Facade Regroupe les différentes actions de l'utilisateur
  */
 public class Facade {
 
@@ -26,15 +25,14 @@ public class Facade {
 	 * DAO de company
 	 */
 	private CompanyDAO companyDAO;
-	
+
 	/**
 	 * DAO de computer
 	 */
 	private ComputerDAO computerDAO;
-	
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Facade.class);
-	
+
 	/**
 	 * Constructeur qui récupère les différentes DAO
 	 */
@@ -43,32 +41,34 @@ public class Facade {
 			this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
 			this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
 		} catch (NoDAOException | NoFactoryException e) {
-			logger.debug("DAO exception: "+ e);
+			logger.debug("DAO exception: " + e);
 		}
 	}
-	
+
 	/**
 	 * Récupère la liste des computer
+	 * 
 	 * @return La liste des computer
 	 */
 	public Page<Computer> getComputers(int page) {
 		try {
 			return computerDAO.findAll(page);
 		} catch (SQLException e) {
-			logger.debug("FIND ALL COMPUTERS: "+ e);
+			logger.debug("FIND ALL COMPUTERS: " + e);
 		}
 		return null;
 	}
 
 	/**
 	 * Récupère la liste des company
+	 * 
 	 * @return La liste des company
 	 */
 	public Page<Company> getCompanies(int page) {
 		try {
 			return companyDAO.findAll(page);
 		} catch (SQLException e) {
-			logger.debug("FIND ALL COMPANIES: "+ e);
+			logger.debug("FIND ALL COMPANIES: " + e);
 		}
 		return null;
 	}
@@ -77,67 +77,88 @@ public class Facade {
 		try {
 			return companyDAO.findById(id);
 		} catch (SQLException e) {
-			logger.debug("GET COMPANY "+ id +": "+ e);
+			logger.debug("GET COMPANY " + id + ": " + e);
 		}
 		return null;
 	}
-	
-	
+
 	/**
 	 * Récupère un computer spécifique
-	 * @param id l'id du computer à chercher
+	 * 
+	 * @param id
+	 *            l'id du computer à chercher
 	 */
 	public Computer getComputerDetails(int id) {
 		try {
 			return computerDAO.findById(id);
 		} catch (SQLException e) {
-			logger.debug("GET COMPUTER "+ id +": "+ e);
+			logger.debug("GET COMPUTER " + id + ": " + e);
 		}
 		return null;
 	}
 
 	/**
 	 * Crée un computer
-	 * @param computer le computer à créer
+	 * 
+	 * @param computer
+	 *            le computer à créer
 	 */
 	public void createComputer(Computer computer) {
 		try {
-			if(computer != null) {
+			if (computer != null) {
 				computerDAO.add(computer);
-			}else {
+			} else {
 				logger.info("COMPUTER NULL");
 			}
 		} catch (SQLException e) {
-			logger.debug("CREATE COMPUTER "+ computer.getId() +": "+ e);
+			logger.debug("CREATE COMPUTER " + computer.getId() + ": " + e);
 		}
 	}
 
 	/**
 	 * Modifie un computer
-	 * @param computer les nouvelles informations du computer à modifier
+	 * 
+	 * @param computer
+	 *            les nouvelles informations du computer à modifier
 	 */
 	public void updateComputer(Computer computer) {
 		try {
-			if(computer != null) {
+			if (computer != null) {
 				computerDAO.update(computer);
-			}else {
+			} else {
 				logger.info("COMPUTER NULL");
 			}
 		} catch (SQLException e) {
-			logger.debug("UPDATE COMPUTER "+ computer.getId() +": "+ e);
+			logger.debug("UPDATE COMPUTER " + computer.getId() + ": " + e);
 		}
 	}
 
 	/**
 	 * Supprime un computer
-	 * @param id l'id du computer à supprimer
+	 * 
+	 * @param id
+	 *            l'id du computer à supprimer
 	 */
 	public void deleteCompute(int id) {
 		try {
 			computerDAO.delete(id);
 		} catch (SQLException e) {
-			logger.debug("DELETE COMPUTER "+ id +": "+ e);
+			logger.debug("DELETE COMPUTER " + id + ": " + e);
 		}
+	}
+
+	public String getMaxPage(DAOType type) {
+		try {
+			switch (type) {
+			case COMPUTER:
+				return computerDAO.getMaxPage() + "";
+			case COMPANY:
+				return companyDAO.getMaxPage() + "";
+			}
+		} catch (Exception e) {
+			logger.warn("MAX PAGE: " + e);
+		}
+		return null;
 	}
 
 }

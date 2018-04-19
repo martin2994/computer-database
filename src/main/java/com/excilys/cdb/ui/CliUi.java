@@ -3,12 +3,14 @@ package main.java.com.excilys.cdb.ui;
 import java.util.Scanner;
 
 import main.java.com.excilys.cdb.controller.CDBController;
+import main.java.com.excilys.cdb.enums.CompanyChoice;
 import main.java.com.excilys.cdb.enums.ComputerChoice;
+import main.java.com.excilys.cdb.enums.DAOType;
 import main.java.com.excilys.cdb.enums.MenuChoice;
-import main.java.com.excilys.cdb.enums.PageChoice;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
+
 /**
  * Interface utilisateur CLI Regroupe toutes les fonctions d'affichage
  *
@@ -40,17 +42,12 @@ public class CliUi {
 	 * La page actuelle de l'utilisateur
 	 */
 	private String currentPage = "0";
-	
-	/**
-	 * Le nombre maximum de page
-	 */
-	private String maxPage;
-	
+
 	/**
 	 * Controleur
 	 */
 	private CDBController controller;
-	
+
 	/**
 	 * Constructeur pour attribuer le controler, le scanner et message d'arrivé
 	 * 
@@ -74,7 +71,7 @@ public class CliUi {
 	public void goToMenu() {
 		while (whileMenu) {
 			System.out.println("#############");
-			System.out.println("###ACTIONS###");
+			System.out.println("####MENU####");
 			System.out.println("#############");
 			System.out.println();
 			System.out.println(MenuChoice.LISTCOMPUTER);
@@ -109,14 +106,12 @@ public class CliUi {
 	 */
 	public void showListComputers(Page<Computer> computers) {
 		System.out.println("###############");
-		System.out.println("#COMPUTER LIST#");
+		System.out.println("#COMPUTER MENU#");
 		System.out.println("###############");
 		System.out.println();
 		for (Computer computer : computers.getResults()) {
 			System.out.println(computer);
 		}
-		System.out.println();
-		System.out.println("###############");
 		System.out.println();
 		while (computerWhile) {
 			System.out.println("#############");
@@ -135,7 +130,7 @@ public class CliUi {
 			} while (input == null);
 			switch (input) {
 			case SELECTPAGE:
-				String page = selectPage();
+				String page = selectPage(DAOType.COMPUTER);
 				currentPage = page;
 				Page<Computer> new_page = controller.getComputers(currentPage);
 				showListComputers(new_page);
@@ -153,6 +148,7 @@ public class CliUi {
 				showDetailsComputer();
 				break;
 			case BACKMENU:
+				currentPage = "0";
 				goToMenu();
 			default:
 				computerWhile = false;
@@ -161,8 +157,14 @@ public class CliUi {
 		}
 	}
 
-	private String selectPage() {
-		System.out.println("Your page: "+currentPage);
+	/**
+	 * Affiche la page max et courante
+	 * @param type le type d'objet voulu
+	 * @return la page sélectionnée 
+	 */
+	private String selectPage(DAOType type) {
+		System.out.println("Your page: " + currentPage);
+		System.out.println("Max page: " + controller.getMaxPage(type));
 		String page;
 		do {
 			page = scanner.nextLine();
@@ -179,29 +181,28 @@ public class CliUi {
 	public void showListCompanies(Page<Company> companies) {
 		while (whileMenu) {
 			System.out.println("###############");
-			System.out.println("#COMPANY LIST#");
+			System.out.println("#COMPANY MENU#");
 			System.out.println("###############");
 			System.out.println();
 			for (Company company : companies.getResults()) {
 				System.out.println(company);
 			}
 			System.out.println();
-			System.out.println("###############");
-			System.out.println();
-			System.out.println(PageChoice.SELECTPAGE);
-			System.out.println(PageChoice.BACK);
-			PageChoice input = null;
+			System.out.println(CompanyChoice.SELECTPAGE);
+			System.out.println(CompanyChoice.BACK);
+			CompanyChoice input = null;
 			do {
-				input = PageChoice.get(scanner.nextLine());
+				input = CompanyChoice.get(scanner.nextLine());
 			} while (input == null);
 			switch (input) {
 			case SELECTPAGE:
-				String page = selectPage();
+				String page = selectPage(DAOType.COMPANY);
 				currentPage = page;
 				Page<Company> new_page = controller.getCompanies(currentPage);
 				showListCompanies(new_page);
 				break;
 			case BACK:
+				currentPage = "0";
 				goToMenu();
 			default:
 				companyWhile = false;
