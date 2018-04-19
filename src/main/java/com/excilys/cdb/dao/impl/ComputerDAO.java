@@ -92,7 +92,14 @@ public class ComputerDAO implements DAO<Computer> {
 				company = null;
 			}
 			Computer computer = new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")),company);
+			 /**
+			  * Computer computer = new Computer.Builder(rs.getString("computer.name"))
+					.id(rs.getInt("computer.id"))
+					.introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
+					.discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
+					.manufacturer(company).build();
 			 
+			  */
 			computers.add(computer);
 		}
 		rs.close();

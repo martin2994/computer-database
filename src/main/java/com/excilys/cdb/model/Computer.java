@@ -14,6 +14,48 @@ public class Computer {
 	private LocalDate discontinued;
 	private Company manufacturer;
 	
+	/*public static class Builder {
+		
+		private final String name;
+		private long id;
+		private LocalDate introduced;
+		private LocalDate discontinued;
+		private Company manufacturer;
+		
+		public Builder(String name) {
+			this.name = name;
+		}
+		
+		public Builder introduced(LocalDate value) {
+			introduced = value;
+			return this;
+		}
+		public Builder discontinued(LocalDate value) {
+			discontinued = value;
+			return this;
+		}
+		public Builder manufacturer(Company value) {
+			manufacturer = value;
+			return this;
+		}
+		public Builder id(long value) {
+			id = value;
+			return this;
+		}
+		
+		public Computer build() {
+			return new Computer(this);
+		}
+	}
+	
+	private Computer(Builder builder) {
+		this.id = builder.id;
+		this.name = builder.name;
+		this.introduced = builder.introduced;
+		this.discontinued = builder.discontinued;
+		this.manufacturer = builder.manufacturer;
+	}*/
+	
 	public Computer() {}
 	
 	public Computer(long id, String name, LocalDate introduced, LocalDate discontinued, Company manufacturer) {

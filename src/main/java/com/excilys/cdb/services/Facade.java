@@ -39,7 +39,7 @@ public class Facade {
 	 * le singleton
 	 */
 	private static Facade facade;
-	
+
 	/**
 	 * Constructeur qui récupère les différentes DAO
 	 */
@@ -59,9 +59,9 @@ public class Facade {
 	 */
 	public Page<Computer> getComputers(int page) {
 		try {
-			if(page >= 0) {
+			if (page >= 0) {
 				return computerDAO.findAll(page);
-			}else {
+			} else {
 				logger.info("INVALID COMPUTER PAGE");
 			}
 		} catch (SQLException e) {
@@ -77,9 +77,9 @@ public class Facade {
 	 */
 	public Page<Company> getCompanies(int page) {
 		try {
-			if(page>=0) {
+			if (page >= 0) {
 				return companyDAO.findAll(page);
-			}else {
+			} else {
 				logger.info("INVALID COMPANY PAGE");
 			}
 		} catch (SQLException e) {
@@ -90,9 +90,9 @@ public class Facade {
 
 	public Company getCompany(int id) {
 		try {
-			if(id > 0) {
+			if (id > 0) {
 				return companyDAO.findById(id);
-			}else {
+			} else {
 				logger.info("INVALID COMPANY ID FOR DETAILS");
 			}
 		} catch (SQLException e) {
@@ -109,9 +109,9 @@ public class Facade {
 	 */
 	public Computer getComputerDetails(int id) {
 		try {
-			if(id > 0) {
+			if (id > 0) {
 				return computerDAO.findById(id);
-			}else {
+			} else {
 				logger.info("INVALID COMPUTER ID FOR DETAILS");
 			}
 		} catch (SQLException e) {
@@ -128,7 +128,13 @@ public class Facade {
 	 */
 	public int createComputer(Computer computer) {
 		try {
-			if (computer.getIntroduced().isAfter(computer.getDiscontinued()) && computer != null) {
+			if (computer != null) {
+				if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+					if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+						logger.info("INVALID DATE COMPUTER FOR CREATE");
+						return 0;
+					}
+				}
 				return computerDAO.add(computer);
 			} else {
 				logger.info("INVALID COMPUTER FOR CREATE");
@@ -147,7 +153,13 @@ public class Facade {
 	 */
 	public Computer updateComputer(Computer computer) {
 		try {
-			if (computer.getIntroduced().isAfter(computer.getDiscontinued()) && computer != null) {
+			if (computer != null) {
+				if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+					if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+						logger.info("INVALID DATE COMPUTER FOR UPDATE");
+						return null;
+					}
+				}
 				return computerDAO.update(computer);
 			} else {
 				logger.info("INVALID COMPUTER FOR UPDATE");
@@ -166,9 +178,9 @@ public class Facade {
 	 */
 	public void deleteCompute(int id) {
 		try {
-			if( id > 0) {
+			if (id > 0) {
 				computerDAO.delete(id);
-			}else {
+			} else {
 				logger.info("INVALID COMPUTER ID FOR DELETE");
 			}
 		} catch (SQLException e) {
@@ -176,9 +188,8 @@ public class Facade {
 		}
 	}
 
-	
 	public static Facade getInstance() {
-		if( facade == null) {
+		if (facade == null) {
 			facade = new Facade();
 		}
 		return facade;
