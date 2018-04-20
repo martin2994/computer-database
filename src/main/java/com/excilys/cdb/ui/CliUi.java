@@ -11,6 +11,8 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
+import java.util.Scanner;
+
 /**
  * Interface utilisateur CLI Regroupe toutes les fonctions d'affichage
  *

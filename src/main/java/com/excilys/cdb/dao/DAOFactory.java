@@ -45,7 +45,6 @@ public class DAOFactory {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-
 			input = getClass().getClassLoader().getResourceAsStream("config.properties");
 			prop.load(input);
 			String database = prop.getProperty("database");

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
-
+import java.sql.SQLException;
 /**
  * Interface regroupant toutes les transactions sur la BD
  * 

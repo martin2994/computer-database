@@ -1,5 +1,4 @@
 package com.excilys.cdb.enums;
-
 /**
  * Enum pour la gestion des choix dans le menu des company
  *

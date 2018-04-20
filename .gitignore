@@ -19,10 +19,18 @@ local.properties
 .classpath
 .settings/
 .loadpath
+<<<<<<< HEAD
+=======
+.properties
+>>>>>>> 3d94e68f9876b64e9d9def48b15264bd513b2ae1
 
 # External tool builders
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+<<<<<<< HEAD
 /bin/
+=======
+/bin/
+>>>>>>> 3d94e68f9876b64e9d9def48b15264bd513b2ae1
