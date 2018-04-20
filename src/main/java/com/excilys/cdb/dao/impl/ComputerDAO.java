@@ -91,15 +91,13 @@ public class ComputerDAO implements DAO<Computer> {
 			}else {
 				company = null;
 			}
-			Computer computer = new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")),company);
-			 /**
-			  * Computer computer = new Computer.Builder(rs.getString("computer.name"))
+			Computer computer = new Computer.Builder(rs.getString("computer.name"))
 					.id(rs.getInt("computer.id"))
 					.introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
 					.discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
 					.manufacturer(company).build();
 			 
-			  */
+			 
 			computers.add(computer);
 		}
 		rs.close();
@@ -122,7 +120,12 @@ public class ComputerDAO implements DAO<Computer> {
 		Computer computer = null;
 		if (rs.next()) {
 			Company company = new Company(rs.getInt("company.id"),rs.getString("company.name"));
-			computer = new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")),DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")),company);
+			computer = new Computer.Builder(rs.getString("computer.name"))
+						.id(rs.getInt("computer.id"))
+						.introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
+						.discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
+						.manufacturer(company).build();
+				 
 		}
 		return computer;
 	}

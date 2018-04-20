@@ -58,6 +58,9 @@ public class Company {
 	
 	@Override
 	public String toString() {
+		if(id == 0) {
+			return null;
+		}
 		return "Company [id=" + id + ", name=" + name + "]";
 	}
 	

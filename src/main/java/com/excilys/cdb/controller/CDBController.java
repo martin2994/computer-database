@@ -73,9 +73,19 @@ public class CDBController {
 	 * @return le computer avec les nouvelles informations
 	 */
 	public Computer fillComputer(Computer computer, String name, String intro, String disco, String company_id) {
-		Computer newComputer = computer;
-		if (!name.equals(""))
-			newComputer.setName(name);
+		String new_name = null;
+		if (!name.equals("")) {
+			new_name = name;
+		}else {
+			return null;
+		}
+		Computer newComputer = null;
+		if(computer != null) {
+			newComputer = computer;
+			newComputer.setName(new_name);
+		}else {
+			newComputer = new Computer.Builder(new_name).build();
+		}
 		LocalDate introD = null, discoD = null;
 		if (!intro.equals("")) {
 			introD = LocalDate.parse(intro);
@@ -161,8 +171,7 @@ public class CDBController {
 	 * @return booleen de création ou non du computer
 	 */
 	public int createComputer(String name, String intro, String disco, String company_id) {
-		Computer computer = new Computer();
-		Computer newComputer = fillComputer(computer, name, intro, disco, company_id);
+		Computer newComputer = fillComputer(null, name, intro, disco, company_id);
 		if (null != newComputer) {
 			return facade.createComputer(newComputer);
 		}

@@ -128,17 +128,22 @@ public class Facade {
 	 */
 	public int createComputer(Computer computer) {
 		try {
-			if (computer != null) {
-				if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
-					if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
-						logger.info("INVALID DATE COMPUTER FOR CREATE");
-						return 0;
-					}
-				}
-				return computerDAO.add(computer);
-			} else {
+			if (computer == null) {
 				logger.info("INVALID COMPUTER FOR CREATE");
+				return 0;
 			}
+			if (computer.getName() == null) {
+				logger.info("INVALID NAME FOR CREATE");
+				return 0;
+			}
+			if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+				if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+					logger.info("INVALID DATE COMPUTER FOR CREATE");
+					return 0;
+				}
+			}
+			return computerDAO.add(computer);
+
 		} catch (SQLException e) {
 			logger.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
 		}
@@ -153,17 +158,22 @@ public class Facade {
 	 */
 	public Computer updateComputer(Computer computer) {
 		try {
-			if (computer != null) {
-				if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
-					if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
-						logger.info("INVALID DATE COMPUTER FOR UPDATE");
-						return null;
-					}
-				}
-				return computerDAO.update(computer);
-			} else {
+			if (computer == null) {
 				logger.info("INVALID COMPUTER FOR UPDATE");
+				return null;
 			}
+			if (computer.getName() == null) {
+				logger.info("INVALID NAME FOR UPDATE");
+				return null;
+			}
+			if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+				if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+					logger.info("INVALID DATE COMPUTER FOR UPDATE");
+					return null;
+				}
+			}
+			return computerDAO.update(computer);
+
 		} catch (SQLException e) {
 			logger.debug("UPDATE COMPUTER " + computer.getId() + ": " + e.getMessage());
 		}
