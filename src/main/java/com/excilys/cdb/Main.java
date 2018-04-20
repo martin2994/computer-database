@@ -6,7 +6,7 @@ import main.java.com.excilys.cdb.ui.CliUi;
 
 public class Main {
 	public static void main(String[] args) {
-			Facade facade = new Facade();
+			Facade facade = Facade.getInstance();
 			CDBController cdbController = new CDBController(facade);
 			CliUi cliUi = new CliUi(cdbController);
 	}

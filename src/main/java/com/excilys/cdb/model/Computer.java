@@ -1,6 +1,6 @@
 package main.java.com.excilys.cdb.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Objet du modèle Computer
@@ -8,29 +8,60 @@ import java.util.Date;
  */
 public class Computer {
 
-	private int id;
+	private long id;
 	private String name;
-	private Date introduced;
-	private Date discontinued;
+	private LocalDate introduced;
+	private LocalDate discontinued;
 	private Company manufacturer;
 	
-	public Computer() {}
-	
-	public Computer(int id, String name, Date introduced, Date discontinued, Company manufacturer) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.manufacturer = manufacturer;
+	/**
+	 * Builder pour Computer
+	 *
+	 */
+	public static class Builder {
+		
+		private final String name;
+		private long id;
+		private LocalDate introduced;
+		private LocalDate discontinued;
+		private Company manufacturer;
+		
+		public Builder(String name) {
+			this.name = name;
+		}
+		
+		public Builder introduced(LocalDate value) {
+			introduced = value;
+			return this;
+		}
+		public Builder discontinued(LocalDate value) {
+			discontinued = value;
+			return this;
+		}
+		public Builder manufacturer(Company value) {
+			manufacturer = value;
+			return this;
+		}
+		public Builder id(long value) {
+			id = value;
+			return this;
+		}
+		
+		public Computer build() {
+			return new Computer(this);
+		}
 	}
-
-	public Computer(String name, Date introduced, Date discontinued, Company manufacturer) {
-		super();
-		this.name = name;
-		this.introduced = introduced;
-		this.discontinued = discontinued;
-		this.manufacturer = manufacturer;
+	
+	private Computer(Builder builder) {
+		this.id = builder.id;
+		this.name = builder.name;
+		this.introduced = builder.introduced;
+		this.discontinued = builder.discontinued;
+		this.manufacturer = builder.manufacturer;
+	}
+	
+	public Computer() {
+		
 	}
 
 	public Computer(String name) {
@@ -38,10 +69,10 @@ public class Computer {
 		this.name = name;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public String getName() {
@@ -50,16 +81,16 @@ public class Computer {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Date getIntroduced() {
+	public LocalDate getIntroduced() {
 		return introduced;
 	}
-	public void setIntroduced(Date introduced) {
+	public void setIntroduced(LocalDate introduced) {
 		this.introduced = introduced;
 	}
-	public Date getDiscontinued() {
+	public LocalDate getDiscontinued() {
 		return discontinued;
 	}
-	public void setDiscontinued(Date discontinued) {
+	public void setDiscontinued(LocalDate discontinued) {
 		this.discontinued = discontinued;
 	}
 	public Company getManufacturer() {
@@ -69,12 +100,14 @@ public class Computer {
 		this.manufacturer = manufacturer;
 	}
 	
+	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-		result = prime * result + id;
+		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
 		result = prime * result + ((manufacturer == null) ? 0 : manufacturer.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -96,6 +129,21 @@ public class Computer {
 		} else if (!discontinued.equals(other.discontinued))
 			return false;
 		if (id != other.id)
+			return false;
+		if (introduced == null) {
+			if (other.introduced != null)
+				return false;
+		} else if (!introduced.equals(other.introduced))
+			return false;
+		if (manufacturer == null) {
+			if (other.manufacturer != null)
+				return false;
+		} else if (!manufacturer.equals(other.manufacturer))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}

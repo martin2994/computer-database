@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import main.java.com.excilys.cdb.dao.CompanyDAO;
-import main.java.com.excilys.cdb.dao.ComputerDAO;
 import main.java.com.excilys.cdb.dao.DAOFactory;
+import main.java.com.excilys.cdb.dao.impl.CompanyDAO;
+import main.java.com.excilys.cdb.dao.impl.ComputerDAO;
 import main.java.com.excilys.cdb.enums.DAOType;
 import main.java.com.excilys.cdb.exceptions.NoDAOException;
 import main.java.com.excilys.cdb.exceptions.NoFactoryException;
@@ -30,17 +30,25 @@ public class Facade {
 	 */
 	private ComputerDAO computerDAO;
 
+	/**
+	 * logger
+	 */
 	private static final Logger logger = LoggerFactory.getLogger(Facade.class);
+
+	/**
+	 * le singleton
+	 */
+	private static Facade facade;
 
 	/**
 	 * Constructeur qui récupère les différentes DAO
 	 */
-	public Facade() {
+	private Facade() {
 		try {
 			this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
 			this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
 		} catch (NoDAOException | NoFactoryException e) {
-			logger.debug("DAO exception: " + e);
+			logger.debug("DAO exception: " + e.getMessage());
 		}
 	}
 
@@ -51,9 +59,13 @@ public class Facade {
 	 */
 	public Page<Computer> getComputers(int page) {
 		try {
-			return computerDAO.findAll(page);
+			if (page >= 0) {
+				return computerDAO.findAll(page);
+			} else {
+				logger.info("INVALID COMPUTER PAGE");
+			}
 		} catch (SQLException e) {
-			logger.debug("FIND ALL COMPUTERS: " + e);
+			logger.debug("FIND ALL COMPUTERS: " + e.getMessage());
 		}
 		return null;
 	}
@@ -65,18 +77,26 @@ public class Facade {
 	 */
 	public Page<Company> getCompanies(int page) {
 		try {
-			return companyDAO.findAll(page);
+			if (page >= 0) {
+				return companyDAO.findAll(page);
+			} else {
+				logger.info("INVALID COMPANY PAGE");
+			}
 		} catch (SQLException e) {
-			logger.debug("FIND ALL COMPANIES: " + e);
+			logger.debug("FIND ALL COMPANIES: " + e.getMessage());
 		}
 		return null;
 	}
 
 	public Company getCompany(int id) {
 		try {
-			return companyDAO.findById(id);
+			if (id > 0) {
+				return companyDAO.findById(id);
+			} else {
+				logger.info("INVALID COMPANY ID FOR DETAILS");
+			}
 		} catch (SQLException e) {
-			logger.debug("GET COMPANY " + id + ": " + e);
+			logger.debug("GET COMPANY " + id + ": " + e.getMessage());
 		}
 		return null;
 	}
@@ -89,9 +109,13 @@ public class Facade {
 	 */
 	public Computer getComputerDetails(int id) {
 		try {
-			return computerDAO.findById(id);
+			if (id > 0) {
+				return computerDAO.findById(id);
+			} else {
+				logger.info("INVALID COMPUTER ID FOR DETAILS");
+			}
 		} catch (SQLException e) {
-			logger.debug("GET COMPUTER " + id + ": " + e);
+			logger.debug("GET COMPUTER " + id + ": " + e.getMessage());
 		}
 		return null;
 	}
@@ -102,16 +126,28 @@ public class Facade {
 	 * @param computer
 	 *            le computer à créer
 	 */
-	public void createComputer(Computer computer) {
+	public int createComputer(Computer computer) {
 		try {
-			if (computer != null) {
-				computerDAO.add(computer);
-			} else {
-				logger.info("COMPUTER NULL");
+			if (computer == null) {
+				logger.info("INVALID COMPUTER FOR CREATE");
+				return 0;
 			}
+			if (computer.getName() == null) {
+				logger.info("INVALID NAME FOR CREATE");
+				return 0;
+			}
+			if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+				if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+					logger.info("INVALID DATE COMPUTER FOR CREATE");
+					return 0;
+				}
+			}
+			return computerDAO.add(computer);
+
 		} catch (SQLException e) {
-			logger.debug("CREATE COMPUTER " + computer.getId() + ": " + e);
+			logger.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
 		}
+		return 0;
 	}
 
 	/**
@@ -120,16 +156,28 @@ public class Facade {
 	 * @param computer
 	 *            les nouvelles informations du computer à modifier
 	 */
-	public void updateComputer(Computer computer) {
+	public Computer updateComputer(Computer computer) {
 		try {
-			if (computer != null) {
-				computerDAO.update(computer);
-			} else {
-				logger.info("COMPUTER NULL");
+			if (computer == null) {
+				logger.info("INVALID COMPUTER FOR UPDATE");
+				return null;
 			}
+			if (computer.getName() == null) {
+				logger.info("INVALID NAME FOR UPDATE");
+				return null;
+			}
+			if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
+				if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
+					logger.info("INVALID DATE COMPUTER FOR UPDATE");
+					return null;
+				}
+			}
+			return computerDAO.update(computer);
+
 		} catch (SQLException e) {
-			logger.debug("UPDATE COMPUTER " + computer.getId() + ": " + e);
+			logger.debug("UPDATE COMPUTER " + computer.getId() + ": " + e.getMessage());
 		}
+		return null;
 	}
 
 	/**
@@ -140,24 +188,21 @@ public class Facade {
 	 */
 	public void deleteCompute(int id) {
 		try {
-			computerDAO.delete(id);
+			if (id > 0) {
+				computerDAO.delete(id);
+			} else {
+				logger.info("INVALID COMPUTER ID FOR DELETE");
+			}
 		} catch (SQLException e) {
-			logger.debug("DELETE COMPUTER " + id + ": " + e);
+			logger.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
 		}
 	}
 
-	public String getMaxPage(DAOType type) {
-		try {
-			switch (type) {
-			case COMPUTER:
-				return computerDAO.getMaxPage() + "";
-			case COMPANY:
-				return companyDAO.getMaxPage() + "";
-			}
-		} catch (Exception e) {
-			logger.warn("MAX PAGE: " + e);
+	public static Facade getInstance() {
+		if (facade == null) {
+			facade = new Facade();
 		}
-		return null;
+		return facade;
 	}
 
 }

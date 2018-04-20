@@ -20,12 +20,21 @@ public class Page<T> {
 	 * le nombre d'objet par page
 	 */
 	public final static int resultsPerPage = 5;
+	
+	private int currentPage;
+	
+	private int maxPage;
 
 	/**
 	 * constructeur qui initialise la liste
 	 */
 	public Page() {
 		results = new ArrayList<>();
+	}
+	
+	public Page(int currentPage,int maxPage) {
+		this.currentPage = currentPage;
+		this.maxPage = maxPage;
 	}
 
 	public List<T> getResults() {
@@ -34,6 +43,22 @@ public class Page<T> {
 
 	public void setResults(List<T> results) {
 		this.results = results;
+	}
+	
+	public int getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(int currentPage) {
+		this.currentPage = currentPage;
+	}
+
+	public int getMaxPage() {
+		return maxPage;
+	}
+
+	public void setMaxPage(int maxPage) {
+		this.maxPage = maxPage;
 	}
 
 	/**

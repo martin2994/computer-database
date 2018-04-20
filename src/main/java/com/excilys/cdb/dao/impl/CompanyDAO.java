@@ -1,4 +1,4 @@
-package main.java.com.excilys.cdb.dao;
+package main.java.com.excilys.cdb.dao.impl;
 
 import java.sql.Connection;
 
@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import main.java.com.excilys.cdb.dao.DAO;
 import main.java.com.excilys.cdb.model.Company;
+import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
 
 /**
@@ -40,12 +42,17 @@ public class CompanyDAO implements DAO<Company> {
 	private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
 	
 	/**
+	 * le singleton
+	 */
+	private static CompanyDAO companyDAO;
+	
+	/**
 	 * Constructeur pour initialiser la connexion
 	 * 
 	 * @param connection
 	 *            La connexion en cours
 	 */
-	public CompanyDAO(Connection connection) {
+	private CompanyDAO(Connection connection) {
 		this.connection = connection;
 	}
 
@@ -64,6 +71,10 @@ public class CompanyDAO implements DAO<Company> {
 		while (rs.next()) {
 			companies.add(new Company(rs.getInt("id"), rs.getString("name")));
 		}
+		rs.close();
+		statement.close();
+		companies.setCurrentPage(page);
+		companies.setMaxPage(getMaxPage());
 		return companies;
 	}
 
@@ -99,7 +110,8 @@ public class CompanyDAO implements DAO<Company> {
 	}
 
 	@Override
-	public void add(Company t) {
+	public int add(Company t) {
+		return 0;
 	}
 
 	@Override
@@ -107,7 +119,20 @@ public class CompanyDAO implements DAO<Company> {
 	}
 
 	@Override
-	public void update(Company t) {
+	public Computer update(Company t) {
+		return null;
+	}
+	
+	/**
+	 * Récupère le singleton de companyDao
+	 * @param connection la connexion à la BD
+	 * @return le singleton
+	 */
+	public static CompanyDAO getInstance(Connection connection) {
+		if(companyDAO == null) {
+			companyDAO = new CompanyDAO(connection);
+		}
+		return companyDAO;
 	}
 
 }

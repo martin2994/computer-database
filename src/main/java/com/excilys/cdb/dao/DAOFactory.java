@@ -10,6 +10,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import main.java.com.excilys.cdb.dao.impl.CompanyDAO;
+import main.java.com.excilys.cdb.dao.impl.ComputerDAO;
 import main.java.com.excilys.cdb.enums.DAOType;
 import main.java.com.excilys.cdb.exceptions.NoDAOException;
 import main.java.com.excilys.cdb.exceptions.NoFactoryException;
@@ -28,11 +30,7 @@ public class DAOFactory {
 	 * Singleton de la fabrique
 	 */
 	private static DAOFactory factory;
-
-	/**
-	 * Construction qui créé la connexion entre la BD et l'application
-	 */
-
+	
 	/**
 	 * logger
 	 */
@@ -46,7 +44,6 @@ public class DAOFactory {
 	private DAOFactory() {
 		Properties prop = new Properties();
 		InputStream input = null;
-
 		try {
 
 			input = getClass().getClassLoader().getResourceAsStream("main/resources/config.properties");
@@ -55,7 +52,6 @@ public class DAOFactory {
 			String user = prop.getProperty("dbuser");
 			String password = prop.getProperty("dbpassword");
 			connection = DriverManager.getConnection(database, user, password);
-
 		} catch (IOException | SQLException e) {
 			logger.warn("PROBLEME DE CONNEXION A LA BD" + e);
 		} finally {
@@ -89,9 +85,9 @@ public class DAOFactory {
 		}
 		switch (type) {
 		case COMPANY:
-			return new CompanyDAO(connection);
+			return CompanyDAO.getInstance(connection);
 		case COMPUTER:
-			return new ComputerDAO(connection);
+			return ComputerDAO.getInstance(connection);
 		default:
 			throw new NoDAOException("impossible de trouver une DAO");
 		}

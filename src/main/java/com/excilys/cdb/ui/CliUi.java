@@ -41,19 +41,17 @@ public class CliUi {
 	/**
 	 * La page actuelle de l'utilisateur
 	 */
-	private String currentPage = "0";
+	private Page<?> currentPage;
 
 	/**
 	 * Controleur
 	 */
 	private CDBController controller;
 
-	
 	private final String R_NUMBER = "[0-9]+";
 	private final String R_TEXT = "[a-zA-Z-0-9]+";
 	private final String R_DATE = "^((18|19|20|21)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])";
-	
-	
+
 	/**
 	 * Constructeur pour attribuer le controler, le scanner et message d'arrivé
 	 * 
@@ -76,6 +74,7 @@ public class CliUi {
 	 */
 	public void goToMenu() {
 		while (whileMenu) {
+			currentPage = new Page<>();
 			System.out.println("#############");
 			System.out.println("####MENU####");
 			System.out.println("#############");
@@ -89,10 +88,10 @@ public class CliUi {
 			} while (input == null);
 			switch (input) {
 			case LISTCOMPUTER:
-				showListComputers(controller.getComputers(currentPage));
+				showListComputers(controller.getComputers(currentPage.getCurrentPage()));
 				break;
 			case LISTCOMPANY:
-				showListCompanies(controller.getCompanies(currentPage));
+				showListCompanies(controller.getCompanies(currentPage.getCurrentPage()));
 				break;
 			case QUIT:
 				goToEnd();
@@ -111,6 +110,7 @@ public class CliUi {
 	 *            la liste des computers
 	 */
 	public void showListComputers(Page<Computer> computers) {
+		currentPage = computers;
 		System.out.println("###############");
 		System.out.println("#COMPUTER MENU#");
 		System.out.println("###############");
@@ -118,6 +118,7 @@ public class CliUi {
 		for (Computer computer : computers.getResults()) {
 			System.out.println(computer);
 		}
+		System.out.println("Page " + computers.getCurrentPage() + "/" + computers.getMaxPage());
 		System.out.println();
 		while (computerWhile) {
 			System.out.println("#############");
@@ -136,9 +137,8 @@ public class CliUi {
 			} while (input == null);
 			switch (input) {
 			case SELECTPAGE:
-				String page = selectPage(DAOType.COMPUTER);
-				currentPage = page;
-				Page<Computer> new_page = controller.getComputers(currentPage);
+				int page = selectPage(DAOType.COMPUTER);
+				Page<Computer> new_page = controller.getComputers(page);
 				showListComputers(new_page);
 				break;
 			case CREATECOMPUTER:
@@ -154,7 +154,7 @@ public class CliUi {
 				showDetailsComputer();
 				break;
 			case BACKMENU:
-				currentPage = "0";
+				currentPage = null;
 				goToMenu();
 			default:
 				computerWhile = false;
@@ -165,17 +165,19 @@ public class CliUi {
 
 	/**
 	 * Affiche la page max et courante
-	 * @param type le type d'objet voulu
-	 * @return la page sélectionnée 
+	 * 
+	 * @param type
+	 *            le type d'objet voulu
+	 * @return la page sélectionnée
 	 */
-	private String selectPage(DAOType type) {
-		System.out.println("Your page: " + currentPage);
-		System.out.println("Max page: " + controller.getMaxPage(type));
+	private int selectPage(DAOType type) {
+		System.out.println("Your page: " + currentPage.getCurrentPage());
+		System.out.println("Max page: " + currentPage.getMaxPage());
 		String page;
 		do {
 			page = scanner.nextLine();
 		} while (!page.matches(R_NUMBER));
-		return page;
+		return Integer.parseInt(page);
 	}
 
 	/**
@@ -185,6 +187,7 @@ public class CliUi {
 	 *            la liste des company
 	 */
 	public void showListCompanies(Page<Company> companies) {
+		currentPage = companies;
 		while (companyWhile) {
 			System.out.println("###############");
 			System.out.println("#COMPANY MENU#");
@@ -193,6 +196,7 @@ public class CliUi {
 			for (Company company : companies.getResults()) {
 				System.out.println(company);
 			}
+			System.out.println("Page " + companies.getCurrentPage() + "/" + companies.getMaxPage());
 			System.out.println();
 			System.out.println(CompanyChoice.SELECTPAGE);
 			System.out.println(CompanyChoice.BACK);
@@ -202,13 +206,12 @@ public class CliUi {
 			} while (input == null);
 			switch (input) {
 			case SELECTPAGE:
-				String page = selectPage(DAOType.COMPANY);
-				currentPage = page;
-				Page<Company> new_page = controller.getCompanies(currentPage);
+				int page = selectPage(DAOType.COMPANY);
+				Page<Company> new_page = controller.getCompanies(page);
 				showListCompanies(new_page);
 				break;
 			case BACK:
-				currentPage = "0";
+				currentPage = null;
 				goToMenu();
 			default:
 				companyWhile = false;
@@ -244,28 +247,29 @@ public class CliUi {
 		System.out.println();
 		System.out.println("Tap ENTER if you don't want to specify this filed");
 		System.out.println("Name:");
-		String s, name, intro, disco, company_id;
+		String entry, name, intro, disco, company_id;
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_TEXT));
-		name = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_TEXT));
+		name = entry;
 		System.out.println("Introduced date:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_DATE) && !s.equals(""));
-		intro = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_DATE) && !entry.equals(""));
+		intro = entry;
 		System.out.println("Discontinued date:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_DATE) && !s.equals(""));
-		disco = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_DATE) && !entry.equals(""));
+		disco = entry;
 		System.out.println("Company id:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_NUMBER) && !s.equals(""));
-		company_id = s;
-		if (controller.createComputer(name, intro, disco, company_id)) {
-			System.out.println("CREATION EFFECTUEE");
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_NUMBER) && !entry.equals(""));
+		company_id = entry;
+		int new_id = controller.createComputer(name, intro, disco, company_id);
+		if (new_id > 0) {
+			System.out.println("CREATION EFFECTUEE DU COMPUTER " + new_id);
 		} else {
 			System.out.println("CREATION NON EFFECTUEE");
 		}
@@ -281,35 +285,35 @@ public class CliUi {
 		System.out.println();
 		System.out.println("Tap ENTER if you don't want to specify this filed");
 		System.out.println("Computer id:");
-		String s, computer_id, name, intro, disco, company_id;
+		String entry, computer_id, name, intro, disco, company_id;
 		do {
 			do {
-				s = scanner.nextLine();
-			} while (!s.matches(R_NUMBER));
-		} while (!controller.isComputer(s));
-		System.out.println("COMPUTER " + s);
-		System.out.println(controller.getComputerDetails(s));
-		computer_id = s;
+				entry = scanner.nextLine();
+			} while (!entry.matches(R_NUMBER));
+		} while (!controller.isComputer(entry));
+		System.out.println("COMPUTER " + entry);
+		System.out.println(controller.getComputerDetails(entry));
+		computer_id = entry;
 		System.out.println("Name:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_TEXT));
-		name = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_TEXT));
+		name = entry;
 		System.out.println("Introduced date:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_DATE) && !s.equals(""));
-		intro = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_DATE) && !entry.equals(""));
+		intro = entry;
 		System.out.println("Discontinued date:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_DATE) && !s.equals(""));
-		disco = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_DATE) && !entry.equals(""));
+		disco = entry;
 		System.out.println("Company id:");
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_NUMBER) && !s.equals(""));
-		company_id = s;
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_NUMBER) && !entry.equals(""));
+		company_id = entry;
 		if (controller.updateComputer(computer_id, name, intro, disco, company_id)) {
 			System.out.println("MISE A JOUR EFFECTUEE");
 		} else {
@@ -326,11 +330,11 @@ public class CliUi {
 		System.out.println("#################");
 		System.out.println();
 		System.out.println("Computer id:");
-		String s = null;
+		String entry = null;
 		do {
-			s = scanner.nextLine();
-		} while (!s.matches(R_NUMBER));
-		controller.deleteCompute(s);
+			entry = scanner.nextLine();
+		} while (!entry.matches(R_NUMBER));
+		controller.deleteCompute(entry);
 		System.out.println("SUPPRESION EFFECTUEE");
 	}
 

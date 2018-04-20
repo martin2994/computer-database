@@ -1,10 +1,14 @@
-package main.java.com.excilys.cdb.dao;
+package main.java.com.excilys.cdb.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 
+import main.java.com.excilys.cdb.dao.DAO;
+import main.java.com.excilys.cdb.mapper.DateMapper;
 import main.java.com.excilys.cdb.model.Company;
 import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
@@ -56,10 +60,15 @@ public class ComputerDAO implements DAO<Computer> {
 	private final String MAX_PAGE = "SELECT COUNT(id) FROM computer";
 	
 	/**
+	 * le singleton
+	 */
+	private static ComputerDAO computerDAO;
+	
+	/**
 	 * Constructeur pour initialiser la connexion
 	 * @param connection La connexion en cours
 	 */
-	public ComputerDAO(Connection connection) {
+	private ComputerDAO(Connection connection) {
 		this.connection = connection;
 	}
 
@@ -82,10 +91,19 @@ public class ComputerDAO implements DAO<Computer> {
 			}else {
 				company = null;
 			}
-			Computer computer = new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),rs.getDate("computer.introduced"),rs.getDate("computer.discontinued"),company);
+			Computer computer = new Computer.Builder(rs.getString("computer.name"))
+					.id(rs.getInt("computer.id"))
+					.introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
+					.discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
+					.manufacturer(company).build();
+			 
 			 
 			computers.add(computer);
 		}
+		rs.close();
+		statement.close();
+		computers.setCurrentPage(page);
+		computers.setMaxPage(getMaxPage());
 		return computers;
 	}
 
@@ -102,7 +120,12 @@ public class ComputerDAO implements DAO<Computer> {
 		Computer computer = null;
 		if (rs.next()) {
 			Company company = new Company(rs.getInt("company.id"),rs.getString("company.name"));
-			computer = new Computer(rs.getInt("computer.id"),rs.getString("computer.name"),rs.getDate("computer.introduced"),rs.getDate("computer.discontinued"),company);
+			computer = new Computer.Builder(rs.getString("computer.name"))
+						.id(rs.getInt("computer.id"))
+						.introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
+						.discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
+						.manufacturer(company).build();
+				 
 		}
 		return computer;
 	}
@@ -112,24 +135,29 @@ public class ComputerDAO implements DAO<Computer> {
 	 * @param computer, les informations du computer à ajouter
 	 */
 	@Override
-	public void add(Computer computer) throws SQLException {
-		statement = connection.prepareStatement(INSERT_COMPUTER);
+	public int add(Computer computer) throws SQLException {
+		statement = connection.prepareStatement(INSERT_COMPUTER,Statement.RETURN_GENERATED_KEYS);
 		statement.setString(1, computer.getName());
-		java.sql.Date d = null;
+		Timestamp date = null;
 		if(computer.getIntroduced() != null) {
-			d =  new java.sql.Date(computer.getIntroduced().getTime());
+			date =  DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
 		}
-		statement.setDate(2,d);
+		statement.setTimestamp(2,date);
 		if(computer.getDiscontinued() != null) {
-			d =  new java.sql.Date(computer.getDiscontinued().getTime());
+			date =  DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
 		}
-		statement.setDate(3,d);
+		statement.setTimestamp(3,date);
 		if(computer.getManufacturer() != null) {
-			statement.setInt(4, computer.getManufacturer().getId());
+			statement.setLong(4, computer.getManufacturer().getId());
 		}else {
 			statement.setObject(4, null);
 		}
 		statement.executeUpdate();
+		ResultSet resultSet = statement.getGeneratedKeys();
+		if(resultSet.next()) {
+			return resultSet.getInt(1);
+		}
+		return 0;
 	}
 
 	/**
@@ -148,25 +176,29 @@ public class ComputerDAO implements DAO<Computer> {
 	 * @param computer, les informations du computer à modifier
 	 */
 	@Override
-	public void update(Computer computer) throws SQLException {
+	public Computer update(Computer computer) throws SQLException {
 		statement = connection.prepareStatement(UPDATE_COMPUTER);
 		statement.setString(1, computer.getName());
-		java.sql.Date d = null;
+		Timestamp date = null;
 		if(computer.getIntroduced() != null) {
-			d =  new java.sql.Date(computer.getIntroduced().getTime());
+			date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
 		}
-		statement.setDate(2,d);
+		statement.setTimestamp(2,date);
 		if(computer.getDiscontinued() != null) {
-			d =  new java.sql.Date(computer.getDiscontinued().getTime());
+			date =  DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
 		}
-		statement.setDate(3,d);
+		statement.setTimestamp(3,date);
 		if(computer.getManufacturer() != null) {
-			statement.setInt(4, computer.getManufacturer().getId());
+			statement.setLong(4, computer.getManufacturer().getId());
 		}else {
 			statement.setObject(4,null);
 		}
-		statement.setInt(5, computer.getId());
-		statement.executeUpdate();
+		statement.setLong(5, computer.getId());
+		int result = statement.executeUpdate();
+		if( result == 1) {
+			return computer;
+		}
+		return null;
 	}
 	
 	/**
@@ -181,5 +213,18 @@ public class ComputerDAO implements DAO<Computer> {
 		}
 		return 0;
 	}
+	
+	/**
+	 * Récupère le singleton computerDAO
+	 * @param connection la connexion à la BD
+	 * @return le ComputerDAO
+	 */
+	public static ComputerDAO getInstance(Connection connection) {
+		if(computerDAO == null) {
+			computerDAO = new ComputerDAO(connection);
+		}
+		return computerDAO;
+	}
+	
 
 }

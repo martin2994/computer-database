@@ -2,6 +2,7 @@ package main.java.com.excilys.cdb.dao;
 
 import java.sql.SQLException;
 
+import main.java.com.excilys.cdb.model.Computer;
 import main.java.com.excilys.cdb.utils.Page;
 
 /**
@@ -10,6 +11,7 @@ import main.java.com.excilys.cdb.utils.Page;
  * @param <T> L'objet manipulé
  */
 public interface DAO<T> {
+	
 	/**
 	 * Récupère une page d'objet de la base
 	 * @param page le numéro de la page
@@ -29,9 +31,10 @@ public interface DAO<T> {
 	  /**
 	   * Ajoute une objet dans la base
 	   * @param t l'objet à ajouter
+	 * @return 
 	   * @throws SQLException Exception liée à la requete
 	   */
-	  void add(T t) throws SQLException;
+	  int add(T t) throws SQLException;
 	  
 	  /**
 	   * Supprime l'objet voulu
@@ -43,9 +46,10 @@ public interface DAO<T> {
 	  /**
 	   * Met à jour l'objet voulu
 	   * @param t l'objet contenant les nouvelles informations
+	 * @return 
 	   * @throws SQLException Exception liée à la requete
 	   */
-	  void update(T t) throws SQLException;
+	  Computer update(T t) throws SQLException;
 	  
 	  /**
 	   * Récupère le nombre de page maximum d'un table d'objet
