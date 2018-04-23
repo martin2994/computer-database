@@ -4,31 +4,33 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 
 public class DateMapper {
-    
+
     /**
-     * Convertit un Timestamp en une LocalDate
-     * @param time Timestamp a convertir
-     * @return LocalDate
+     * Convertit un Timestamp en une LocalDate.
+     * @param time
+     *            Timestamp à convertir
+     * @return LocalDate la date en LocalDate
      */
     public static LocalDate convertTimeStampToLocal(final Timestamp time) {
-        if(time != null) {
+        if (time != null) {
             return time.toLocalDateTime().toLocalDate();
         }
         return null;
-        
+
     }
-    
+
     /**
-     * Convertit une LocalDate en un Timestamp
-     * @param date LocalDate a convertir
-     * @return TimeStamp
+     * Convertit une LocalDate en un Timestamp.
+     * @param date
+     *            LocalDate à convertir
+     * @return TimeStamp la date en TimeStamp
      */
     public static Timestamp convertLocalDateToTimeStamp(final LocalDate date) {
-        if(date != null) {
+        if (date != null) {
             return Timestamp.valueOf(date.atStartOfDay());
         }
         return null;
-        
+
     }
 
 }

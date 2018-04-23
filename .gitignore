@@ -21,7 +21,8 @@ local.properties
 .loadpath
 <<<<<<< HEAD
 =======
-.properties
+*.properties
+.checkstyle
 >>>>>>> 3d94e68f9876b64e9d9def48b15264bd513b2ae1
 
 # External tool builders
