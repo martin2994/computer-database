@@ -3,6 +3,11 @@ package com.excilys.cdb.mapper;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
+/**
+ * Permet de transformer les dates Timestamp SQL en date LocalTime.
+ * @author martin
+ *
+ */
 public class DateMapper {
 
     /**
