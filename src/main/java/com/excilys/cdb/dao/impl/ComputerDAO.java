@@ -147,7 +147,7 @@ public class ComputerDAO implements DAO<Computer> {
      *
      */
     @Override
-    public int add(Computer computer) throws SQLException, NoObjectException {
+    public long add(Computer computer) throws SQLException, NoObjectException {
         if (computer != null) {
             statement = connection.prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, computer.getName());

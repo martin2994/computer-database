@@ -43,7 +43,7 @@ public interface DAO<T> {
      * @throws NoObjectException
      *             Exception lancée quand l'objet est null
      */
-    int add(T t) throws SQLException, NoObjectException;
+    long add(T t) throws SQLException, NoObjectException;
 
     /**
      * Supprime l'objet voulu.

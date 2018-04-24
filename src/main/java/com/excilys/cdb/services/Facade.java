@@ -135,7 +135,7 @@ public class Facade {
      *            le computer à créer
      * @return l'id du nouveau computer
      */
-    public int createComputer(Computer computer) {
+    public long createComputer(Computer computer) {
         try {
             if (computer == null) {
                 LOGGER.info("INVALID COMPUTER FOR CREATE");
@@ -184,12 +184,12 @@ public class Facade {
                 return null;
             }
             if (!computerDAO.isExist(computer.getId())) {
-                LOGGER.info("INVALID COMPUTER FOR CREATE");
+                LOGGER.info("INVALID COMPUTER FOR UPDATE");
                 return null;
             }
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
-                    LOGGER.info("INVALID COMPANY FOR CREATE");
+                    LOGGER.info("INVALID COMPANY FOR UPDATE");
                     return null;
                 }
             }
@@ -214,7 +214,7 @@ public class Facade {
      * @param id
      *            l'id du computer à supprimer
      */
-    public void deleteCompute(int id) {
+    public void deleteComputer(long id) {
         try {
             if (id > 0) {
                 computerDAO.delete(id);

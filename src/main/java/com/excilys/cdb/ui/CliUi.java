@@ -263,7 +263,7 @@ public class CliUi {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER) && !entry.equals(""));
         companyId = entry;
-        int newId = controller.createComputer(name, intro, disco, companyId);
+        long newId = controller.createComputer(name, intro, disco, companyId);
         if (newId > 0) {
             System.out.println("CREATION EFFECTUEE DU COMPUTER " + newId);
         } else {
@@ -330,7 +330,7 @@ public class CliUi {
         do {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER));
-        controller.deleteCompute(entry);
+        controller.deleteComputer(entry);
         System.out.println("SUPPRESION EFFECTUEE");
     }
 

@@ -53,8 +53,8 @@ public class CDBController {
      * @param id
      *            l'id du computer à supprimer
      */
-    public void deleteCompute(String id) {
-        facade.deleteCompute(Integer.parseInt(id));
+    public void deleteComputer(String id) {
+        facade.deleteComputer(Long.parseLong(id));
     }
 
     /**
@@ -166,7 +166,7 @@ public class CDBController {
      *            l'id de la company du computer
      * @return booleen de création ou non du computer
      */
-    public int createComputer(String name, String intro, String disco, String companyId) {
+    public long createComputer(String name, String intro, String disco, String companyId) {
         Computer newComputer = fillComputer(null, name, intro, disco, companyId);
         if (null != newComputer) {
             return facade.createComputer(newComputer);

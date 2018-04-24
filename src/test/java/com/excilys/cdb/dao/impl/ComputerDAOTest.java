@@ -1,6 +1,7 @@
 package com.excilys.cdb.dao.impl;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -62,8 +63,8 @@ public class ComputerDAOTest {
         Computer computer = computerDAO.findById(1L);
         assertTrue(computer.getName().equals("MacBook"));
         assertTrue(computer.getId() == 1L);
-        assertTrue(computer.getIntroduced() == null);
-        assertTrue(computer.getDiscontinued() == null);
+        assertNull(computer.getIntroduced());
+        assertNull(computer.getDiscontinued());
         assertTrue(computer.getManufacturer().getId() == 1L);
         assertTrue(computer.getManufacturer().getName().equals("Apple Inc."));
     }
@@ -76,7 +77,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindByIdBadId() throws SQLException {
         Computer computer = computerDAO.findById(-1L);
-        assertTrue(computer == null);
+        assertNull(computer);
     }
 
     /**
@@ -110,7 +111,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindAllPageInf() throws SQLException {
         Page<Computer> page = computerDAO.findAll(-1);
-        assertTrue(page == null);
+        assertNull(page);
     }
 
     /**
@@ -122,7 +123,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testAdd() throws SQLException, NoObjectException {
-        int id = computerDAO.add(computerTest);
+        long id = computerDAO.add(computerTest);
         assertTrue(id == 13);
     }
 
@@ -171,7 +172,7 @@ public class ComputerDAOTest {
     @Test
     public void testAddWithId() throws SQLException, NoObjectException {
         computerTest.setId(1L);
-        int id = computerDAO.add(computerTest);
+        long id = computerDAO.add(computerTest);
         assertTrue(id == 14);
     }
 
@@ -202,7 +203,7 @@ public class ComputerDAOTest {
         Computer computer = computerTest;
         computer.setId(700L);
         Computer computer2 = computerDAO.update(computer);
-        assertTrue(computer2 == null);
+        assertNull(computer2);
     }
 
     /**
@@ -249,7 +250,7 @@ public class ComputerDAOTest {
     public void testDelete() throws SQLException {
         computerDAO.delete(3L);
         Computer computer = computerDAO.findById(3L);
-        assertTrue(computer == null);
+        assertNull(computer);
     }
 
     /**
@@ -259,9 +260,9 @@ public class ComputerDAOTest {
      */
     @Test
     public void testDeleteNoComputer() throws SQLException {
-        computerDAO.delete(3L);
-        Computer computer = computerDAO.findById(3L);
-        assertTrue(computer == null);
+        computerDAO.delete(100L);
+        Computer computer = computerDAO.findById(100L);
+        assertNull(computer);
     }
 
     /**

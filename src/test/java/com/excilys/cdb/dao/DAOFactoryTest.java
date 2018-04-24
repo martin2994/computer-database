@@ -1,5 +1,6 @@
 package com.excilys.cdb.dao;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Rule;
@@ -28,7 +29,7 @@ public class DAOFactoryTest {
     public void testGetCompanyDAO() throws NoDAOException, NoFactoryException {
         CompanyDAO dao = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
         assertTrue(dao instanceof CompanyDAO);
-        assertTrue(dao != null);
+        assertNotNull(dao);
     }
 
     /**
@@ -42,7 +43,7 @@ public class DAOFactoryTest {
     public void testGetComputerDAO() throws NoDAOException, NoFactoryException {
         ComputerDAO dao = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
         assertTrue(dao instanceof ComputerDAO);
-        assertTrue(dao != null);
+        assertNotNull(dao);
     }
 
     /**

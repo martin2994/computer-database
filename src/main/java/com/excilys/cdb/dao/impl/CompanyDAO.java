@@ -115,7 +115,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public int add(Company t) {
+    public long add(Company t) {
         return 0;
     }
 

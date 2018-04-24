@@ -1,6 +1,7 @@
 package com.excilys.cdb.dao.impl;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
@@ -65,7 +66,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindByIdBadId() throws SQLException {
         Company company = companyDAO.findById(-1L);
-        assertTrue(company == null);
+        assertNull(company);
     }
 
     /**
@@ -99,7 +100,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindAllPageInf() throws SQLException {
         Page<Company> page = companyDAO.findAll(-1);
-        assertTrue(page == null);
+        assertNull(page);
     }
 
     /**
