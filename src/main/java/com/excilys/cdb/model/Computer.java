@@ -84,7 +84,10 @@ public class Computer {
          * @return le computer
          */
         public Computer build() {
-            return new Computer(this);
+            if (this.name != null) {
+                return new Computer(this);
+            }
+            return null;
         }
     }
 

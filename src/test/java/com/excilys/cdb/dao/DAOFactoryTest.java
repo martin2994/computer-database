@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
+import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.enums.DAOType;
 import com.excilys.cdb.exceptions.NoDAOException;
 import com.excilys.cdb.exceptions.NoFactoryException;
@@ -17,7 +18,7 @@ public class DAOFactoryTest {
     public final ExpectedException exception = ExpectedException.none();
 
     /**
-     * Test le cas normal de la fonction GetCompany.
+     * Test le cas normal de la fonction GetDAO pour Company.
      * @throws NoDAOException
      *             Exception lancée pour la DAO
      * @throws NoFactoryException
@@ -27,6 +28,21 @@ public class DAOFactoryTest {
     public void testGetCompanyDAO() throws NoDAOException, NoFactoryException {
         CompanyDAO dao = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
         assertTrue(dao instanceof CompanyDAO);
+        assertTrue(dao != null);
+    }
+
+    /**
+     * Test le cas normal de la fonction GetDAO pour Computer.
+     * @throws NoDAOException
+     *             Exception lancée pour la DAO
+     * @throws NoFactoryException
+     *             Exception lancée pour la fabrique
+     */
+    @Test
+    public void testGetComputerDAO() throws NoDAOException, NoFactoryException {
+        ComputerDAO dao = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
+        assertTrue(dao instanceof ComputerDAO);
+        assertTrue(dao != null);
     }
 
     /**

@@ -15,4 +15,13 @@ public class ComputerTest {
         assertTrue("test".equals(computer.getName()));
     }
 
+    /**
+     * Test la création d'un computer avec un nom null.
+     */
+    @Test
+    public void testCreateComputerNull() {
+        Computer computer = new Computer.Builder(null).build();
+        assertTrue(computer == null);
+    }
+
 }

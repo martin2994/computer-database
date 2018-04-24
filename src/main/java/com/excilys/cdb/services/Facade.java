@@ -11,6 +11,7 @@ import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.enums.DAOType;
 import com.excilys.cdb.exceptions.NoDAOException;
 import com.excilys.cdb.exceptions.NoFactoryException;
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
@@ -154,6 +155,8 @@ public class Facade {
 
         } catch (SQLException e) {
             LOGGER.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
+        } catch (NoObjectException e) {
+            LOGGER.debug("CREATE COMPUTER WITH NULL OBJECT" + e.getMessage());
         }
         return 0;
     }
@@ -184,6 +187,8 @@ public class Facade {
 
         } catch (SQLException e) {
             LOGGER.debug("UPDATE COMPUTER " + computer.getId() + ": " + e.getMessage());
+        } catch (NoObjectException e) {
+            LOGGER.debug("UPDATE COMPUTER NULL " + e.getMessage());
         }
         return null;
     }

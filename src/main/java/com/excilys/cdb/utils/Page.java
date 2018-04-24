@@ -33,8 +33,10 @@ public class Page<T> {
 
     /**
      * Constructeur avec parametre.
-     * @param currentPage la page actuelle
-     * @param maxPage le nombre maximum de page
+     * @param currentPage
+     *            la page actuelle
+     * @param maxPage
+     *            le nombre maximum de page
      */
     public Page(int currentPage, int maxPage) {
         this.currentPage = currentPage;

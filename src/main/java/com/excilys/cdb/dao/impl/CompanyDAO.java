@@ -1,7 +1,6 @@
 package com.excilys.cdb.dao.impl;
 
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,19 +60,22 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public Page<Company> findAll(int page) throws SQLException {
-        Page<Company> companies = new Page<>();
-        statement = connection.prepareStatement(ALL_COMPANIES);
-        statement.setInt(1, page * Page.RESULT_PER_PAGE);
-        statement.setInt(2, Page.RESULT_PER_PAGE);
-        ResultSet rs = statement.executeQuery();
-        while (rs.next()) {
-            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        if (page >= 0) {
+            Page<Company> companies = new Page<>();
+            statement = connection.prepareStatement(ALL_COMPANIES);
+            statement.setInt(1, page * Page.RESULT_PER_PAGE);
+            statement.setInt(2, Page.RESULT_PER_PAGE);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+            }
+            rs.close();
+            statement.close();
+            companies.setCurrentPage(page);
+            companies.setMaxPage(getMaxPage());
+            return companies;
         }
-        rs.close();
-        statement.close();
-        companies.setCurrentPage(page);
-        companies.setMaxPage(getMaxPage());
-        return companies;
+        return null;
     }
 
     /**
