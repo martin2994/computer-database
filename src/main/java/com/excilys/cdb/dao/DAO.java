@@ -73,4 +73,14 @@ public interface DAO<T> {
      *             Exception liée à la requete
      */
     int getMaxPage() throws SQLException;
+
+    /**
+     * Regarde si l'objet existe.
+     * @param id
+     *            l'objet à verifier
+     * @return un booleen avec la réponse
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    boolean isExist(long id) throws SQLException;
 }

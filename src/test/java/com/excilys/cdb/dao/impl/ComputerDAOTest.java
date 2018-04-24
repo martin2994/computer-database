@@ -1,6 +1,8 @@
 package com.excilys.cdb.dao.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 
@@ -151,8 +153,12 @@ public class ComputerDAOTest {
         company.setId(60);
         company.setName("test");
         computerTest.setManufacturer(company);
-        exception.expect(NoObjectException.class);
-        computerDAO.add(computerTest);
+        try {
+            computerDAO.add(computerTest);
+            fail();
+        } catch (Exception e) {
+            assertTrue(true);
+        }
     }
 
     /**
@@ -182,6 +188,43 @@ public class ComputerDAOTest {
         computer.setId(5L);
         Computer computer2 = computerDAO.update(computer);
         assertTrue(computer2.equals(computer));
+    }
+
+    /**
+     * Teste la fonction Update sur unr computer avec un id inexistant.
+     * @throws SQLException
+     *             exception SQL lancée
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateWithInexistantId() throws SQLException, NoObjectException {
+        Computer computer = computerTest;
+        computer.setId(700L);
+        Computer computer2 = computerDAO.update(computer);
+        assertTrue(computer2 == null);
+    }
+
+    /**
+     * Teste la fonction update quand on change avec une company inexistante.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws NoObjectException
+     *             Exception lancée quand un objet est null
+     */
+    @Test
+    public void testUpdateWithInexistantCompany() throws SQLException, NoObjectException {
+        Company company = new Company();
+        company.setId(60);
+        company.setName("test");
+        computerTest.setManufacturer(company);
+        computerTest.setId(1);
+        try {
+            computerDAO.add(computerTest);
+            fail();
+        } catch (Exception e) {
+            assertTrue(true);
+        }
     }
 
     /**
@@ -230,6 +273,39 @@ public class ComputerDAOTest {
     public void testMaxPage() throws SQLException {
         int maxPage = computerDAO.getMaxPage();
         assertTrue(maxPage == 2);
+    }
+
+    /**
+     * Teste la fonction isExist.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExist() throws SQLException {
+        boolean test = computerDAO.isExist(1L);
+        assertTrue(test);
+    }
+
+    /**
+     * Teste la fonction isExist avec un mauvais argument.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExistWithBadId() throws SQLException {
+        boolean test = computerDAO.isExist(100L);
+        assertFalse(test);
+    }
+
+    /**
+     * Teste la fonction isExist avec un mauvais argument.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExistBadArgument() throws SQLException {
+        boolean test = computerDAO.isExist(-1L);
+        assertFalse(test);
     }
 
 }

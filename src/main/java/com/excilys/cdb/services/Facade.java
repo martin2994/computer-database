@@ -145,6 +145,12 @@ public class Facade {
                 LOGGER.info("INVALID NAME FOR CREATE");
                 return 0;
             }
+            if (computer.getManufacturer() != null) {
+                if (!companyDAO.isExist(computer.getManufacturer().getId())) {
+                    LOGGER.info("INVALID COMPANY FOR CREATE");
+                    return 0;
+                }
+            }
             if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
                 if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
                     LOGGER.info("INVALID DATE COMPUTER FOR CREATE");
@@ -176,6 +182,16 @@ public class Facade {
             if (computer.getName() == null) {
                 LOGGER.info("INVALID NAME FOR UPDATE");
                 return null;
+            }
+            if (!computerDAO.isExist(computer.getId())) {
+                LOGGER.info("INVALID COMPUTER FOR CREATE");
+                return null;
+            }
+            if (computer.getManufacturer() != null) {
+                if (!companyDAO.isExist(computer.getManufacturer().getId())) {
+                    LOGGER.info("INVALID COMPANY FOR CREATE");
+                    return null;
+                }
             }
             if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
                 if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {

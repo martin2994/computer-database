@@ -40,9 +40,9 @@ public class ComputerDAO implements DAO<Computer> {
     private final String COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
 
     /**
-     * Requete pour voir l'existance d'une company.
+     * Requete pour voir l'existance d'un computer.
      */
-    private final String COMPANY_EXIST = "SELECT company.id FROM company WHERE company.id = ?";
+    private final String COMPUTER_EXIST = "SELECT computer.id FROM computer WHERE computer.id = ?";
 
     /**
      * Requete pour l'update.
@@ -149,54 +149,50 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public int add(Computer computer) throws SQLException, NoObjectException {
         if (computer != null) {
-            if (companyIsExist(computer)) {
-                statement = connection.prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
-                statement.setString(1, computer.getName());
-                Timestamp date = null;
-                if (computer.getIntroduced() != null) {
-                    date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
-                }
-                statement.setTimestamp(2, date);
-                if (computer.getDiscontinued() != null) {
-                    date = DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
-                }
-                statement.setTimestamp(3, date);
-                if (computer.getManufacturer() != null) {
-                    statement.setLong(4, computer.getManufacturer().getId());
-                } else {
-                    statement.setObject(4, null);
-                }
-                statement.executeUpdate();
-                ResultSet resultSet = statement.getGeneratedKeys();
-                if (resultSet.next()) {
-                    return resultSet.getInt(1);
-                }
-                return 0;
-            } else {
-                throw new NoObjectException("Pas de company avec cette id " + computer.getManufacturer().getId());
+            statement = connection.prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, computer.getName());
+            Timestamp date = null;
+            if (computer.getIntroduced() != null) {
+                date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
             }
+            statement.setTimestamp(2, date);
+            if (computer.getDiscontinued() != null) {
+                date = DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
+            }
+            statement.setTimestamp(3, date);
+            if (computer.getManufacturer() != null) {
+                statement.setLong(4, computer.getManufacturer().getId());
+            } else {
+                statement.setObject(4, null);
+            }
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
         } else {
             throw new NoObjectException("Pas d'ordinateur à ajouter");
         }
     }
 
     /**
-     * Regarde si la company du computer existe.
-     * @param computer
+     * Regarde si le computer existe.
+     * @param id
      *            le computer à verifier
      * @return un booleen avec la réponse
      * @throws SQLException
      *             Exception SQL lancée
      */
-    private boolean companyIsExist(Computer computer) throws SQLException {
-        if (computer.getManufacturer() == null) {
-            return true;
-        }
-        statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY);
-        statement.setLong(1, computer.getManufacturer().getId());
-        ResultSet rs = statement.executeQuery();
-        if (rs.next()) {
-            return true;
+    @Override
+    public boolean isExist(long id) throws SQLException {
+        if (id >= 0) {
+            statement = connection.prepareStatement(COMPUTER_EXIST, ResultSet.CONCUR_READ_ONLY);
+            statement.setLong(1, id);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
         }
         return false;
     }
@@ -225,30 +221,26 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public Computer update(Computer computer) throws SQLException, NoObjectException {
         if (computer != null) {
-            if (companyIsExist(computer)) {
-                statement = connection.prepareStatement(UPDATE_COMPUTER);
-                statement.setString(1, computer.getName());
-                Timestamp date = null;
-                if (computer.getIntroduced() != null) {
-                    date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
-                }
-                statement.setTimestamp(2, date);
-                if (computer.getDiscontinued() != null) {
-                    date = DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
-                }
-                statement.setTimestamp(3, date);
-                if (computer.getManufacturer() != null) {
-                    statement.setLong(4, computer.getManufacturer().getId());
-                } else {
-                    statement.setObject(4, null);
-                }
-                statement.setLong(5, computer.getId());
-                int result = statement.executeUpdate();
-                if (result == 1) {
-                    return computer;
-                }
+            statement = connection.prepareStatement(UPDATE_COMPUTER);
+            statement.setString(1, computer.getName());
+            Timestamp date = null;
+            if (computer.getIntroduced() != null) {
+                date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
+            }
+            statement.setTimestamp(2, date);
+            if (computer.getDiscontinued() != null) {
+                date = DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
+            }
+            statement.setTimestamp(3, date);
+            if (computer.getManufacturer() != null) {
+                statement.setLong(4, computer.getManufacturer().getId());
             } else {
-                throw new NoObjectException("Pas de company avec cette id " + computer.getManufacturer().getId());
+                statement.setObject(4, null);
+            }
+            statement.setLong(5, computer.getId());
+            int result = statement.executeUpdate();
+            if (result == 1) {
+                return computer;
             }
         } else {
             throw new NoObjectException("Pas de computer à mettre à jour");

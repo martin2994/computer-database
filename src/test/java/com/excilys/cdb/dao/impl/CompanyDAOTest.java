@@ -1,5 +1,6 @@
 package com.excilys.cdb.dao.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
@@ -110,5 +111,38 @@ public class CompanyDAOTest {
     public void testMaxPage() throws SQLException {
         int maxPage = companyDAO.getMaxPage();
         assertTrue(maxPage == 0);
+    }
+
+    /**
+     * Teste la fonction isExist.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExist() throws SQLException {
+        boolean test = companyDAO.isExist(1L);
+        assertTrue(test);
+    }
+
+    /**
+     * Teste la fonction isExist avec un mauvais argument.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExistWithBadId() throws SQLException {
+        boolean test = companyDAO.isExist(100L);
+        assertFalse(test);
+    }
+
+    /**
+     * Teste la fonction isExist avec un mauvais argument.
+     * @throws SQLException
+     *             ExceptionSQL lancée
+     */
+    @Test
+    public void testIsExistBadArgument() throws SQLException {
+        boolean test = companyDAO.isExist(-1L);
+        assertFalse(test);
     }
 }

@@ -41,6 +41,12 @@ public class CompanyDAO implements DAO<Company> {
     private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
 
     /**
+     * Requete pour voir l'existance d'une company.
+     */
+    private final String COMPANY_EXIST = "SELECT company.id FROM company WHERE company.id = ?";
+
+
+    /**
      * le singleton.
      */
     private static CompanyDAO companyDAO;
@@ -120,6 +126,25 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public Computer update(Company t) {
         return null;
+    }
+
+    /**
+     * Regarde si la company.
+     * @param id
+     *            la company à verifier
+     * @return un booleen avec la réponse
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Override
+    public boolean isExist(long id) throws SQLException {
+        statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY);
+        statement.setLong(1, id);
+        ResultSet rs = statement.executeQuery();
+        if (rs.next()) {
+            return true;
+        }
+        return false;
     }
 
     /**
