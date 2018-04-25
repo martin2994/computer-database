@@ -457,4 +457,28 @@ public class FacadeTest {
 
     }
 
+    /**
+     * Teste le cas normal de la fonction getCountComputers.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testCount() throws SQLException {
+        Mockito.when(computerDAO.count()).thenReturn(1);
+        assertTrue(facade.getCountComputers() == 1);
+        Mockito.verify(computerDAO).count();
+    }
+
+    /**
+     * Teste la fonction getCountComputers quand elle gère l'exception SQL.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testCountException() throws SQLException {
+        Mockito.when(computerDAO.count()).thenThrow(SQLException.class);
+        assertTrue(facade.getCountComputers() == 0);
+        Mockito.verify(computerDAO).count();
+    }
+
 }

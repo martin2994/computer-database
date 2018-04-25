@@ -107,7 +107,7 @@ public class ComputerDAO implements DAO<Computer> {
             rs.close();
             statement.close();
             computers.setCurrentPage(page);
-            computers.setMaxPage(getMaxPage());
+            computers.setMaxPage(count());
             return computers;
         }
         return null;
@@ -254,14 +254,14 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     /**
-     * Récupère le nombre de page total.
+     * Récupère le nombre de d'élement total.
      */
     @Override
-    public int getMaxPage() throws SQLException {
+    public int count() throws SQLException {
         statement = connection.prepareStatement(MAX_PAGE);
         ResultSet rs = statement.executeQuery();
         if (rs.next()) {
-            return rs.getInt(1) / Page.RESULT_PER_PAGE;
+            return rs.getInt(1);
         }
         return 0;
     }

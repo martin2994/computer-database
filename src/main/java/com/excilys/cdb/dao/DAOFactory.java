@@ -49,15 +49,19 @@ public class DAOFactory {
             String database = prop.getProperty("database");
             String user = prop.getProperty("dbuser");
             String password = prop.getProperty("dbpassword");
+            Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(database, user, password);
+            LOGGER.info(database);
         } catch (IOException | SQLException e) {
-            LOGGER.warn("PROBLEME DE CONNEXION A LA BD" + e);
+            LOGGER.warn("PROBLEME DE CONNEXION A LA BD " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("PROBLEME DE DRIVER MYSQL " + e.getMessage());
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    LOGGER.debug("PROBLEME DE FERMETURE DE FICHIER" + e);
+                    LOGGER.debug("PROBLEME DE FERMETURE DE FICHIER" + e.getMessage());
                 }
             }
         }
@@ -92,8 +96,10 @@ public class DAOFactory {
 
     /**
      * Cloture la connexion.
-     * @throws Throwable exception lancée
+     * @throws Throwable
+     *             exception lancée
      */
+    @Override
     protected void finalize() throws Throwable {
         connection.close();
     }

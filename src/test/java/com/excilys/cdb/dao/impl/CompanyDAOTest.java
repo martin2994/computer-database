@@ -104,14 +104,14 @@ public class CompanyDAOTest {
     }
 
     /**
-     * Teste la fonction MaxPage.
+     * Teste la fonction Count.
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testMaxPage() throws SQLException {
-        int maxPage = companyDAO.getMaxPage();
-        assertTrue(maxPage == 0);
+    public void testCount() throws SQLException {
+        int maxPage = companyDAO.count();
+        assertTrue(maxPage == 2);
     }
 
     /**

@@ -78,7 +78,7 @@ public class CompanyDAO implements DAO<Company> {
             rs.close();
             statement.close();
             companies.setCurrentPage(page);
-            companies.setMaxPage(getMaxPage());
+            companies.setMaxPage(count());
             return companies;
         }
         return null;
@@ -102,14 +102,14 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     /**
-     * Récupère le nombre de page total.
+     * Récupère le nombre d'élement.
      */
     @Override
-    public int getMaxPage() throws SQLException {
+    public int count() throws SQLException {
         statement = connection.prepareStatement(MAX_PAGE);
         ResultSet rs = statement.executeQuery();
         if (rs.next()) {
-            return rs.getInt(1) / Page.RESULT_PER_PAGE;
+            return rs.getInt(1);
         }
         return 0;
     }

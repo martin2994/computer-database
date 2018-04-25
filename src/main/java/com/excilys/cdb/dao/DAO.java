@@ -73,7 +73,7 @@ public interface DAO<T> {
      * @throws SQLException
      *             Exception liée à la requete
      */
-    int getMaxPage() throws SQLException;
+    int count() throws SQLException;
 
     /**
      * Regarde si l'objet existe.

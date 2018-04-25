@@ -87,9 +87,9 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindAll() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(1);
-        assertTrue(page.getMaxPage() == 2);
-        assertTrue(page.getResults().size() == 5);
+        Page<Computer> page = computerDAO.findAll(0);
+        assertTrue(page.getMaxPage() == 1);
+        assertTrue(page.getResults().size() == 10);
     }
 
     /**
@@ -266,14 +266,14 @@ public class ComputerDAOTest {
     }
 
     /**
-     * Teste la fonction MaxPage.
+     * Teste la fonction Count.
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testMaxPage() throws SQLException {
-        int maxPage = computerDAO.getMaxPage();
-        assertTrue(maxPage == 2);
+    public void testCount() throws SQLException {
+        int maxPage = computerDAO.count();
+        assertTrue(maxPage == 13);
     }
 
     /**

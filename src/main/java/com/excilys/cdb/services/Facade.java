@@ -231,6 +231,19 @@ public class Facade {
     }
 
     /**
+     * Permet d'avoir le nombre de computers.
+     * @return le nombre de computers
+     */
+    public int getCountComputers() {
+        try {
+            return computerDAO.count();
+        } catch (SQLException e) {
+            LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
      * Récupère le singleton de la façade.
      * @return le singleton Facade
      */
