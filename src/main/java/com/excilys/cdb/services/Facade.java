@@ -213,17 +213,21 @@ public class Facade {
      * Supprime un computer.
      * @param id
      *            l'id du computer à supprimer
+     * @return Si la suppression a été effectuée
      */
-    public void deleteComputer(long id) {
+    public boolean deleteComputer(long id) {
         try {
             if (id > 0) {
-                computerDAO.delete(id);
+                if (computerDAO.delete(id)) {
+                    return true;
+                }
             } else {
                 LOGGER.info("INVALID COMPUTER ID FOR DELETE");
             }
         } catch (SQLException e) {
             LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
         }
+        return false;
     }
 
     /**

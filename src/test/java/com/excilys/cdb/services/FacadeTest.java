@@ -1,5 +1,6 @@
 package com.excilys.cdb.services;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -405,6 +406,55 @@ public class FacadeTest {
     public void testGetInstance() {
         Facade facade = Facade.getInstance();
         assertNotNull(facade);
+    }
+
+    /**
+     * Teste le cas normal de la fonction DeleteComputer.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteComputer() throws SQLException {
+        Mockito.when(computerDAO.delete(1L)).thenReturn(true);
+        assertTrue(facade.deleteComputer(1L));
+        Mockito.verify(computerDAO).delete(1L);
+
+    }
+
+    /**
+     * Teste la fonction DeleteComputer quand il n'y a pas de correspodance.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteComputerNoComputer() throws SQLException {
+        Mockito.when(computerDAO.delete(1L)).thenReturn(false);
+        assertFalse(facade.deleteComputer(1L));
+        Mockito.verify(computerDAO).delete(1L);
+
+    }
+
+    /**
+     * Teste la fonction DeleteComputer quand l'id est négatif.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteComputerBadIdInf() throws SQLException {
+        assertFalse(facade.deleteComputer(-1L));
+    }
+
+    /**
+     * Teste la fonction DeleteComputer quand la DAO lance une exception.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteComputerException() throws SQLException {
+        Mockito.when(computerDAO.delete(1L)).thenThrow(SQLException.class);
+        assertFalse(facade.deleteComputer(1L));
+        Mockito.verify(computerDAO).delete(1L);
+
     }
 
 }

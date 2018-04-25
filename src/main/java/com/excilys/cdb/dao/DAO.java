@@ -47,12 +47,13 @@ public interface DAO<T> {
 
     /**
      * Supprime l'objet voulu.
+     * @return Si la suppression a été effectuée
      * @param id
      *            l'id de l'objet à supprimer
      * @throws SQLException
      *             Exception liée à la requete
      */
-    void delete(long id) throws SQLException;
+    boolean delete(long id) throws SQLException;
 
     /**
      * Met à jour l'objet voulu.

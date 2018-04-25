@@ -120,7 +120,8 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public void delete(long id) {
+    public boolean delete(long id) {
+        return false;
     }
 
     @Override

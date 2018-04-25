@@ -201,12 +201,17 @@ public class ComputerDAO implements DAO<Computer> {
      * Supprime un computer de la base.
      * @param id
      *            l'id du computer à supprimer
+     * @return Si la suppression a été effectuée
      */
     @Override
-    public void delete(long id) throws SQLException {
+    public boolean delete(long id) throws SQLException {
         statement = connection.prepareStatement(DELETE_COMPUTER);
         statement.setLong(1, id);
-        statement.executeUpdate();
+        int result = statement.executeUpdate();
+        if (result == 0) {
+            return false;
+        }
+        return true;
     }
 
     /**
