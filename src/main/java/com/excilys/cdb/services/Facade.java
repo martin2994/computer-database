@@ -57,12 +57,14 @@ public class Facade {
      * Récupère la liste des computer.
      * @param page
      *            la page à afficher
+     * @param resultPerPage
+     *            le nombre de computer par page
      * @return La liste des computer
      */
-    public Page<Computer> getComputers(int page) {
+    public Page<Computer> getComputers(int page, int resultPerPage) {
         try {
-            if (page >= 0) {
-                return computerDAO.findAll(page);
+            if (page >= 0 && resultPerPage >= 1) {
+                return computerDAO.findAll(page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPUTER PAGE");
             }
@@ -76,12 +78,14 @@ public class Facade {
      * Récupère la liste des company.
      * @param page
      *            la page à afficher
+     * @param resultPerPage
+     *            le nombre de computer par page
      * @return La liste des company
      */
-    public Page<Company> getCompanies(int page) {
+    public Page<Company> getCompanies(int page, int resultPerPage) {
         try {
-            if (page >= 0) {
-                return companyDAO.findAll(page);
+            if (page >= 0 && resultPerPage >= 1) {
+                return companyDAO.findAll(page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPANY PAGE");
             }

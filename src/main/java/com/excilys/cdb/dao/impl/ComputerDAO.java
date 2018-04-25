@@ -80,15 +80,20 @@ public class ComputerDAO implements DAO<Computer> {
 
     /**
      * Permet de récupérer la liste de tous les computer.
+     * @param page
+     *            la page à afficher
+     * @param resultPerPage
+     *            nombre de company par page
      * @return La liste des computer
      */
     @Override
-    public Page<Computer> findAll(int page) throws SQLException {
-        if (page >= 0) {
+    public Page<Computer> findAll(int page, int resultPerPage) throws SQLException {
+        if (page >= 0 && resultPerPage >= 1) {
             Page<Computer> computers = new Page<>();
+            computers.setResutlPerPage(resultPerPage);
             statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
-            statement.setInt(1, page * Page.RESULT_PER_PAGE);
-            statement.setInt(2, Page.RESULT_PER_PAGE);
+            statement.setInt(1, page * resultPerPage);
+            statement.setInt(2, resultPerPage);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Company company;

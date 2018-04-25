@@ -17,11 +17,13 @@ public interface DAO<T> {
      * Récupère une page d'objet de la base.
      * @param page
      *            le numéro de la page
+     * @param resultPerPage
+     *            le nombre d'élément par page
      * @return la page contenant les objets
      * @throws SQLException
      *             Exception liée à la requete
      */
-    Page<T> findAll(int page) throws SQLException;
+    Page<T> findAll(int page, int resultPerPage) throws SQLException;
 
     /**
      * Récupère l'objet voulu.

@@ -87,9 +87,20 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindAll() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(0);
+        Page<Computer> page = computerDAO.findAll(0, 10);
         assertTrue(page.getMaxPage() == 1);
         assertTrue(page.getResults().size() == 10);
+    }
+
+    /**
+     * Teste la fonction FindAll quand le nombre de computer par page est négatif.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testFindAllBadResultPerPage() throws SQLException {
+        Page<Computer> page = computerDAO.findAll(0, -1);
+        assertNull(page);
     }
 
     /**
@@ -99,7 +110,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindAllPageSup() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(100);
+        Page<Computer> page = computerDAO.findAll(100, 10);
         assertTrue(page.getResults().size() == 0);
     }
 
@@ -110,7 +121,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindAllPageInf() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(-1);
+        Page<Computer> page = computerDAO.findAll(-1, 10);
         assertNull(page);
     }
 

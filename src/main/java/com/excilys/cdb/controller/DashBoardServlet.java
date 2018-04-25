@@ -32,9 +32,20 @@ public class DashBoardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Integer resultPerPage = (Integer) request.getSession().getAttribute("resultPerPage");
+        if (resultPerPage == null) {
+            resultPerPage = 10;
+        } else {
+            String result = request.getParameter("resultPerPage");
+            if (result != null) {
+                resultPerPage = Integer.parseInt(result);
+            }
+        }
+        request.getSession().setAttribute("resultPerPage", resultPerPage);
         int numberComputer = facade.getCountComputers();
-        List<Computer> page = facade.getComputers(0).getResults();
-        List<ComputerDTO> pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers)).collect(Collectors.toList());
+        List<Computer> page = facade.getComputers(0, resultPerPage).getResults();
+        List<ComputerDTO> pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
+                .collect(Collectors.toList());
         request.setAttribute("nbComputers", numberComputer);
         request.setAttribute("page", pageDTO);
         this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);

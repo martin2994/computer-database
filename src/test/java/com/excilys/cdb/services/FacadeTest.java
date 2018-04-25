@@ -77,9 +77,17 @@ public class FacadeTest {
         List<Computer> computers = Collections.nCopies(5, computer);
         Page<Computer> page = new Page<>();
         page.setResults(computers);
-        Mockito.when(computerDAO.findAll(1)).thenReturn(page);
-        assertTrue(page.getResults().equals(facade.getComputers(1).getResults()));
-        Mockito.verify(computerDAO).findAll(1);
+        Mockito.when(computerDAO.findAll(1, 10)).thenReturn(page);
+        assertTrue(page.getResults().equals(facade.getComputers(1, 10).getResults()));
+        Mockito.verify(computerDAO).findAll(1, 10);
+    }
+
+    /**
+     * Teste le cas ou le nombre de computers par page est négatif.
+     */
+    @Test
+    public void testGetComputersBadResultPerPage() {
+        assertNull(facade.getComputers(0, -1));
     }
 
     /**
@@ -87,7 +95,7 @@ public class FacadeTest {
      */
     @Test
     public void testGetComputersWithBadPageInf() {
-        Page<Computer> computers = facade.getComputers(-1);
+        Page<Computer> computers = facade.getComputers(-1, 10);
         assertNull(computers);
     }
 
@@ -98,9 +106,9 @@ public class FacadeTest {
      */
     @Test
     public void testGetComputersException() throws SQLException {
-        Mockito.when(computerDAO.findAll(1)).thenThrow(SQLException.class);
-        assertNull(facade.getComputers(1));
-        Mockito.verify(computerDAO).findAll(1);
+        Mockito.when(computerDAO.findAll(1, 10)).thenThrow(SQLException.class);
+        assertNull(facade.getComputers(1, 10));
+        Mockito.verify(computerDAO).findAll(1, 10);
     }
 
     /**
@@ -113,9 +121,17 @@ public class FacadeTest {
         List<Company> companies = Collections.nCopies(5, company);
         Page<Company> page = new Page<>();
         page.setResults(companies);
-        Mockito.when(companyDAO.findAll(1)).thenReturn(page);
-        assertTrue(page.getResults().equals(facade.getCompanies(1).getResults()));
-        Mockito.verify(companyDAO).findAll(1);
+        Mockito.when(companyDAO.findAll(1, 10)).thenReturn(page);
+        assertTrue(page.getResults().equals(facade.getCompanies(1, 10).getResults()));
+        Mockito.verify(companyDAO).findAll(1, 10);
+    }
+
+    /**
+     * Teste le cas ou le nombre de companies par page est négatif.
+     */
+    @Test
+    public void testGetCompaniesBadResultPerPage() {
+        assertNull(facade.getCompanies(0, -1));
     }
 
     /**
@@ -123,7 +139,7 @@ public class FacadeTest {
      */
     @Test
     public void testGetCompaniesWithBadPageInf() {
-        Page<Company> companies = facade.getCompanies(-1);
+        Page<Company> companies = facade.getCompanies(-1, 10);
         assertNull(companies);
     }
 
@@ -134,9 +150,9 @@ public class FacadeTest {
      */
     @Test
     public void testGetCompaniesException() throws SQLException {
-        Mockito.when(companyDAO.findAll(1)).thenThrow(SQLException.class);
-        assertNull(facade.getCompanies(1));
-        Mockito.verify(companyDAO).findAll(1);
+        Mockito.when(companyDAO.findAll(1, 10)).thenThrow(SQLException.class);
+        assertNull(facade.getCompanies(1, 10));
+        Mockito.verify(companyDAO).findAll(1, 10);
     }
 
     /**

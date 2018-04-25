@@ -76,9 +76,20 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindAll() throws SQLException {
-        Page<Company> page = companyDAO.findAll(0);
+        Page<Company> page = companyDAO.findAll(0, 10);
         assertTrue(page.getMaxPage() == 0);
         assertTrue(page.getResults().size() == 2);
+    }
+
+    /**
+     * Teste la fonction FindAll quand le nombre de company par page est négatif.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testFindAllBadResultPerPage() throws SQLException {
+        Page<Company> page = companyDAO.findAll(0, -1);
+        assertNull(page);
     }
 
     /**
@@ -88,7 +99,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindAllPageSup() throws SQLException {
-        Page<Company> page = companyDAO.findAll(100);
+        Page<Company> page = companyDAO.findAll(100, 10);
         assertTrue(page.getResults().size() == 0);
     }
 
@@ -99,7 +110,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindAllPageInf() throws SQLException {
-        Page<Company> page = companyDAO.findAll(-1);
+        Page<Company> page = companyDAO.findAll(-1, 10);
         assertNull(page);
     }
 

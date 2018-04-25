@@ -45,7 +45,6 @@ public class CompanyDAO implements DAO<Company> {
      */
     private final String COMPANY_EXIST = "SELECT company.id FROM company WHERE company.id = ?";
 
-
     /**
      * le singleton.
      */
@@ -62,15 +61,20 @@ public class CompanyDAO implements DAO<Company> {
 
     /**
      * Permet de récupérer la liste de toutes les company.
+     * @param page
+     *            la page à afficher
+     * @param resultPerPage
+     *            nombre de computer par page
      * @return La liste des Company
      */
     @Override
-    public Page<Company> findAll(int page) throws SQLException {
-        if (page >= 0) {
+    public Page<Company> findAll(int page, int resultPerPage) throws SQLException {
+        if (page >= 0 && resultPerPage >= 1) {
             Page<Company> companies = new Page<>();
+            companies.setResutlPerPage(resultPerPage);
             statement = connection.prepareStatement(ALL_COMPANIES);
-            statement.setInt(1, page * Page.RESULT_PER_PAGE);
-            statement.setInt(2, Page.RESULT_PER_PAGE);
+            statement.setInt(1, page * resultPerPage);
+            statement.setInt(2, resultPerPage);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 companies.add(new Company(rs.getInt("id"), rs.getString("name")));
