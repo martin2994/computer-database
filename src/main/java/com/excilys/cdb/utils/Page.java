@@ -18,7 +18,7 @@ public class Page<T> {
     /**
      * le nombre d'objet par page.
      */
-    public int resutlPerPage = 10;
+    public int resultPerPage = 10;
 
     private int currentPage;
 
@@ -40,7 +40,7 @@ public class Page<T> {
      */
     public Page(int currentPage, int maxPage) {
         this.currentPage = currentPage;
-        this.maxPage = maxPage / resutlPerPage;
+        this.maxPage = maxPage / resultPerPage;
     }
 
     public List<T> getResults() {
@@ -64,15 +64,15 @@ public class Page<T> {
     }
 
     public void setMaxPage(int maxPage) {
-        this.maxPage = maxPage / resutlPerPage;
+        this.maxPage = (int) Math.ceil((double) maxPage / (double) resultPerPage);
     }
 
-    public int getResutlPerPage() {
-        return resutlPerPage;
+    public int getResultPerPage() {
+        return resultPerPage;
     }
 
-    public void setResutlPerPage(int resutlPerPage) {
-        this.resutlPerPage = resutlPerPage;
+    public void setResultPerPage(int resutlPerPage) {
+        this.resultPerPage = resutlPerPage;
     }
 
     /**

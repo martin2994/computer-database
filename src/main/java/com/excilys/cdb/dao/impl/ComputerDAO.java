@@ -90,7 +90,7 @@ public class ComputerDAO implements DAO<Computer> {
     public Page<Computer> findAll(int page, int resultPerPage) throws SQLException {
         if (page >= 0 && resultPerPage >= 1) {
             Page<Computer> computers = new Page<>();
-            computers.setResutlPerPage(resultPerPage);
+            computers.setResultPerPage(resultPerPage);
             statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
             statement.setInt(1, page * resultPerPage);
             statement.setInt(2, resultPerPage);
@@ -111,8 +111,8 @@ public class ComputerDAO implements DAO<Computer> {
             }
             rs.close();
             statement.close();
-            computers.setCurrentPage(page);
             computers.setMaxPage(count());
+            computers.setCurrentPage(page);
             return computers;
         }
         return null;

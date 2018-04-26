@@ -42,13 +42,40 @@ public class DashBoardServlet extends HttpServlet {
             }
         }
         request.getSession().setAttribute("resultPerPage", resultPerPage);
+        Integer currentPage = (Integer) request.getSession().getAttribute("currentPage");
+        if (currentPage == null) {
+            currentPage = 1;
+        } else {
+            String page = request.getParameter("page");
+            if (page != null) {
+                currentPage = Integer.parseInt(page);
+            }
+        }
         int numberComputer = facade.getCountComputers();
-        List<Computer> page = facade.getComputers(0, resultPerPage).getResults();
+        double numberPage = (double) numberComputer / (double) resultPerPage;
+        int numberOfPage = (int) Math.ceil(numberPage);
+        System.out.println(currentPage + "/" + numberOfPage);
+        if (currentPage > numberOfPage) {
+            currentPage = numberOfPage;
+        }
+        request.getSession().setAttribute("currentPage", currentPage);
+
+        List<Computer> page = facade.getComputers(currentPage - 1, resultPerPage).getResults();
         List<ComputerDTO> pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
                 .collect(Collectors.toList());
         request.setAttribute("nbComputers", numberComputer);
         request.setAttribute("page", pageDTO);
-        this.getServletContext().getRequestDispatcher("/pages/dashboard.jsp").forward(request, response);
+        String action = request.getParameter("todo");
+        if (action != null) {
+            switch (action) {
+            case "":
+                break;
+            default:
+                break;
+            }
+        }
+
+        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request, response);
     }
 
     @Override

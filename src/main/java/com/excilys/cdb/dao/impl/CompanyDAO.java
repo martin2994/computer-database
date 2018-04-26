@@ -71,7 +71,7 @@ public class CompanyDAO implements DAO<Company> {
     public Page<Company> findAll(int page, int resultPerPage) throws SQLException {
         if (page >= 0 && resultPerPage >= 1) {
             Page<Company> companies = new Page<>();
-            companies.setResutlPerPage(resultPerPage);
+            companies.setResultPerPage(resultPerPage);
             statement = connection.prepareStatement(ALL_COMPANIES);
             statement.setInt(1, page * resultPerPage);
             statement.setInt(2, resultPerPage);

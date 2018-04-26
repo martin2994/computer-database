@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib uri="/WEB-INF/tagLibs/paginationLib.tld" prefix="pg"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -17,8 +18,8 @@
 	<!-- <p>${fn:length(page)}</p> -->
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="dashboard"> Application -
-			Computer Database </a>
+		<a class="navbar-brand" href="dashboard"> Application - Computer
+			Database </a>
 	</div>
 	</header>
 
@@ -89,28 +90,27 @@
 
 	<footer class="navbar-fixed-bottom">
 	<div class="container text-center">
-		<ul class="pagination">
-			<li><a href="#" aria-label="Previous"> <span
-					aria-hidden="true">&laquo;</span>
-			</a></li>
-			<li><a href="#">1</a></li>
-			<li><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
-			<li><a href="#">4</a></li>
-			<li><a href="#">5</a></li>
-			<li><a href="#" aria-label="Next"> <span aria-hidden="true">&raquo;</span>
-			</a></li>
-		</ul>
+
+		<c:url var="myURLResultPerPage" value="dashboard">
+			<c:param name="resultPerPage" value="${resultPerPage}" />
+		</c:url>
+		<c:url var="myURLPage" value="dashboard">
+			<c:param name="page" value="${currentPage}" />
+		</c:url>
+
+		<pg:pagination uri="${myURLResultPerPage}"
+			elementPerPage="${resultPerPage}" currentPage="${currentPage}"
+			numberOfElement="${nbComputers}" />
 
 		<div class="btn-group btn-group-sm pull-right" role="group">
-			<a class="btn btn-default" href="dashboard?resultPerPage=10">10</a>
-			<a class="btn btn-default" href="dashboard?resultPerPage=50">50</a>
-			<a class="btn btn-default" href="dashboard?resultPerPage=100">100</a>
+			<a class="btn btn-default" href="${myURLPage}&resultPerPage=10">10</a>
+			<a class="btn btn-default" href="${myURLPage}&resultPerPage=50">50</a>
+			<a class="btn btn-default" href="${myURLPage}&resultPerPage=100">100</a>
 		</div>
+	</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/dashboard.js"></script>
-
 </body>
 </html>
