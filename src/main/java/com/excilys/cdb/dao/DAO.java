@@ -1,6 +1,7 @@
 package com.excilys.cdb.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.model.Computer;
@@ -14,6 +15,14 @@ import com.excilys.cdb.utils.Page;
 public interface DAO<T> {
 
     /**
+     * Récupère la liste complète des objets.
+     * @return la liste complète
+     * @throws SQLException
+     *              Exception SQL lancée
+     */
+    List<T> findAll() throws SQLException;
+
+    /**
      * Récupère une page d'objet de la base.
      * @param page
      *            le numéro de la page
@@ -23,7 +32,7 @@ public interface DAO<T> {
      * @throws SQLException
      *             Exception liée à la requete
      */
-    Page<T> findAll(int page, int resultPerPage) throws SQLException;
+    Page<T> findPerPage(int page, int resultPerPage) throws SQLException;
 
     /**
      * Récupère l'objet voulu.

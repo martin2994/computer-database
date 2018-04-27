@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.excilys.cdb.dao.DAO;
 import com.excilys.cdb.model.Company;
@@ -28,7 +30,13 @@ public class CompanyDAO implements DAO<Company> {
     /**
      * Requete pour le findAll.
      */
-    private final String ALL_COMPANIES = "SELECT id,name FROM company LIMIT ?,?";
+    private final String ALL_COMPANIES = "SELECT id,name FROM company";
+
+
+    /**
+     * Requete pour le findPerPage.
+     */
+    private final String ALL_COMPANIES_PER_PAGE = "SELECT id,name FROM company LIMIT ?,?";
 
     /**
      * Requete pour le findById.
@@ -61,6 +69,23 @@ public class CompanyDAO implements DAO<Company> {
 
     /**
      * Permet de récupérer la liste de toutes les company.
+     * @return La liste des Company
+     * @throws SQLException
+     *              Exception SQL lancée
+     */
+    @Override
+    public List<Company> findAll() throws SQLException {
+        List<Company> companies = new ArrayList<>();
+        statement = connection.prepareStatement(ALL_COMPANIES);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        }
+        return companies;
+    }
+
+    /**
+     * Permet de récupérer la liste de toutes les company page par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -68,11 +93,11 @@ public class CompanyDAO implements DAO<Company> {
      * @return La liste des Company
      */
     @Override
-    public Page<Company> findAll(int page, int resultPerPage) throws SQLException {
+    public Page<Company> findPerPage(int page, int resultPerPage) throws SQLException {
         if (page >= 0 && resultPerPage >= 1) {
             Page<Company> companies = new Page<>();
             companies.setResultPerPage(resultPerPage);
-            statement = connection.prepareStatement(ALL_COMPANIES);
+            statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE);
             statement.setInt(1, page * resultPerPage);
             statement.setInt(2, resultPerPage);
             ResultSet rs = statement.executeQuery();

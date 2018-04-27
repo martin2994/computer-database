@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller;
+package com.excilys.cdb.controller.servlets;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,12 +54,10 @@ public class DashBoardServlet extends HttpServlet {
         int numberComputer = facade.getCountComputers();
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
-        System.out.println(currentPage + "/" + numberOfPage);
         if (currentPage > numberOfPage) {
             currentPage = numberOfPage;
         }
         request.getSession().setAttribute("currentPage", currentPage);
-
         List<Computer> page = facade.getComputers(currentPage - 1, resultPerPage).getResults();
         List<ComputerDTO> pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
                 .collect(Collectors.toList());

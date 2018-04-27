@@ -77,9 +77,9 @@ public class FacadeTest {
         List<Computer> computers = Collections.nCopies(5, computer);
         Page<Computer> page = new Page<>();
         page.setResults(computers);
-        Mockito.when(computerDAO.findAll(1, 10)).thenReturn(page);
+        Mockito.when(computerDAO.findPerPage(1, 10)).thenReturn(page);
         assertTrue(page.getResults().equals(facade.getComputers(1, 10).getResults()));
-        Mockito.verify(computerDAO).findAll(1, 10);
+        Mockito.verify(computerDAO).findPerPage(1, 10);
     }
 
     /**
@@ -106,10 +106,11 @@ public class FacadeTest {
      */
     @Test
     public void testGetComputersException() throws SQLException {
-        Mockito.when(computerDAO.findAll(1, 10)).thenThrow(SQLException.class);
+        Mockito.when(computerDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
         assertNull(facade.getComputers(1, 10));
-        Mockito.verify(computerDAO).findAll(1, 10);
+        Mockito.verify(computerDAO).findPerPage(1, 10);
     }
+
 
     /**
      * Teste le cas normal de la fonction GetCompanies.
@@ -119,11 +120,25 @@ public class FacadeTest {
     @Test
     public void testGetCompanies() throws SQLException {
         List<Company> companies = Collections.nCopies(5, company);
+        Mockito.when(companyDAO.findAll()).thenReturn(companies);
+        List<Company> companiesTest = facade.getCompanies();
+        assertTrue(companiesTest.size() == 5 && companiesTest.get(0).equals(company));
+        Mockito.verify(companyDAO).findAll();
+    }
+
+    /**
+     * Teste le cas normal de la fonction GetCompanies avec page.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testGetCompaniesPerPage() throws SQLException {
+        List<Company> companies = Collections.nCopies(5, company);
         Page<Company> page = new Page<>();
         page.setResults(companies);
-        Mockito.when(companyDAO.findAll(1, 10)).thenReturn(page);
+        Mockito.when(companyDAO.findPerPage(1, 10)).thenReturn(page);
         assertTrue(page.getResults().equals(facade.getCompanies(1, 10).getResults()));
-        Mockito.verify(companyDAO).findAll(1, 10);
+        Mockito.verify(companyDAO).findPerPage(1, 10);
     }
 
     /**
@@ -150,9 +165,9 @@ public class FacadeTest {
      */
     @Test
     public void testGetCompaniesException() throws SQLException {
-        Mockito.when(companyDAO.findAll(1, 10)).thenThrow(SQLException.class);
+        Mockito.when(companyDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
         assertNull(facade.getCompanies(1, 10));
-        Mockito.verify(companyDAO).findAll(1, 10);
+        Mockito.verify(companyDAO).findPerPage(1, 10);
     }
 
     /**

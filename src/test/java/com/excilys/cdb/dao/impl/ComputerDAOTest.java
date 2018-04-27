@@ -6,12 +6,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.enums.DAOType;
@@ -20,6 +23,7 @@ import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.services.Facade;
 import com.excilys.cdb.utils.Page;
 
 public class ComputerDAOTest {
@@ -30,6 +34,11 @@ public class ComputerDAOTest {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
+
+    /**
+     * LOGGER.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
 
     /**
      * Initialise un computer et la DAO avant chaque méthode.
@@ -51,6 +60,17 @@ public class ComputerDAOTest {
     public void tearDown() {
         computerDAO = null;
         computerTest = null;
+    }
+
+    /**
+     * Teste le cas normal de la fonction FindAll.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testFindAll() throws SQLException {
+        List<Computer> list = computerDAO.findAll();
+        assertTrue(list.size() == 13);
     }
 
     /**
@@ -81,47 +101,48 @@ public class ComputerDAOTest {
     }
 
     /**
-     * Teste le cas normal de la fonction FindAll.
+     * Teste le cas normal de la fonction FindPerPage.
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testFindAll() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(0, 10);
-        assertTrue(page.getMaxPage() == 1);
+    public void testFindPerPage() throws SQLException {
+        Page<Computer> page = computerDAO.findPerPage(0, 10);
+        assertTrue(page.getMaxPage() == 2);
         assertTrue(page.getResults().size() == 10);
     }
 
     /**
-     * Teste la fonction FindAll quand le nombre de computer par page est négatif.
+     * Teste la fonction FindPerPage quand le nombre de computer par page est
+     * négatif.
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testFindAllBadResultPerPage() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(0, -1);
+    public void testFindPerPageBadResultPerPage() throws SQLException {
+        Page<Computer> page = computerDAO.findPerPage(0, -1);
         assertNull(page);
     }
 
     /**
-     * Teste la fonction FindAll avec une page au dessus des limites.
+     * Teste la fonction FindPerPage avec une page au dessus des limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindAllPageSup() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(100, 10);
+    public void testFindPerPagePageSup() throws SQLException {
+        Page<Computer> page = computerDAO.findPerPage(100, 10);
         assertTrue(page.getResults().size() == 0);
     }
 
     /**
-     * Teste la fonction FindAll avec une page au dessosu des limites.
+     * Teste la fonction FindPerPage avec une page au dessosu des limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindAllPageInf() throws SQLException {
-        Page<Computer> page = computerDAO.findAll(-1, 10);
+    public void testFindPerPagePageInf() throws SQLException {
+        Page<Computer> page = computerDAO.findPerPage(-1, 10);
         assertNull(page);
     }
 

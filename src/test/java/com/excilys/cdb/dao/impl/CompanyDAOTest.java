@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -72,45 +73,56 @@ public class CompanyDAOTest {
     /**
      * Teste le cas normal de la fonction FindAll.
      * @throws SQLException
-     *             exception SQL lancée
+     *          Exception SQL lancée
      */
     @Test
     public void testFindAll() throws SQLException {
-        Page<Company> page = companyDAO.findAll(0, 10);
-        assertTrue(page.getMaxPage() == 0);
+        List<Company> list = companyDAO.findAll();
+        assertTrue(list.size() == 2);
+    }
+
+    /**
+     * Teste le cas normal de la fonction FindPerPage.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testFindPerPage() throws SQLException {
+        Page<Company> page = companyDAO.findPerPage(0, 10);
+        assertTrue(page.getMaxPage() == 1);
         assertTrue(page.getResults().size() == 2);
     }
 
     /**
-     * Teste la fonction FindAll quand le nombre de company par page est négatif.
+     * Teste la fonction FindPerPage quand le nombre de company par page est négatif.
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testFindAllBadResultPerPage() throws SQLException {
-        Page<Company> page = companyDAO.findAll(0, -1);
+    public void testFindPerPageBadResultPerPage() throws SQLException {
+        Page<Company> page = companyDAO.findPerPage(0, -1);
         assertNull(page);
     }
 
     /**
-     * Teste la fonction FindAll avec une page au dessus des limites.
+     * Teste la fonction FindPerPage avec une page au dessus des limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindAllPageSup() throws SQLException {
-        Page<Company> page = companyDAO.findAll(100, 10);
+    public void testFindPerPagePageSup() throws SQLException {
+        Page<Company> page = companyDAO.findPerPage(100, 10);
         assertTrue(page.getResults().size() == 0);
     }
 
     /**
-     * Teste la fonction FindAll avec une page au dessosu des limites.
+     * Teste la fonction FindPerPage avec une page au dessosu des limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindAllPageInf() throws SQLException {
-        Page<Company> page = companyDAO.findAll(-1, 10);
+    public void testFindPerPagePageInf() throws SQLException {
+        Page<Company> page = companyDAO.findPerPage(-1, 10);
         assertNull(page);
     }
 

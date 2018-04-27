@@ -1,6 +1,7 @@
 package com.excilys.cdb.services;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ public class Facade {
     }
 
     /**
-     * Récupère la liste des computer.
+     * Récupère la liste des computer par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -64,7 +65,7 @@ public class Facade {
     public Page<Computer> getComputers(int page, int resultPerPage) {
         try {
             if (page >= 0 && resultPerPage >= 1) {
-                return computerDAO.findAll(page, resultPerPage);
+                return computerDAO.findPerPage(page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPUTER PAGE");
             }
@@ -75,7 +76,20 @@ public class Facade {
     }
 
     /**
-     * Récupère la liste des company.
+     * Récupère la liste de toutes les company.
+     * @return la liste des company
+     */
+    public List<Company> getCompanies() {
+        try {
+            return companyDAO.findAll();
+        } catch (SQLException e) {
+            LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Récupère la liste des company par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -85,7 +99,7 @@ public class Facade {
     public Page<Company> getCompanies(int page, int resultPerPage) {
         try {
             if (page >= 0 && resultPerPage >= 1) {
-                return companyDAO.findAll(page, resultPerPage);
+                return companyDAO.findPerPage(page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPANY PAGE");
             }

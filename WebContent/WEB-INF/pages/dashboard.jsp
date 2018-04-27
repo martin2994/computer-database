@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib uri="/WEB-INF/tagLibs/paginationLib.tld" prefix="pg"%>
+<%@ taglib uri="/WEB-INF/tagLibs/mylib.tld" prefix="mylib"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -25,7 +25,7 @@
 
 	<section id="main">
 	<div class="container">
-		<h1 id="homeTitle">${nbComputers} Computers found</h1>
+		<h1 id="homeTitle">${nbComputers}Computers found</h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
 				<form id="searchForm" action="#" method="GET" class="form-inline">
@@ -37,7 +37,7 @@
 				</form>
 			</div>
 			<div class="pull-right">
-				<a class="btn btn-success" id="addComputer" href="addComputer.html">Add
+				<a class="btn btn-success" id="addComputer" href="addComputer">Add
 					Computer</a> <a class="btn btn-default" id="editComputer" href="#"
 					onclick="$.fn.toggleEditMode();">Edit</a>
 			</div>
@@ -91,21 +91,20 @@
 	<footer class="navbar-fixed-bottom">
 	<div class="container text-center">
 
-		<c:url var="myURLResultPerPage" value="dashboard">
-			<c:param name="resultPerPage" value="${resultPerPage}" />
-		</c:url>
 		<c:url var="myURLPage" value="dashboard">
 			<c:param name="page" value="${currentPage}" />
 		</c:url>
 
-		<pg:pagination uri="${myURLResultPerPage}"
-			elementPerPage="${resultPerPage}" currentPage="${currentPage}"
-			numberOfElement="${nbComputers}" />
+		<mylib:pagination uri="dashboard" elementPerPage="${resultPerPage}"
+			currentPage="${currentPage}" numberOfElement="${nbComputers}" />
 
 		<div class="btn-group btn-group-sm pull-right" role="group">
-			<a class="btn btn-default" href="${myURLPage}&resultPerPage=10">10</a>
-			<a class="btn btn-default" href="${myURLPage}&resultPerPage=50">50</a>
-			<a class="btn btn-default" href="${myURLPage}&resultPerPage=100">100</a>
+			<a class="btn btn-default"
+				href=<mylib:link uri="dashboard" page="${currentPage}" count="10"/>>10</a>
+			<a class="btn btn-default"
+				href=<mylib:link uri="dashboard" page="${currentPage}" count="50"/>>50</a>
+			<a class="btn btn-default"
+				href=<mylib:link uri="dashboard" page="${currentPage}" count="100"/>>100</a>
 		</div>
 	</div>
 	</footer>

@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.excilys.cdb.dao.DAO;
 import com.excilys.cdb.exceptions.NoObjectException;
@@ -32,7 +34,13 @@ public class ComputerDAO implements DAO<Computer> {
     /**
      * Requete pour le findAll.
      */
-    private final String ALL_COMPUTERS = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id LIMIT ?,?";
+    private final String ALL_COMPUTERS = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id";
+
+
+    /**
+     * Requete pour le findPerPage.
+     */
+    private final String ALL_COMPUTERS_PER_PAGE = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id LIMIT ?,?";
 
     /**
      * Requete pour le findById.
@@ -79,7 +87,35 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     /**
-     * Permet de récupérer la liste de tous les computer.
+     * Récupère la liste de tous les computers.
+     * @return la liste des computers
+     * @throws SQLException
+     *              Exception SQL lancée
+     */
+    @Override
+    public List<Computer> findAll() throws SQLException {
+        List<Computer> computers = new ArrayList<>();
+        statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            Company company;
+            if (rs.getInt("company.id") > 0) {
+                company = new Company(rs.getInt("company.id"), rs.getString("company.name"));
+            } else {
+                company = null;
+            }
+            Computer computer = new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
+                    .introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
+                    .discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
+                    .manufacturer(company).build();
+
+            computers.add(computer);
+        }
+        return computers;
+    }
+
+    /**
+     * Permet de récupérer la liste de tous les computer page par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -87,11 +123,11 @@ public class ComputerDAO implements DAO<Computer> {
      * @return La liste des computer
      */
     @Override
-    public Page<Computer> findAll(int page, int resultPerPage) throws SQLException {
+    public Page<Computer> findPerPage(int page, int resultPerPage) throws SQLException {
         if (page >= 0 && resultPerPage >= 1) {
             Page<Computer> computers = new Page<>();
             computers.setResultPerPage(resultPerPage);
-            statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
+            statement = connection.prepareStatement(ALL_COMPUTERS_PER_PAGE, ResultSet.CONCUR_READ_ONLY);
             statement.setInt(1, page * resultPerPage);
             statement.setInt(2, resultPerPage);
             ResultSet rs = statement.executeQuery();
