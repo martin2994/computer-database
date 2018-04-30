@@ -63,16 +63,6 @@ public class DashBoardServlet extends HttpServlet {
                 .collect(Collectors.toList());
         request.setAttribute("nbComputers", numberComputer);
         request.setAttribute("page", pageDTO);
-        String action = request.getParameter("todo");
-        if (action != null) {
-            switch (action) {
-            case "":
-                break;
-            default:
-                break;
-            }
-        }
-
         this.getServletContext().getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request, response);
     }
 

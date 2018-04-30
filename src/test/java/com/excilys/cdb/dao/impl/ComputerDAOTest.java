@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.After;
@@ -70,7 +71,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindAll() throws SQLException {
         List<Computer> list = computerDAO.findAll();
-        assertTrue(list.size() == 13);
+        assertTrue(list.size() == 15);
     }
 
     /**
@@ -156,7 +157,7 @@ public class ComputerDAOTest {
     @Test
     public void testAdd() throws SQLException, NoObjectException {
         long id = computerDAO.add(computerTest);
-        assertTrue(id == 13);
+        assertTrue(id == 15);
     }
 
     /**
@@ -205,7 +206,27 @@ public class ComputerDAOTest {
     public void testAddWithId() throws SQLException, NoObjectException {
         computerTest.setId(1L);
         long id = computerDAO.add(computerTest);
-        assertTrue(id == 14);
+        assertTrue(id == 16);
+    }
+
+    /**
+     * Teste la fonction Add avec des dates.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws NoObjectException
+     *             Exception lancée quand un objet est null ou inexistant
+     */
+    @Test
+    public void testAddDate() throws SQLException, NoObjectException {
+        computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
+        long id = computerDAO.add(computerTest);
+        Computer computer = computerDAO.findById(id);
+        assertTrue(computer.getIntroduced().equals(LocalDate.parse("2010-01-01")));
+        assertNull(computer.getDiscontinued());
+        computerTest.setDiscontinued(LocalDate.parse("2011-01-01"));
+        id = computerDAO.add(computerTest);
+        computer = computerDAO.findById(id);
+        assertTrue(computer.getDiscontinued().equals(LocalDate.parse("2011-01-01")));
     }
 
     /**
@@ -219,6 +240,9 @@ public class ComputerDAOTest {
     public void testUpdate() throws SQLException, NoObjectException {
         Computer computer = computerTest;
         computer.setId(5L);
+        Company company = new Company();
+        company.setId(1L);
+        computer.setManufacturer(company);
         Computer computer2 = computerDAO.update(computer);
         assertTrue(computer2.equals(computer));
     }
@@ -274,6 +298,25 @@ public class ComputerDAOTest {
     }
 
     /**
+     * Teste la fonction Update avec des dates.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws NoObjectException
+     *             Exception lancée quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateDate() throws SQLException, NoObjectException {
+        computerTest.setId(4L);
+        computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
+        Computer computer = computerDAO.update(computerTest);
+        assertTrue(computer.getIntroduced().equals(LocalDate.parse("2010-01-01")));
+        assertNull(computer.getDiscontinued());
+        computerTest.setDiscontinued(LocalDate.parse("2011-01-01"));
+        computer = computerDAO.update(computerTest);
+        assertTrue(computer.getDiscontinued().equals(LocalDate.parse("2011-01-01")));
+    }
+
+    /**
      * Teste le cas normal de la fonction Delete.
      * @throws SQLException
      *             exception SQL lancée
@@ -305,7 +348,7 @@ public class ComputerDAOTest {
     @Test
     public void testCount() throws SQLException {
         int maxPage = computerDAO.count();
-        assertTrue(maxPage == 13);
+        assertTrue(maxPage == 15);
     }
 
     /**

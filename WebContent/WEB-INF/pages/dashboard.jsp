@@ -25,7 +25,7 @@
 
 	<section id="main">
 	<div class="container">
-		<h1 id="homeTitle">${nbComputers}Computers found</h1>
+		<h1 id="homeTitle">${nbComputers}&nbsp;Computers found</h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
 				<form id="searchForm" action="#" method="GET" class="form-inline">
@@ -87,7 +87,6 @@
 		</table>
 	</div>
 	</section>
-
 	<footer class="navbar-fixed-bottom">
 	<div class="container text-center">
 

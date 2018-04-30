@@ -2,6 +2,10 @@ package com.excilys.cdb.controller;
 
 import java.time.LocalDate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.excilys.cdb.exceptions.InvalidComputerException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
@@ -18,6 +22,12 @@ public class CDBController {
      * Facade de l'application.
      */
     private Facade facade;
+
+    /**
+     * LOGGER.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+
 
     /**
      * Constructeur qui assigne la facade au controleur.
@@ -169,7 +179,11 @@ public class CDBController {
     public long createComputer(String name, String intro, String disco, String companyId) {
         Computer newComputer = fillComputer(null, name, intro, disco, companyId);
         if (null != newComputer) {
-            return facade.createComputer(newComputer);
+            try {
+                return facade.createComputer(newComputer);
+            } catch (InvalidComputerException e) {
+                LOGGER.info("INVALID COMPUTER CREATE " + e.getMessage());
+            }
         }
         return 0;
     }

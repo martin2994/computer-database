@@ -10,6 +10,7 @@ import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.enums.DAOType;
+import com.excilys.cdb.exceptions.InvalidComputerException;
 import com.excilys.cdb.exceptions.NoDAOException;
 import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.NoObjectException;
@@ -152,27 +153,29 @@ public class Facade {
      * @param computer
      *            le computer à créer
      * @return l'id du nouveau computer
+     * @throws InvalidComputerException
+     *             Exception lancée quand le computer n'est pas valide
      */
-    public long createComputer(Computer computer) {
+    public long createComputer(Computer computer) throws InvalidComputerException {
         try {
             if (computer == null) {
                 LOGGER.info("INVALID COMPUTER FOR CREATE");
                 return 0;
             }
-            if (computer.getName() == null) {
-                LOGGER.info("INVALID NAME FOR CREATE");
-                return 0;
+            if (computer.getName() == null || computer.getName().equals("")) {
+                LOGGER.info("INVALID COMPANY NAME FOR CREATE");
+                throw new InvalidComputerException("Invalid computer name.");
             }
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
                     LOGGER.info("INVALID COMPANY FOR CREATE");
-                    return 0;
+                    throw new InvalidComputerException("Invalid company.");
                 }
             }
             if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
                 if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
                     LOGGER.info("INVALID DATE COMPUTER FOR CREATE");
-                    return 0;
+                    throw new InvalidComputerException("Invalid dates.");
                 }
             }
             return computerDAO.add(computer);
