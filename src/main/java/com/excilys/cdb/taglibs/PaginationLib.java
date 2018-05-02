@@ -56,29 +56,18 @@ public class PaginationLib extends SimpleTagSupport {
         try {
             writer.write("<ul class=\"pagination\">");
             // affichage des first < et previous <<
-            if (currentPage > 1) {
-                writer.write(createLink(1, "<<"));
-                writer.write(createLink(currentPage - 1, "<"));
-            } else {
-                writer.write("<li><a disabled><<</a></li>");
-                writer.write("<li><a disabled><</a></li>");
-            }
+            writer.write(currentPage > 1 ? createLink(1, "<<") + createLink(currentPage - 1, "<")
+            : "<li class=\"disabled\"><a><<</a></li>" + "<li class=\"disabled\"><a><</a></li>");
+
             // affichage des différentes pages visibles
             for (int i = startPage; i < endPage; i++) {
-                if (i == currentPage) {
-                    writer.write("<li class=\"active\"><a>" + currentPage + "</a></li>");
-                } else {
-                    writer.write(createLink(i, String.valueOf(i)));
-                }
+                writer.write(i == currentPage ? "<li class=\"active\"><a>" + currentPage + "</a></li>"
+                        : createLink(i, String.valueOf(i)));
             }
+
             // affichage des next > et last >>
-            if (currentPage < numberOfPage) {
-                writer.write(createLink(currentPage + 1, ">"));
-                writer.write(createLink(numberOfPage, ">>"));
-            } else {
-                writer.write("<li><a disabled>></a></li>");
-                writer.write("<li><a disabled>>></a></li>");
-            }
+            writer.write(currentPage < numberOfPage ? createLink(currentPage + 1, ">") + createLink(numberOfPage, ">>")
+            : "<li class=\"disabled\"><a>></a></li>" + "<li class=\"disabled\"><a>>></a></li>");
             writer.write("</ul>");
         } catch (Exception e) {
             LOGGER.debug("PAGINATION LIB ERROR " + e.getMessage());
