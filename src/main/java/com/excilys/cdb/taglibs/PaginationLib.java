@@ -36,13 +36,11 @@ public class PaginationLib extends SimpleTagSupport {
     @Override
     public void doTag() {
         Writer writer = getWriter();
-        // le nombre de page
         double numberPage = (double) numberOfElement / (double) elementPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
         if (currentPage > numberOfPage) {
             currentPage = numberOfPage;
         }
-        // calcule les pages à afficher
         int startPage = Math.max(currentPage - elementPerPage / 2, 1);
         int endPage = startPage + elementPerPage;
         if (endPage > numberOfPage) {
@@ -55,17 +53,14 @@ public class PaginationLib extends SimpleTagSupport {
         }
         try {
             writer.write("<ul class=\"pagination\">");
-            // affichage des first < et previous <<
             writer.write(currentPage > 1 ? createLink(1, "<<") + createLink(currentPage - 1, "<")
             : "<li class=\"disabled\"><a><<</a></li>" + "<li class=\"disabled\"><a><</a></li>");
 
-            // affichage des différentes pages visibles
             for (int i = startPage; i < endPage; i++) {
                 writer.write(i == currentPage ? "<li class=\"active\"><a>" + currentPage + "</a></li>"
                         : createLink(i, String.valueOf(i)));
             }
 
-            // affichage des next > et last >>
             writer.write(currentPage < numberOfPage ? createLink(currentPage + 1, ">") + createLink(numberOfPage, ">>")
             : "<li class=\"disabled\"><a>></a></li>" + "<li class=\"disabled\"><a>>></a></li>");
             writer.write("</ul>");

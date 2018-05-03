@@ -6,10 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.excilys.cdb.dao.DAO;
 import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
 /**
@@ -94,8 +94,8 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public Page<Company> findPerPage(int page, int resultPerPage) throws SQLException {
+        Page<Company> companies = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
-            Page<Company> companies = new Page<>();
             companies.setResultPerPage(resultPerPage);
             statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE);
             statement.setInt(1, page * resultPerPage);
@@ -108,9 +108,8 @@ public class CompanyDAO implements DAO<Company> {
             statement.close();
             companies.setCurrentPage(page);
             companies.setMaxPage(count());
-            return companies;
         }
-        return null;
+        return companies;
     }
 
     /**
@@ -120,14 +119,15 @@ public class CompanyDAO implements DAO<Company> {
      * @return La company correspondante
      */
     @Override
-    public Company findById(long id) throws SQLException {
+    public Optional<Company> findById(long id) throws SQLException {
         statement = connection.prepareStatement(COMPANY_BY_ID);
         statement.setLong(1, id);
         ResultSet rs = statement.executeQuery();
+        Optional<Company> company = Optional.empty();
         if (rs.next()) {
-            return new Company(rs.getInt("id"), rs.getString("name"));
+            company = Optional.ofNullable(new Company(rs.getInt("id"), rs.getString("name")));
         }
-        return null;
+        return company;
     }
 
     /**
@@ -154,7 +154,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public Computer update(Company t) {
+    public Optional<Company> update(Company t) {
         return null;
     }
 

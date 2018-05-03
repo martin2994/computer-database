@@ -1,4 +1,4 @@
-package com.excilys.cdb.exceptions;
+package com.excilys.cdb.exceptions.computer;
 
 public class InvalidComputerException extends Exception {
 

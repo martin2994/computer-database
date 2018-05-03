@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -81,13 +82,13 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindById() throws SQLException {
-        Computer computer = computerDAO.findById(1L);
-        assertTrue(computer.getName().equals("MacBook"));
+        Computer computer = computerDAO.findById(1L).get();
+        assertTrue("MacBook".equals(computer.getName()));
         assertTrue(computer.getId() == 1L);
         assertNull(computer.getIntroduced());
         assertNull(computer.getDiscontinued());
         assertTrue(computer.getManufacturer().getId() == 1L);
-        assertTrue(computer.getManufacturer().getName().equals("Apple Inc."));
+        assertTrue("Apple Inc.".equals(computer.getManufacturer().getName()));
     }
 
     /**
@@ -97,8 +98,8 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindByIdBadId() throws SQLException {
-        Computer computer = computerDAO.findById(-1L);
-        assertNull(computer);
+        exception.expect(NoSuchElementException.class);
+        computerDAO.findById(-1L).get();
     }
 
     /**
@@ -122,7 +123,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindPerPageBadResultPerPage() throws SQLException {
         Page<Computer> page = computerDAO.findPerPage(0, -1);
-        assertNull(page);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
@@ -133,7 +134,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindPerPagePageSup() throws SQLException {
         Page<Computer> page = computerDAO.findPerPage(100, 10);
-        assertTrue(page.getResults().size() == 0);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
@@ -144,7 +145,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindPerPagePageInf() throws SQLException {
         Page<Computer> page = computerDAO.findPerPage(-1, 10);
-        assertNull(page);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
@@ -220,12 +221,12 @@ public class ComputerDAOTest {
     public void testAddDate() throws SQLException, NoObjectException {
         computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
         long id = computerDAO.add(computerTest);
-        Computer computer = computerDAO.findById(id);
+        Computer computer = computerDAO.findById(id).get();
         assertTrue(computer.getIntroduced().equals(LocalDate.parse("2010-01-01")));
         assertNull(computer.getDiscontinued());
         computerTest.setDiscontinued(LocalDate.parse("2011-01-01"));
         id = computerDAO.add(computerTest);
-        computer = computerDAO.findById(id);
+        computer = computerDAO.findById(id).get();
         assertTrue(computer.getDiscontinued().equals(LocalDate.parse("2011-01-01")));
     }
 
@@ -243,7 +244,7 @@ public class ComputerDAOTest {
         Company company = new Company();
         company.setId(1L);
         computer.setManufacturer(company);
-        Computer computer2 = computerDAO.update(computer);
+        Computer computer2 = computerDAO.update(computer).get();
         assertTrue(computer2.equals(computer));
     }
 
@@ -258,8 +259,8 @@ public class ComputerDAOTest {
     public void testUpdateWithInexistantId() throws SQLException, NoObjectException {
         Computer computer = computerTest;
         computer.setId(700L);
-        Computer computer2 = computerDAO.update(computer);
-        assertNull(computer2);
+        exception.expect(NoSuchElementException.class);
+        computerDAO.update(computer).get();
     }
 
     /**
@@ -308,11 +309,11 @@ public class ComputerDAOTest {
     public void testUpdateDate() throws SQLException, NoObjectException {
         computerTest.setId(4L);
         computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
-        Computer computer = computerDAO.update(computerTest);
+        Computer computer = computerDAO.update(computerTest).get();
         assertTrue(computer.getIntroduced().equals(LocalDate.parse("2010-01-01")));
         assertNull(computer.getDiscontinued());
         computerTest.setDiscontinued(LocalDate.parse("2011-01-01"));
-        computer = computerDAO.update(computerTest);
+        computer = computerDAO.update(computerTest).get();
         assertTrue(computer.getDiscontinued().equals(LocalDate.parse("2011-01-01")));
     }
 
@@ -323,9 +324,9 @@ public class ComputerDAOTest {
      */
     @Test
     public void testDelete() throws SQLException {
-        computerDAO.delete(3L);
-        Computer computer = computerDAO.findById(3L);
-        assertNull(computer);
+        assertTrue(computerDAO.delete(3L));
+        exception.expect(NoSuchElementException.class);
+        computerDAO.findById(3L).get();
     }
 
     /**
@@ -335,9 +336,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testDeleteNoComputer() throws SQLException {
-        computerDAO.delete(100L);
-        Computer computer = computerDAO.findById(100L);
-        assertNull(computer);
+        assertFalse(computerDAO.delete(100L));
     }
 
     /**

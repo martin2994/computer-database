@@ -1,6 +1,7 @@
 package com.excilys.cdb.services;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,13 +11,17 @@ import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.enums.DAOType;
-import com.excilys.cdb.exceptions.InvalidComputerException;
 import com.excilys.cdb.exceptions.NoDAOException;
 import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
+import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
+import com.excilys.cdb.validators.CompanyValidator;
+import com.excilys.cdb.validators.ComputerValidator;
 
 /**
  * Facade Regroupe les différentes actions de l'utilisateur.
@@ -73,7 +78,7 @@ public class Facade {
         } catch (SQLException e) {
             LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
         }
-        return null;
+        return new Page<>();
     }
 
     /**
@@ -86,7 +91,7 @@ public class Facade {
         } catch (SQLException e) {
             LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -107,7 +112,7 @@ public class Facade {
         } catch (SQLException e) {
             LOGGER.debug("FIND ALL COMPANIES: " + e.getMessage());
         }
-        return null;
+        return new Page<>();
     }
 
     /**
@@ -115,18 +120,17 @@ public class Facade {
      * @param id
      *            l'id de la company
      * @return la company
+     * @throws InvalidCompanyException
+     *             Exception sur les companies
      */
-    public Company getCompany(long id) {
+    public Company getCompany(long id) throws InvalidCompanyException {
         try {
-            if (id > 0) {
-                return companyDAO.findById(id);
-            } else {
-                LOGGER.info("INVALID COMPANY ID FOR DETAILS");
-            }
+            CompanyValidator.isValidId(id);
+            return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException("L'id n'est pas valide."));
         } catch (SQLException e) {
             LOGGER.debug("GET COMPANY " + id + ": " + e.getMessage());
         }
-        return null;
+        throw new InvalidCompanyException("Une erreur est survenue.");
     }
 
     /**
@@ -134,18 +138,17 @@ public class Facade {
      * @param id
      *            l'id du computer à chercher
      * @return le computer
+     * @throws InvalidComputerException
+     *             Exception sur les computers
      */
-    public Computer getComputerDetails(long id) {
+    public Computer getComputerDetails(long id) throws InvalidComputerException {
         try {
-            if (id > 0) {
-                return computerDAO.findById(id);
-            } else {
-                LOGGER.info("INVALID COMPUTER ID FOR DETAILS");
-            }
+            ComputerValidator.isValidId(id);
+            return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException("L'id n'est pas valide."));
         } catch (SQLException e) {
             LOGGER.debug("GET COMPUTER " + id + ": " + e.getMessage());
         }
-        return null;
+        throw new InvalidComputerException("Une erreur est survenue.");
     }
 
     /**
@@ -155,31 +158,19 @@ public class Facade {
      * @return l'id du nouveau computer
      * @throws InvalidComputerException
      *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company n'est pas valide
      */
-    public long createComputer(Computer computer) throws InvalidComputerException {
+    public long createComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException {
         try {
-            if (computer == null) {
-                LOGGER.info("INVALID COMPUTER FOR CREATE");
-                return 0;
-            }
-            if (computer.getName() == null || computer.getName().equals("")) {
-                LOGGER.info("INVALID COMPANY NAME FOR CREATE");
-                throw new InvalidComputerException("Invalid computer name.");
-            }
+            ComputerValidator.isValidComputer(computer);
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
-                    LOGGER.info("INVALID COMPANY FOR CREATE");
-                    throw new InvalidComputerException("Invalid company.");
-                }
-            }
-            if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
-                if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
-                    LOGGER.info("INVALID DATE COMPUTER FOR CREATE");
-                    throw new InvalidComputerException("Invalid dates.");
+                    LOGGER.info("INVALID COMPANY FOR UPDATE COMPUTER");
+                    throw new InvalidCompanyException("La company n'existe pas.");
                 }
             }
             return computerDAO.add(computer);
-
         } catch (SQLException e) {
             LOGGER.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
         } catch (NoObjectException e) {
@@ -193,41 +184,33 @@ public class Facade {
      * @param computer
      *            les nouvelles informations du computer à modifier
      * @return le nouveau computer
+     * @throws InvalidComputerException
+     *             Exception sur les computers
+     * @throws InvalidCompanyException
+     *             Exception sur les companies
      */
-    public Computer updateComputer(Computer computer) {
+    public Computer updateComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException {
         try {
-            if (computer == null) {
-                LOGGER.info("INVALID COMPUTER FOR UPDATE");
-                return null;
-            }
-            if (computer.getName() == null) {
-                LOGGER.info("INVALID NAME FOR UPDATE");
-                return null;
-            }
+            ComputerValidator.isValidComputer(computer);
             if (!computerDAO.isExist(computer.getId())) {
                 LOGGER.info("INVALID COMPUTER FOR UPDATE");
-                return null;
+                throw new InvalidComputerException("Le computer n'existe pas.");
             }
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
-                    LOGGER.info("INVALID COMPANY FOR UPDATE");
-                    return null;
+                    LOGGER.info("INVALID COMPANY FOR UPDATE COMPUTER");
+                    throw new InvalidCompanyException("La company n'existe pas.");
                 }
             }
-            if (computer.getDiscontinued() != null && computer.getIntroduced() != null) {
-                if (computer.getDiscontinued().isBefore(computer.getIntroduced())) {
-                    LOGGER.info("INVALID DATE COMPUTER FOR UPDATE");
-                    return null;
-                }
-            }
-            return computerDAO.update(computer);
+            return computerDAO.update(computer)
+                    .orElseThrow(() -> new InvalidComputerException("Les infos du computer ne sont pas valides."));
 
         } catch (SQLException e) {
             LOGGER.debug("UPDATE COMPUTER " + computer.getId() + ": " + e.getMessage());
         } catch (NoObjectException e) {
             LOGGER.debug("UPDATE COMPUTER NULL " + e.getMessage());
         }
-        return null;
+        throw new InvalidComputerException("Une erreur s'est produite.");
     }
 
     /**
@@ -235,15 +218,14 @@ public class Facade {
      * @param id
      *            l'id du computer à supprimer
      * @return Si la suppression a été effectuée
+     * @throws InvalidIdException
+     *             Exception lancée si l'id du computer n'est pas valide
      */
-    public boolean deleteComputer(long id) {
+    public boolean deleteComputer(long id) throws InvalidIdException {
         try {
-            if (id > 0) {
-                if (computerDAO.delete(id)) {
-                    return true;
-                }
-            } else {
-                LOGGER.info("INVALID COMPUTER ID FOR DELETE");
+            ComputerValidator.isValidId(id);
+            if (computerDAO.delete(id)) {
+                return true;
             }
         } catch (SQLException e) {
             LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());

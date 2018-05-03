@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.cdb.exceptions.InvalidComputerException;
+import org.apache.commons.lang3.StringUtils;
+
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
@@ -45,9 +48,10 @@ public class AddComputerServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Company> companies = facade.getCompanies();
         String buttonTest = request.getParameter("buttonTest");
+        String message = null, erreur = null;
         try {
-            if (buttonTest != null) {
-                if (buttonTest.equals("Add")) {
+            if (!StringUtils.isBlank(buttonTest)) {
+                if ("Add".equals(buttonTest)) {
                     String name = request.getParameter("computerName");
                     String introduced = request.getParameter("introduced");
                     LocalDate introducedDate = null;
@@ -61,7 +65,7 @@ public class AddComputerServlet extends HttpServlet {
                     }
                     String companyId = request.getParameter("companyId");
                     Company company = null;
-                    if (companyId != null && !companyId.equals("0")) {
+                    if (companyId != null && !"0".equals(companyId)) {
                         company = companies.stream()
                                 .filter(currentCompany -> currentCompany.getId() == Integer.parseInt(companyId))
                                 .findFirst().orElse(null);
@@ -70,17 +74,22 @@ public class AddComputerServlet extends HttpServlet {
                             .discontinued(discontinuedDate).manufacturer(company).build();
                     long idNewComputer = facade.createComputer(computer);
                     if (idNewComputer == 0) {
-                        request.setAttribute("erreur", "Computer not created.");
+                        erreur = "Computer not created.";
                     } else {
-                        request.setAttribute("message", "Computer created.");
+                        message = "Computer created.";
                     }
                 }
             }
         } catch (InvalidComputerException e) {
-            request.setAttribute("erreur", e.getMessage());
+            erreur = e.getMessage();
         } catch (DateTimeParseException e) {
-            request.setAttribute("erreur", "Invalid date format.");
+            erreur = "Invalid date format.";
+        } catch (InvalidCompanyException e) {
+            erreur = "Invalid company.";
+            e.printStackTrace();
         }
+        request.setAttribute("message", message);
+        request.setAttribute("erreur", erreur);
         request.setAttribute("companies", companies);
         this.getServletContext().getRequestDispatcher("/WEB-INF/pages/addComputer.jsp").forward(request, response);
     }

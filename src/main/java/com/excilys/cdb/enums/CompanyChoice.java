@@ -27,7 +27,7 @@ public enum CompanyChoice {
      */
     public static CompanyChoice get(String s) {
         for (CompanyChoice companyChoice : CompanyChoice.values()) {
-            if (s.equalsIgnoreCase(companyChoice.value)) {
+            if (companyChoice.value.equalsIgnoreCase(s)) {
                 return companyChoice;
             }
         }

@@ -31,7 +31,7 @@ public enum MenuChoice {
      */
     public static MenuChoice get(String s) {
         for (MenuChoice menuChoice : MenuChoice.values()) {
-            if (s.equalsIgnoreCase(menuChoice.value)) {
+            if (menuChoice.value.equalsIgnoreCase(s)) {
                 return menuChoice;
             }
         }

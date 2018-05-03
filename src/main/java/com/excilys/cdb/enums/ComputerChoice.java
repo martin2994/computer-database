@@ -33,7 +33,7 @@ public enum ComputerChoice {
      */
     public static ComputerChoice get(String s) {
         for (ComputerChoice computerChoice : ComputerChoice.values()) {
-            if (s.equalsIgnoreCase(computerChoice.value)) {
+            if (computerChoice.value.equalsIgnoreCase(s)) {
                 return computerChoice;
             }
         }

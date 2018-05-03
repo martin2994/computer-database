@@ -2,13 +2,13 @@ package com.excilys.cdb.services;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,8 +24,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
-import com.excilys.cdb.exceptions.InvalidComputerException;
 import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
+import com.excilys.cdb.exceptions.computer.InvalidDateException;
+import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
@@ -88,7 +91,7 @@ public class FacadeTest {
      */
     @Test
     public void testGetComputersBadResultPerPage() {
-        assertNull(facade.getComputers(0, -1));
+        assertTrue(facade.getComputers(0, -1).getResults().isEmpty());
     }
 
     /**
@@ -97,7 +100,7 @@ public class FacadeTest {
     @Test
     public void testGetComputersWithBadPageInf() {
         Page<Computer> computers = facade.getComputers(-1, 10);
-        assertNull(computers);
+        assertTrue(computers.getResults().isEmpty());
     }
 
     /**
@@ -108,7 +111,7 @@ public class FacadeTest {
     @Test
     public void testGetComputersException() throws SQLException {
         Mockito.when(computerDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
-        assertNull(facade.getComputers(1, 10));
+        assertTrue(facade.getComputers(1, 10).getResults().isEmpty());
         Mockito.verify(computerDAO).findPerPage(1, 10);
     }
 
@@ -146,7 +149,7 @@ public class FacadeTest {
      */
     @Test
     public void testGetCompaniesBadResultPerPage() {
-        assertNull(facade.getCompanies(0, -1));
+        assertTrue(facade.getCompanies(0, -1).getResults().isEmpty());
     }
 
     /**
@@ -155,7 +158,7 @@ public class FacadeTest {
     @Test
     public void testGetCompaniesWithBadPageInf() {
         Page<Company> companies = facade.getCompanies(-1, 10);
-        assertNull(companies);
+        assertTrue(companies.getResults().isEmpty());
     }
 
     /**
@@ -166,7 +169,7 @@ public class FacadeTest {
     @Test
     public void testGetCompaniesException() throws SQLException {
         Mockito.when(companyDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
-        assertNull(facade.getCompanies(1, 10));
+        assertTrue(facade.getCompanies(1, 10).getResults().isEmpty());
         Mockito.verify(companyDAO).findPerPage(1, 10);
     }
 
@@ -174,33 +177,39 @@ public class FacadeTest {
      * Teste le cas normal de la fonction GetCompany.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testGetCompany() throws SQLException {
-        Mockito.when(companyDAO.findById(1L)).thenReturn(company);
-        assertTrue(facade.getCompany(1L).getName().equals("test"));
+    public void testGetCompany() throws SQLException, InvalidCompanyException {
+        Mockito.when(companyDAO.findById(1L)).thenReturn(Optional.ofNullable(company));
+        assertTrue("test".equals(facade.getCompany(1L).getName()));
         Mockito.verify(companyDAO).findById(1L);
     }
 
     /**
      * Teste la fonction GetCompany avec un id négatif.
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testGetCompanyWithBadId() {
-        Company company = facade.getCompany(-1L);
-        assertNull(company);
+    public void testGetCompanyWithBadId() throws InvalidCompanyException {
+        exception.expect(InvalidCompanyException.class);
+        facade.getCompany(-1L);
     }
 
     /**
      * Teste la fonction GetCompany quand une exception est lancée.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testGetCompanyException() throws SQLException {
+    public void testGetCompanyException() throws SQLException, InvalidCompanyException {
         Mockito.when(companyDAO.findById(1L)).thenThrow(SQLException.class);
-        Company company = facade.getCompany(1);
-        assertNull(company);
+        exception.expect(InvalidCompanyException.class);
+        facade.getCompany(1);
         Mockito.verify(companyDAO).findById(1L);
     }
 
@@ -208,32 +217,39 @@ public class FacadeTest {
      * Teste le cas normal de la fonction GetComputerDetails.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidComputerException
+     *             Exception lancée quand le computer n'est pas valide
      */
     @Test
-    public void testGetComputerDetails() throws SQLException {
-        Mockito.when(computerDAO.findById(1L)).thenReturn(computer);
-        assertTrue(facade.getComputerDetails(1L).getName().equals("test"));
+    public void testGetComputerDetails() throws SQLException, InvalidComputerException {
+        Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.ofNullable(computer));
+        assertTrue("test".equals(facade.getComputerDetails(1L).getName()));
         Mockito.verify(computerDAO).findById(1L);
     }
 
     /**
      * Teste la fonction GetComputer avec un id négatif.
+     * @throws InvalidComputerException
+     *             Exception lancée quand le computer n'est pas valide
      */
     @Test
-    public void testGetComputerWithBadId() {
-        Computer computer = facade.getComputerDetails(-1L);
-        assertNull(computer);
+    public void testGetComputerWithBadId() throws InvalidComputerException {
+        exception.expect(InvalidIdException.class);
+        facade.getComputerDetails(-1L);
     }
 
     /**
      * Teste la fonction GetComputer quand une exception est lancée.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidComputerException
+     *             Exception lancée quand le computer n'est pas valide
      */
     @Test
-    public void testGetComputerException() throws SQLException {
+    public void testGetComputerException() throws SQLException, InvalidComputerException {
         Mockito.when(computerDAO.findById(1L)).thenThrow(SQLException.class);
-        assertNull(facade.getComputerDetails(1));
+        exception.expect(InvalidComputerException.class);
+        facade.getComputerDetails(1);
         Mockito.verify(computerDAO).findById(1L);
     }
 
@@ -245,9 +261,12 @@ public class FacadeTest {
      *             Exception lancée quand un objet est à null ou inexistant
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputer() throws SQLException, NoObjectException, InvalidComputerException {
+    public void testCreateComputer()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         Mockito.when(computerDAO.add(computer)).thenReturn(1L);
         assertTrue(facade.createComputer(computer) == 1L);
         Mockito.verify(computerDAO).add(computer);
@@ -257,19 +276,24 @@ public class FacadeTest {
      * Teste la fonction Create avec un objet null.
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerNull() throws InvalidComputerException {
-        assertTrue(0 == facade.createComputer(null));
+    public void testCreateComputerNull() throws InvalidComputerException, InvalidCompanyException {
+        exception.expect(InvalidComputerException.class);
+        facade.createComputer(null);
     }
 
     /**
      * Teste la fonction Create avec un nom null.
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerNameNull() throws InvalidComputerException {
+    public void testCreateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
         computer.setName(null);
         exception.expect(InvalidComputerException.class);
         facade.createComputer(computer);
@@ -281,12 +305,14 @@ public class FacadeTest {
      *             Exception SQL lancée
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerBadCompany() throws SQLException, InvalidComputerException {
+    public void testCreateComputerBadCompany() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(companyDAO.isExist(60L)).thenReturn(false);
-        exception.expect(InvalidComputerException.class);
+        exception.expect(InvalidCompanyException.class);
         facade.createComputer(computer);
         Mockito.verify(companyDAO).isExist(60L);
     }
@@ -295,9 +321,11 @@ public class FacadeTest {
      * Teste la fonction create avec des mauvaises dates.
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerBadDates() throws InvalidComputerException {
+    public void testCreateComputerBadDates() throws InvalidComputerException, InvalidCompanyException {
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
         exception.expect(InvalidComputerException.class);
@@ -312,9 +340,12 @@ public class FacadeTest {
      *             Exception lancée quand un objet est null ou inexistant
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerExceptionSQL() throws SQLException, NoObjectException, InvalidComputerException {
+    public void testCreateComputerExceptionSQL()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         Mockito.when(computerDAO.add(computer)).thenThrow(SQLException.class);
         assertTrue(0 == facade.createComputer(computer));
         Mockito.verify(computerDAO).add(computer);
@@ -328,9 +359,12 @@ public class FacadeTest {
      *             Exception lancée quand un objet est null ou inexistant
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalides
+     * @throws InvalidCompanyException
+     *             Exception lancée quand la company est invalide
      */
     @Test
-    public void testCreateComputerExceptionNoObject() throws SQLException, NoObjectException, InvalidComputerException {
+    public void testCreateComputerExceptionNoObject()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         Mockito.when(computerDAO.add(computer)).thenThrow(NoObjectException.class);
         assertTrue(0 == facade.createComputer(computer));
         Mockito.verify(computerDAO).add(computer);
@@ -342,12 +376,17 @@ public class FacadeTest {
      *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est à null ou inexistant
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputer() throws SQLException, NoObjectException {
+    public void testUpdateComputer()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        Mockito.when(computerDAO.update(computer)).thenReturn(computer);
+        Mockito.when(computerDAO.update(computer)).thenReturn(Optional.ofNullable(computer));
         assertTrue(facade.updateComputer(computer).equals(computer));
         Mockito.verify(computerDAO).isExist(1L);
         Mockito.verify(computerDAO).update(computer);
@@ -355,34 +394,49 @@ public class FacadeTest {
 
     /**
      * Teste la fonction Update avec un objet null.
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerNull() {
-        assertNull(facade.updateComputer(null));
+    public void testUpdateComputerNull() throws InvalidComputerException, InvalidCompanyException {
+        exception.expect(InvalidComputerException.class);
+        facade.updateComputer(null);
     }
 
     /**
      * Teste la fonction Update avec un nom null.
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerNameNull() {
+    public void testUpdateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         computer.setName(null);
-        assertNull(facade.updateComputer(computer));
+        exception.expect(InvalidComputerException.class);
+        facade.updateComputer(computer);
     }
 
     /**
      * Teste la fonction Update avec une mauvaise company.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerBadCompany() throws SQLException {
+    public void testUpdateComputerBadCompany() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
         Mockito.when(companyDAO.isExist(60L)).thenReturn(false);
-        assertNull(facade.updateComputer(computer));
+        exception.expect(InvalidCompanyException.class);
+        facade.updateComputer(computer);
         Mockito.verify(computerDAO).isExist(1L);
         Mockito.verify(companyDAO).isExist(60L);
     }
@@ -391,12 +445,17 @@ public class FacadeTest {
      * Teste la fonction update avec un mauvais id.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerBadId() throws SQLException {
+    public void testUpdateComputerBadId() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(false);
-        assertNull(facade.updateComputer(computer));
+        exception.expect(InvalidComputerException.class);
+        facade.updateComputer(computer);
         Mockito.verify(computerDAO).isExist(1L);
     }
 
@@ -404,15 +463,18 @@ public class FacadeTest {
      * Teste la fonction Update avec de mauvaises dates.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerBadDates() throws SQLException {
+    public void testUpdateComputerBadDates() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
-        Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        assertNull(facade.updateComputer(computer));
-        Mockito.verify(computerDAO).isExist(1L);
+        exception.expect(InvalidDateException.class);
+        facade.updateComputer(computer);
     }
 
     /**
@@ -421,13 +483,19 @@ public class FacadeTest {
      *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerExceptionSQL() throws SQLException, NoObjectException {
+    public void testUpdateComputerExceptionSQL()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         Mockito.when(computerDAO.update(computer)).thenThrow(SQLException.class);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        assertNull(facade.updateComputer(computer));
+        exception.expect(InvalidComputerException.class);
+        facade.updateComputer(computer);
         Mockito.verify(computerDAO).update(computer);
     }
 
@@ -437,13 +505,19 @@ public class FacadeTest {
      *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
+     * @throws InvalidCompanyException
+     *             Exception lancée quand le computer n'est pas valide
+     * @throws InvalidComputerException
+     *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerExceptionNoObject() throws SQLException, NoObjectException {
+    public void testUpdateComputerExceptionNoObject()
+            throws SQLException, NoObjectException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         Mockito.when(computerDAO.update(computer)).thenThrow(NoObjectException.class);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        assertNull(facade.updateComputer(computer));
+        exception.expect(InvalidComputerException.class);
+        facade.updateComputer(computer);
         Mockito.verify(computerDAO).update(computer);
     }
 
@@ -460,9 +534,11 @@ public class FacadeTest {
      * Teste le cas normal de la fonction DeleteComputer.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidIdException
+     *             Exception sur l'id d'un computer
      */
     @Test
-    public void testDeleteComputer() throws SQLException {
+    public void testDeleteComputer() throws SQLException, InvalidIdException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(true);
         assertTrue(facade.deleteComputer(1L));
         Mockito.verify(computerDAO).delete(1L);
@@ -473,9 +549,11 @@ public class FacadeTest {
      * Teste la fonction DeleteComputer quand il n'y a pas de correspodance.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidIdException
+     *             Exception sur l'id d'un computer
      */
     @Test
-    public void testDeleteComputerNoComputer() throws SQLException {
+    public void testDeleteComputerNoComputer() throws SQLException, InvalidIdException {
         Mockito.when(computerDAO.delete(1L)).thenReturn(false);
         assertFalse(facade.deleteComputer(1L));
         Mockito.verify(computerDAO).delete(1L);
@@ -486,19 +564,24 @@ public class FacadeTest {
      * Teste la fonction DeleteComputer quand l'id est négatif.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidIdException
+     *             Exception sur l'id d'un computer
      */
     @Test
-    public void testDeleteComputerBadIdInf() throws SQLException {
-        assertFalse(facade.deleteComputer(-1L));
+    public void testDeleteComputerBadIdInf() throws SQLException, InvalidIdException {
+        exception.expect(InvalidIdException.class);
+        facade.deleteComputer(-1L);
     }
 
     /**
      * Teste la fonction DeleteComputer quand la DAO lance une exception.
      * @throws SQLException
      *             Exception SQL lancée
+     * @throws InvalidIdException
+     *             Exception sur l'id d'un computer
      */
     @Test
-    public void testDeleteComputerException() throws SQLException {
+    public void testDeleteComputerException() throws SQLException, InvalidIdException {
         Mockito.when(computerDAO.delete(1L)).thenThrow(SQLException.class);
         assertFalse(facade.deleteComputer(1L));
         Mockito.verify(computerDAO).delete(1L);

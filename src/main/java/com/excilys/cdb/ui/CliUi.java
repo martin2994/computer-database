@@ -1,14 +1,18 @@
 package com.excilys.cdb.ui;
 
+import java.time.LocalDate;
 import java.util.Scanner;
 
-import com.excilys.cdb.controller.CDBController;
 import com.excilys.cdb.enums.CompanyChoice;
 import com.excilys.cdb.enums.ComputerChoice;
 import com.excilys.cdb.enums.DAOType;
 import com.excilys.cdb.enums.MenuChoice;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
+import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.services.Facade;
 import com.excilys.cdb.utils.Page;
 
 /**
@@ -46,7 +50,7 @@ public class CliUi {
     /**
      * Controleur.
      */
-    private CDBController controller;
+    private Facade facade;
 
     private final String R_NUMBER = "[0-9]+";
     private final String R_TEXT = "[a-zA-Z-0-9]+";
@@ -54,11 +58,11 @@ public class CliUi {
 
     /**
      * Constructeur pour attribuer le controler, le scanner et message d'arrivé.
-     * @param cdbController
-     *            le controleur de l'application
+     * @param facade
+     *            le service de l'application
      */
-    public CliUi(CDBController cdbController) {
-        controller = cdbController;
+    public CliUi(Facade facade) {
+        this.facade = facade;
         scanner = new Scanner(System.in);
         System.out.println("###################");
         System.out.println("######WELCOME######");
@@ -87,10 +91,10 @@ public class CliUi {
             } while (input == null);
             switch (input) {
             case LISTCOMPUTER:
-                showListComputers(controller.getComputers(currentPage.getCurrentPage()));
+                showListComputers(facade.getComputers(currentPage.getCurrentPage(), 5));
                 break;
             case LISTCOMPANY:
-                showListCompanies(controller.getCompanies(currentPage.getCurrentPage()));
+                showListCompanies(facade.getCompanies(currentPage.getCurrentPage(), 5));
                 break;
             case QUIT:
                 goToEnd();
@@ -136,7 +140,7 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPUTER);
-                Page<Computer> newPage = controller.getComputers(page);
+                Page<Computer> newPage = facade.getComputers(page, 5);
                 showListComputers(newPage);
                 break;
             case CREATECOMPUTER:
@@ -203,7 +207,7 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPANY);
-                Page<Company> newPage = controller.getCompanies(page);
+                Page<Company> newPage = facade.getCompanies(page, 5);
                 showListCompanies(newPage);
                 break;
             case BACK:
@@ -229,8 +233,13 @@ public class CliUi {
         do {
             id = scanner.nextLine();
         } while (!id.matches(R_NUMBER));
-        Computer computer = controller.getComputerDetails(id);
-        System.out.println(computer);
+        Computer computer;
+        try {
+            computer = facade.getComputerDetails(Long.parseLong(id));
+            System.out.println(computer);
+        } catch (InvalidComputerException e) {
+            System.out.println("Le computer choisi n'existe pas.");
+        }
     }
 
     /**
@@ -263,11 +272,20 @@ public class CliUi {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER) && !entry.equals(""));
         companyId = entry;
-        long newId = controller.createComputer(name, intro, disco, companyId);
-        if (newId > 0) {
-            System.out.println("CREATION EFFECTUEE DU COMPUTER " + newId);
-        } else {
-            System.out.println("CREATION NON EFFECTUEE");
+        Computer newComputer = null;
+        long newId;
+        try {
+            newComputer = fillComputer(null, name, intro, disco, companyId);
+            newId = facade.createComputer(newComputer);
+            if (newId > 0) {
+                System.out.println("CREATION EFFECTUEE DU COMPUTER " + newId);
+            } else {
+                System.out.println("CREATION NON EFFECTUEE");
+            }
+        } catch (InvalidComputerException e) {
+            System.out.println("Une erreur est survenue à cause du nouveau computer.");
+        } catch (InvalidCompanyException e) {
+            System.out.println("Une erreur est survenue à cause de la company du nouveau computer.");
         }
     }
 
@@ -281,39 +299,47 @@ public class CliUi {
         System.out.println();
         System.out.println("Tap ENTER if you don't want to specify this filed");
         System.out.println("Computer id:");
-        String entry, computerId, name, intro, disco, companyId;
-        do {
+        String entry, name, intro, disco, companyId;
+        try {
+            do {
+                do {
+                    entry = scanner.nextLine();
+                } while (!entry.matches(R_NUMBER));
+            } while (!isComputer(entry));
+            System.out.println("COMPUTER " + entry);
+            Computer computerToUpdate = null;
+            computerToUpdate = facade.getComputerDetails(Long.parseLong(entry));
+            System.out.println(computerToUpdate);
+
+            System.out.println("Name:");
             do {
                 entry = scanner.nextLine();
-            } while (!entry.matches(R_NUMBER));
-        } while (!controller.isComputer(entry));
-        System.out.println("COMPUTER " + entry);
-        System.out.println(controller.getComputerDetails(entry));
-        computerId = entry;
-        System.out.println("Name:");
-        do {
-            entry = scanner.nextLine();
-        } while (!entry.matches(R_TEXT));
-        name = entry;
-        System.out.println("Introduced date:");
-        do {
-            entry = scanner.nextLine();
-        } while (!entry.matches(R_DATE) && !entry.equals(""));
-        intro = entry;
-        System.out.println("Discontinued date:");
-        do {
-            entry = scanner.nextLine();
-        } while (!entry.matches(R_DATE) && !entry.equals(""));
-        disco = entry;
-        System.out.println("Company id:");
-        do {
-            entry = scanner.nextLine();
-        } while (!entry.matches(R_NUMBER) && !entry.equals(""));
-        companyId = entry;
-        if (controller.updateComputer(computerId, name, intro, disco, companyId)) {
+            } while (!entry.matches(R_TEXT));
+            name = entry;
+            System.out.println("Introduced date:");
+            do {
+                entry = scanner.nextLine();
+            } while (!entry.matches(R_DATE) && !entry.equals(""));
+            intro = entry;
+            System.out.println("Discontinued date:");
+            do {
+                entry = scanner.nextLine();
+            } while (!entry.matches(R_DATE) && !entry.equals(""));
+            disco = entry;
+            System.out.println("Company id:");
+            do {
+                entry = scanner.nextLine();
+            } while (!entry.matches(R_NUMBER) && !entry.equals(""));
+            companyId = entry;
+            Computer computerUpdate = fillComputer(computerToUpdate, name, intro, disco, companyId);
+            facade.updateComputer(computerUpdate);
             System.out.println("MISE A JOUR EFFECTUEE");
-        } else {
+        } catch (InvalidComputerException e) {
             System.out.println("MISE A JOUR NON EFFECTUEE");
+            System.out.println("Une erreur est survenue à cause des infos du computer.");
+        } catch (InvalidCompanyException e) {
+            System.out.println("MISE A JOUR NON EFFECTUEE");
+            System.out.println("Une erreur est survenue à cause de la company choisie.");
         }
     }
 
@@ -330,8 +356,12 @@ public class CliUi {
         do {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER));
-        controller.deleteComputer(entry);
-        System.out.println("SUPPRESION EFFECTUEE");
+        try {
+            facade.deleteComputer(Long.parseLong(entry));
+            System.out.println("SUPPRESION EFFECTUEE");
+        } catch (InvalidIdException e) {
+            System.out.println("SUPPRESION NON EFFECTUEE: Erreur à cause du computer choisi");
+        }
     }
 
     /**
@@ -342,6 +372,74 @@ public class CliUi {
         System.out.println("###################");
         System.out.println("########BYE########");
         System.out.println("###################");
+    }
+
+    /**
+     * Permet de savoir si le computer existe.
+     * @param computerId
+     *            l'id du computer à vérifier
+     * @return un booléen (true: existe, false: n'existe pas)
+     * @throws InvalidComputerException
+     *             Exception lancée à cause des infos du computer
+     */
+    public boolean isComputer(String computerId) throws InvalidComputerException {
+        return facade.getComputerDetails(Integer.parseInt(computerId)) != null;
+    }
+
+    /**
+     * Permet de créer un objet computer avec les champs adéquats.
+     * @param computer
+     *            l'objet initial ( pour l'update)
+     * @param name
+     *            le nom du computer
+     * @param intro
+     *            la date d'introduced du computer
+     * @param disco
+     *            la date de discontinued du computer
+     * @param companyId
+     *            l'id de la company du computer
+     * @return le computer avec les nouvelles informations
+     * @throws InvalidComputerException
+     *             Exception lancée à cause des infos du computer
+     * @throws InvalidCompanyException
+     *             Exception lancée à cause de la company
+     */
+    public Computer fillComputer(Computer computer, String name, String intro, String disco, String companyId)
+            throws InvalidComputerException, InvalidCompanyException {
+        String newName = null;
+        if (!name.equals("")) {
+            newName = name;
+        } else {
+            return null;
+        }
+        Computer newComputer = null;
+        if (computer != null) {
+            newComputer = computer;
+            newComputer.setName(newName);
+        } else {
+            newComputer = new Computer.Builder(newName).build();
+        }
+        LocalDate introD = null, discoD = null;
+        if (!intro.equals("")) {
+            introD = LocalDate.parse(intro);
+            newComputer.setIntroduced(introD);
+        }
+        if (!disco.equals("")) {
+            discoD = LocalDate.parse(disco);
+            newComputer.setDiscontinued(discoD);
+        }
+        if (discoD != null && introD != null) {
+            if (discoD.isBefore(introD)) {
+                return null;
+            }
+        }
+        if (!companyId.equals("")) {
+            newComputer.setManufacturer(facade.getCompany(Integer.parseInt(companyId)));
+        } else {
+            newComputer.setManufacturer(null);
+        }
+        System.out.println(newComputer);
+        return newComputer;
     }
 
 }

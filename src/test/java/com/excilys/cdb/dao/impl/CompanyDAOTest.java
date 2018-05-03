@@ -1,11 +1,11 @@
 package com.excilys.cdb.dao.impl;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,8 +54,8 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindById() throws SQLException {
-        Company company = companyDAO.findById(1L);
-        assertTrue(company.getName().equals("Apple Inc."));
+        Company company = companyDAO.findById(1L).get();
+        assertTrue("Apple Inc.".equals(company.getName()));
         assertTrue(company.getId() == 1L);
     }
 
@@ -66,8 +66,8 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindByIdBadId() throws SQLException {
-        Company company = companyDAO.findById(-1L);
-        assertNull(company);
+        exception.expect(NoSuchElementException.class);
+        companyDAO.findById(-1L).get();
     }
 
     /**
@@ -101,7 +101,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindPerPageBadResultPerPage() throws SQLException {
         Page<Company> page = companyDAO.findPerPage(0, -1);
-        assertNull(page);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
@@ -112,7 +112,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindPerPagePageSup() throws SQLException {
         Page<Company> page = companyDAO.findPerPage(100, 10);
-        assertTrue(page.getResults().size() == 0);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
@@ -123,7 +123,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindPerPagePageInf() throws SQLException {
         Page<Company> page = companyDAO.findPerPage(-1, 10);
-        assertNull(page);
+        assertTrue(page.getResults().isEmpty());
     }
 
     /**
