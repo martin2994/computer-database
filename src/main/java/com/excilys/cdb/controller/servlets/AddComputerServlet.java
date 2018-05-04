@@ -66,9 +66,7 @@ public class AddComputerServlet extends HttpServlet {
                     String companyId = request.getParameter("companyId");
                     Company company = null;
                     if (companyId != null && !"0".equals(companyId)) {
-                        company = companies.stream()
-                                .filter(currentCompany -> currentCompany.getId() == Integer.parseInt(companyId))
-                                .findFirst().orElse(null);
+                        company = facade.getCompany(Long.parseLong(companyId));
                     }
                     Computer computer = new Computer.Builder(name).introduced(introducedDate)
                             .discontinued(discontinuedDate).manufacturer(company).build();
@@ -86,7 +84,6 @@ public class AddComputerServlet extends HttpServlet {
             erreur = "Invalid date format.";
         } catch (InvalidCompanyException e) {
             erreur = "Invalid company.";
-            e.printStackTrace();
         }
         request.setAttribute("message", message);
         request.setAttribute("erreur", erreur);

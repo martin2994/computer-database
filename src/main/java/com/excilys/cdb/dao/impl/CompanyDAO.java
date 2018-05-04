@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.excilys.cdb.dao.DAO;
+import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -18,20 +19,9 @@ import com.excilys.cdb.utils.Page;
 public class CompanyDAO implements DAO<Company> {
 
     /**
-     * Connexion à la BD.
-     */
-    private Connection connection;
-
-    /**
-     * Transaction en cours.
-     */
-    private PreparedStatement statement;
-
-    /**
      * Requete pour le findAll.
      */
     private final String ALL_COMPANIES = "SELECT id,name FROM company";
-
 
     /**
      * Requete pour le findPerPage.
@@ -59,29 +49,29 @@ public class CompanyDAO implements DAO<Company> {
     private static CompanyDAO companyDAO;
 
     /**
-     * Constructeur pour initialiser la connexion.
-     * @param connection
-     *            La connexion en cours
+     * Constructeur privé vide.
      */
-    private CompanyDAO(Connection connection) {
-        this.connection = connection;
+    private CompanyDAO() {
     }
 
     /**
      * Permet de récupérer la liste de toutes les company.
      * @return La liste des Company
      * @throws SQLException
-     *              Exception SQL lancée
+     *             Exception SQL lancée
      */
     @Override
     public List<Company> findAll() throws SQLException {
         List<Company> companies = new ArrayList<>();
-        statement = connection.prepareStatement(ALL_COMPANIES);
-        ResultSet rs = statement.executeQuery();
-        while (rs.next()) {
-            companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES);
+                ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+            }
         }
         return companies;
+
     }
 
     /**
@@ -96,16 +86,17 @@ public class CompanyDAO implements DAO<Company> {
     public Page<Company> findPerPage(int page, int resultPerPage) throws SQLException {
         Page<Company> companies = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
-            companies.setResultPerPage(resultPerPage);
-            statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE);
-            statement.setInt(1, page * resultPerPage);
-            statement.setInt(2, resultPerPage);
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+            try (Connection connection = DAOFactory.getConnection();
+                    PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE)) {
+                companies.setResultPerPage(resultPerPage);
+                statement.setInt(1, page * resultPerPage);
+                statement.setInt(2, resultPerPage);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        companies.add(new Company(rs.getInt("id"), rs.getString("name")));
+                    }
+                }
             }
-            rs.close();
-            statement.close();
             companies.setCurrentPage(page);
             companies.setMaxPage(count());
         }
@@ -120,14 +111,17 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public Optional<Company> findById(long id) throws SQLException {
-        statement = connection.prepareStatement(COMPANY_BY_ID);
-        statement.setLong(1, id);
-        ResultSet rs = statement.executeQuery();
-        Optional<Company> company = Optional.empty();
-        if (rs.next()) {
-            company = Optional.ofNullable(new Company(rs.getInt("id"), rs.getString("name")));
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(COMPANY_BY_ID)) {
+            statement.setLong(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                Optional<Company> company = Optional.empty();
+                if (rs.next()) {
+                    company = Optional.ofNullable(new Company(rs.getInt("id"), rs.getString("name")));
+                }
+                return company;
+            }
         }
-        return company;
     }
 
     /**
@@ -135,12 +129,15 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public int count() throws SQLException {
-        statement = connection.prepareStatement(MAX_PAGE);
-        ResultSet rs = statement.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(MAX_PAGE);
+                ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
         }
-        return 0;
+
     }
 
     @Override
@@ -168,24 +165,25 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public boolean isExist(long id) throws SQLException {
-        statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY);
-        statement.setLong(1, id);
-        ResultSet rs = statement.executeQuery();
-        if (rs.next()) {
-            return true;
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY)) {
+            statement.setLong(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+                return false;
+            }
         }
-        return false;
     }
 
     /**
      * Récupère le singleton de companyDao.
-     * @param connection
-     *            la connexion à la BD
      * @return le singleton
      */
-    public static CompanyDAO getInstance(Connection connection) {
+    public static CompanyDAO getInstance() {
         if (companyDAO == null) {
-            companyDAO = new CompanyDAO(connection);
+            companyDAO = new CompanyDAO();
         }
         return companyDAO;
     }
