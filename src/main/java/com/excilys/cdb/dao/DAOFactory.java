@@ -48,9 +48,7 @@ public class DAOFactory {
      */
     private DAOFactory() {
         Properties prop = new Properties();
-        InputStream input = null;
-        try {
-            input = getClass().getClassLoader().getResourceAsStream("config.properties");
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             prop.load(input);
             Class.forName("com.mysql.jdbc.Driver");
             hikariConfig = new HikariConfig(prop);
@@ -60,16 +58,7 @@ public class DAOFactory {
             LOGGER.warn("PROBLEME DE CONNEXION A LA BD " + e.getMessage());
         } catch (ClassNotFoundException e) {
             LOGGER.warn("PROBLEME DE DRIVER MYSQL " + e.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    LOGGER.debug("PROBLEME DE FERMETURE DE FICHIER" + e.getMessage());
-                }
-            }
         }
-
     }
 
     /**
