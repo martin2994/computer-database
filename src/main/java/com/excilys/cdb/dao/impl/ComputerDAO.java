@@ -284,6 +284,7 @@ public class ComputerDAO implements DAO<Computer> {
                     date = DateMapper.convertLocalDateToTimeStamp(computer.getIntroduced());
                 }
                 statement.setTimestamp(2, date);
+                date = null;
                 if (computer.getDiscontinued() != null) {
                     date = DateMapper.convertLocalDateToTimeStamp(computer.getDiscontinued());
                 }

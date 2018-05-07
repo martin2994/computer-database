@@ -9,6 +9,7 @@ public class ComputerDTO {
     private String introduced;
     private String discontinued;
     private String manufacturer;
+    private long manufacturerId;
 
     /**
      * Constructeur vide.
@@ -31,6 +32,7 @@ public class ComputerDTO {
             this.discontinued = computer.getDiscontinued().toString();
         }
         if (computer.getManufacturer() != null) {
+            this.manufacturerId = computer.getManufacturer().getId();
             this.manufacturer = computer.getManufacturer().getName();
         }
     }
@@ -73,6 +75,14 @@ public class ComputerDTO {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(long manufacturerId) {
+        this.manufacturerId = manufacturerId;
     }
 
     @Override

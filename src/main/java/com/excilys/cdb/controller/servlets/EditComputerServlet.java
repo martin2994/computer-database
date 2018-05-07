@@ -2,7 +2,6 @@ package com.excilys.cdb.controller.servlets;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,72 +11,89 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
+import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
 
 /**
- * Servlet implementation class AddComputerServlet.
+ * Servlet implementation class EditComputerServlet.
  */
-@WebServlet(asyncSupported = false, name = "AddComputerServlet", urlPatterns = { "/addComputer" })
-public class AddComputerServlet extends HttpServlet {
-
+@WebServlet(asyncSupported = false, name = "EditComputerServlet", urlPatterns = { "/editComputer" })
+public class EditComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private Facade facade;
 
     /**
-     * Constructeur vide.
+     * LOGGER.
      */
-    public AddComputerServlet() {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public EditComputerServlet() {
         super();
         facade = Facade.getInstance();
     }
 
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);
     }
 
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Company> companies = facade.getCompanies();
         String buttonTest = request.getParameter("buttonTest");
-        String message = null, erreur = null;
+        ComputerDTO computerDTO = null;
+        String error = null, message = null;
         try {
             if (!StringUtils.isBlank(buttonTest)) {
-                if ("Add".equals(buttonTest)) {
-                    long idNewComputer = createComputer(request);
-                    if (idNewComputer == 0) {
-                        erreur = "Computer not created.";
-                    } else {
-                        message = "Computer created.";
-                    }
+                if ("Edit".equals(buttonTest)) {
+                    computerDTO = updateComputer(request);
+                    message = "Update done.";
                 }
+            } else {
+                computerDTO = DTOMapper.convertComputerToComputerDTO(
+                        facade.getComputerDetails(Long.parseLong(request.getParameter("id"))));
             }
-        } catch (InvalidComputerException e) {
-            erreur = e.getMessage();
-        } catch (DateTimeParseException e) {
-            erreur = "Invalid date format.";
+        } catch (NumberFormatException | InvalidComputerException e) {
+            LOGGER.debug("ERROR UPDATE " + e.getMessage());
+            error = e.getMessage();
         } catch (InvalidCompanyException e) {
-            erreur = "Invalid company.";
+            LOGGER.debug("ERROR UPDATE " + e.getMessage());
+            error = e.getMessage();
         }
+        List<Company> companies = facade.getCompanies();
+        request.setAttribute("erreur", error);
         request.setAttribute("message", message);
-        request.setAttribute("erreur", erreur);
+        request.setAttribute("computer", computerDTO);
         request.setAttribute("companies", companies);
-        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/addComputer.jsp").forward(request, response);
+        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/editComputer.jsp").forward(request, response);
     }
 
     /**
-     * Vérifie et crée le computer à partir des infos données.
+     * Vérifie et met à jour le computer à partir des infos données.
      * @param request
      *            La requete en cours
-     * @return L'id du computer créé
+     * @return Le nouveau computer
      * @throws InvalidCompanyException
      *             Exception lancée quand la company choisie est invalide
      * @throws NumberFormatException
@@ -85,8 +101,10 @@ public class AddComputerServlet extends HttpServlet {
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalide
      */
-    public long createComputer(HttpServletRequest request)
+    public ComputerDTO updateComputer(HttpServletRequest request)
             throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
+        ComputerDTO computerDTO = DTOMapper.convertComputerToComputerDTO(
+                facade.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));
         String name = request.getParameter("computerName");
         String introduced = request.getParameter("introduced");
         LocalDate introducedDate = null;
@@ -100,12 +118,17 @@ public class AddComputerServlet extends HttpServlet {
         }
         String companyId = request.getParameter("companyId");
         Company company = null;
+        long idCompany = Long.parseLong(companyId);
         if (companyId != null && !"0".equals(companyId)) {
-            company = facade.getCompany(Long.parseLong(companyId));
+            if (idCompany != computerDTO.getManufacturerId()) {
+                company = facade.getCompany(idCompany);
+            } else {
+                company = new Company(idCompany, computerDTO.getManufacturer());
+            }
         }
-        Computer computer = new Computer.Builder(name).introduced(introducedDate).discontinued(discontinuedDate)
-                .manufacturer(company).build();
-        return facade.createComputer(computer);
+        Computer computer = new Computer.Builder(name).id(computerDTO.getId()).introduced(introducedDate)
+                .discontinued(discontinuedDate).manufacturer(company).build();
+        return DTOMapper.convertComputerToComputerDTO(facade.updateComputer(computer));
     }
 
 }
