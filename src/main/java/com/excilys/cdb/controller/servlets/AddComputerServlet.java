@@ -85,7 +85,7 @@ public class AddComputerServlet extends HttpServlet {
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalide
      */
-    public long createComputer(HttpServletRequest request)
+    private long createComputer(HttpServletRequest request)
             throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
         String name = request.getParameter("computerName");
         String introduced = request.getParameter("introduced");

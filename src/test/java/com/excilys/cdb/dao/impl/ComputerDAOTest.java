@@ -138,13 +138,46 @@ public class ComputerDAOTest {
     }
 
     /**
-     * Teste la fonction FindPerPage avec une page au dessosu des limites.
+     * Teste la fonction FindPerPage avec une page au dessous des limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
     @Test
     public void testFindPerPagePageInf() throws SQLException {
         Page<Computer> page = computerDAO.findPerPage(-1, 10);
+        assertTrue(page.getResults().isEmpty());
+    }
+
+    /**
+     * Teste la fonction FindByNamePerPage.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testFindPerPageByName() throws SQLException {
+        Page<Computer> page = computerDAO.findByNamePerPage("MacBook", 0, 10);
+        assertTrue(page.getResults().size() == 2);
+    }
+
+    /**
+     * Teste la fonction FindByNamePerPage avec une page au dessous des limites.
+     * @throws SQLException
+     *             SQLException Exception SQL lancée
+     */
+    @Test
+    public void testFindByNamePerPagePageInf() throws SQLException {
+        Page<Computer> page = computerDAO.findByNamePerPage("Apple", -1, 10);
+        assertTrue(page.getResults().isEmpty());
+    }
+
+    /**
+     * Teste la fonction FindByNamePerPage avec un resultat par page au dessous des limites.
+     * @throws SQLException
+     *             SQLException Exception SQL lancée
+     */
+    @Test
+    public void testFindByNamePerPageResultInf() throws SQLException {
+        Page<Computer> page = computerDAO.findByNamePerPage("Apple", 10, -1);
         assertTrue(page.getResults().isEmpty());
     }
 
@@ -348,6 +381,18 @@ public class ComputerDAOTest {
     public void testCount() throws SQLException {
         int maxPage = computerDAO.count();
         assertTrue(maxPage == 15);
+    }
+
+    /**
+     * Teste la fonction CountByName.
+     * @throws SQLException
+     *             Exception Sql lancée
+     */
+    @Test
+    public void testCountByName() throws SQLException {
+        int maxPage = computerDAO.countByName("MacBook");
+        System.out.println(maxPage);
+        assertTrue(maxPage == 2);
     }
 
     /**

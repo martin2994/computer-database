@@ -104,7 +104,7 @@ public class FacadeTest {
     }
 
     /**
-     * Teste l'exception de GetComputerException.
+     * Teste l'exception de GetComputer.
      * @throws SQLException
      *             Exception SQL lancée
      */
@@ -113,6 +113,50 @@ public class FacadeTest {
         Mockito.when(computerDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
         assertTrue(facade.getComputers(1, 10).getResults().isEmpty());
         Mockito.verify(computerDAO).findPerPage(1, 10);
+    }
+
+    /**
+     * Teste le cas normal de la fonction GetComputersByName.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testGetComputersByName() throws SQLException {
+        List<Computer> computers = Collections.nCopies(5, computer);
+        Page<Computer> page = new Page<>();
+        page.setResults(computers);
+        Mockito.when(computerDAO.findByNamePerPage("test", 1, 10)).thenReturn(page);
+        assertTrue(page.getResults().equals(facade.getComputersByName("test", 1, 10).getResults()));
+        Mockito.verify(computerDAO).findByNamePerPage("test", 1, 10);
+    }
+
+    /**
+     * Teste le cas ou le nombre de computers par page est négatif.
+     */
+    @Test
+    public void testGetComputersByNameBadResultPerPage() {
+        assertTrue(facade.getComputersByName("test", 0, -1).getResults().isEmpty());
+    }
+
+    /**
+     * Teste la fonction GetComputersByName quand la page est négative.
+     */
+    @Test
+    public void testGetComputersbyNameWithBadPageInf() {
+        Page<Computer> computers = facade.getComputersByName("test", -1, 10);
+        assertTrue(computers.getResults().isEmpty());
+    }
+
+    /**
+     * Teste l'exception de GetComputersByName.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testGetComputersByNameException() throws SQLException {
+        Mockito.when(computerDAO.findByNamePerPage("test", 1, 10)).thenThrow(SQLException.class);
+        assertTrue(facade.getComputersByName("test", 1, 10).getResults().isEmpty());
+        Mockito.verify(computerDAO).findByNamePerPage("test", 1, 10);
     }
 
     /**
@@ -610,6 +654,30 @@ public class FacadeTest {
         Mockito.when(computerDAO.count()).thenThrow(SQLException.class);
         assertTrue(facade.getCountComputers() == 0);
         Mockito.verify(computerDAO).count();
+    }
+
+    /**
+     * Teste le cas normal de la fonction getCountComputersByName.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testGetCountComputersByName() throws SQLException {
+        Mockito.when(computerDAO.countByName("Apple")).thenReturn(1);
+        assertTrue(facade.getCountComputersByName("Apple") == 1);
+        Mockito.verify(computerDAO).countByName("Apple");
+    }
+
+    /**
+     * Teste la fonction getCountByNameComputers quand elle gère l'exception SQL.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testCountByNameException() throws SQLException {
+        Mockito.when(computerDAO.countByName("Apple")).thenThrow(SQLException.class);
+        assertTrue(facade.getCountComputersByName("Apple") == 0);
+        Mockito.verify(computerDAO).countByName("Apple");
     }
 
 }

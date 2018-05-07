@@ -82,6 +82,29 @@ public class Facade {
     }
 
     /**
+     * Récupère la liste des computer triée et recherchée par page.
+     * @param search
+     *            le nom à rechercher
+     * @param page
+     *            la page à afficher
+     * @param resultPerPage
+     *            le nombre de computer par page
+     * @return La liste des computer
+     */
+    public Page<Computer> getComputersByName(String search, int page, int resultPerPage) {
+        try {
+            if (page >= 0 && resultPerPage >= 1) {
+                return computerDAO.findByNamePerPage(search, page, resultPerPage);
+            } else {
+                LOGGER.info("INVALID COMPUTER PAGE");
+            }
+        } catch (SQLException e) {
+            LOGGER.debug("FIND BY NAME COMPUTERS: " + e.getMessage());
+        }
+        return new Page<>();
+    }
+
+    /**
      * Récupère la liste de toutes les company.
      * @return la liste des company
      */
@@ -240,6 +263,21 @@ public class Facade {
     public int getCountComputers() {
         try {
             return computerDAO.count();
+        } catch (SQLException e) {
+            LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * Permet d'avoir le nombre de computers d'une recherche.
+     * @param search
+     *            le nom à rechercher
+     * @return le nombre de computers
+     */
+    public int getCountComputersByName(String search) {
+        try {
+            return computerDAO.countByName(search);
         } catch (SQLException e) {
             LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
         }

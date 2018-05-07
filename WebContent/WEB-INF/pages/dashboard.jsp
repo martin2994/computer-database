@@ -28,12 +28,13 @@
 		<h1 id="homeTitle">${nbComputers}&nbsp;Computersfound</h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
-				<form id="searchForm" action="#" method="GET" class="form-inline">
+				<form id="searchForm" action="dashboard" method="GET"
+					class="form-inline">
 
 					<input type="search" id="searchbox" name="search"
-						class="form-control" placeholder="Search name" /> <input
-						type="submit" name="buttonTest" id="searchsubmit"
-						value="Filter by name" class="btn btn-primary" />
+						class="form-control" placeholder="Search name"
+						value="${searchParam}" /> <input type="submit" name="buttonTest"
+						id="searchsubmit" value="Filter by name" class="btn btn-primary" />
 				</form>
 			</div>
 			<div class="pull-right">
@@ -94,16 +95,17 @@
 			<c:param name="page" value="${currentPage}" />
 		</c:url>
 
-		<mylib:pagination uri="dashboard" elementPerPage="${resultPerPage}"
-			currentPage="${currentPage}" numberOfElement="${nbComputers}" />
+		<mylib:pagination uri="dashboard" search="${searchParam}"
+			elementPerPage="${resultPerPage}" currentPage="${currentPage}"
+			numberOfElement="${nbComputers}" />
 
 		<div class="btn-group btn-group-sm pull-right" role="group">
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" page="${currentPage}" count="10"/>>10</a>
+				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="10"/>>10</a>
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" page="${currentPage}" count="50"/>>50</a>
+				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="50"/>>50</a>
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" page="${currentPage}" count="100"/>>100</a>
+				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="100"/>>100</a>
 		</div>
 	</div>
 	</footer>

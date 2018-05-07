@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.excilys.cdb.services.Facade;
 
 public class LinkLib extends SimpleTagSupport {
+    private String search;
     private int page;
     private int count;
     private String uri;
@@ -28,10 +29,18 @@ public class LinkLib extends SimpleTagSupport {
     public void doTag() {
         JspWriter writer = getJspContext().getOut();
         try {
-            writer.print("\"" + uri + "?page=" + page + "&resultPerPage=" + count + "\"");
+            writer.print("\"" + uri + "?search=" + search + "&page=" + page + "&resultPerPage=" + count + "\"");
         } catch (IOException e) {
             LOGGER.debug("LINK LIB ERROR " + e.getMessage());
         }
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
     }
 
     public int getPage() {

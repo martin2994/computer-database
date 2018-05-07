@@ -34,7 +34,7 @@ public class EditComputerServlet extends HttpServlet {
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditComputerServlet.class);
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -101,7 +101,7 @@ public class EditComputerServlet extends HttpServlet {
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalide
      */
-    public ComputerDTO updateComputer(HttpServletRequest request)
+    private ComputerDTO updateComputer(HttpServletRequest request)
             throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
         ComputerDTO computerDTO = DTOMapper.convertComputerToComputerDTO(
                 facade.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));

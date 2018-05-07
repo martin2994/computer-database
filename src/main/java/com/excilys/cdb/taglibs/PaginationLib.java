@@ -15,6 +15,7 @@ public class PaginationLib extends SimpleTagSupport {
     private int numberOfElement;
     private int elementPerPage;
     private String uri;
+    private String search;
 
     /**
      * LOGGER.
@@ -79,9 +80,18 @@ public class PaginationLib extends SimpleTagSupport {
      */
     public String createLink(int page, String name) {
         StringBuilder link = new StringBuilder("<li>");
-        link.append("<a href=\"").append(uri + "?page=" + String.valueOf(page) + "&resultPerPage=" + elementPerPage)
+        link.append("<a href=\"").append(
+                uri + "?search=" + search + "&page=" + String.valueOf(page) + "&resultPerPage=" + elementPerPage)
         .append("\">").append(name).append("</a></li>");
         return link.toString();
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
     }
 
     public int getCurrentPage() {
