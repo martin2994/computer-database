@@ -633,6 +633,64 @@ public class FacadeTest {
     }
 
     /**
+     * Teste le cas normal de la fonction DeleteCompany.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand l'id n'est pas valide
+     */
+    @Test
+    public void testDeleteCompany() throws SQLException, InvalidCompanyException {
+        Mockito.when(companyDAO.delete(1L)).thenReturn(true);
+        assertTrue(facade.deleteCompany(1L));
+        Mockito.verify(companyDAO).delete(1L);
+
+    }
+
+    /**
+     * Teste la fonction DeleteCompany quand il n'y a pas de correspodance.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand l'id n'est pas valide
+     */
+    @Test
+    public void testDeleteCompanyNoCompany() throws SQLException, InvalidCompanyException {
+        Mockito.when(companyDAO.delete(1L)).thenReturn(false);
+        assertFalse(facade.deleteCompany(1L));
+        Mockito.verify(companyDAO).delete(1L);
+
+    }
+
+    /**
+     * Teste la fonction DeleteCompany quand l'id est négatif.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand l'id n'est pas valide
+     */
+    @Test
+    public void testDeleteCompanyBadIdInf() throws SQLException, InvalidCompanyException {
+        exception.expect(InvalidCompanyException.class);
+        facade.deleteCompany(-1L);
+    }
+
+    /**
+     * Teste la fonction DeleteCompany quand la DAO lance une exception.
+     * @throws SQLException
+     *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *             Exception lancée quand l'id n'est pas valide
+     */
+    @Test
+    public void testDeleteCompanyException() throws SQLException, InvalidCompanyException {
+        Mockito.when(companyDAO.delete(1L)).thenThrow(SQLException.class);
+        assertFalse(facade.deleteCompany(1L));
+        Mockito.verify(companyDAO).delete(1L);
+
+    }
+
+    /**
      * Teste la cas normal de la fonction DeleteList.
      * @throws SQLException
      *             Exception SQL lancée

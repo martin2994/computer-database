@@ -44,6 +44,16 @@ public class CompanyDAO implements DAO<Company> {
     private final String COMPANY_EXIST = "SELECT company.id FROM company WHERE company.id = ?";
 
     /**
+     * Requete pour le delete.
+     */
+    private final String DELETE_COMPANY = "DELETE FROM company WHERE company.id = ?";
+
+    /**
+     * Requete pour le delete les computers liés.
+     */
+    private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM computer WHERE computer.company_id = ?";
+
+    /**
      * le singleton.
      */
     private static CompanyDAO companyDAO;
@@ -146,8 +156,26 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public boolean delete(long id) {
-        return false;
+    public boolean delete(long id) throws SQLException {
+        int result = 0;
+        try (Connection connection = DAOFactory.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statementComputer = connection.prepareStatement(DELETE_COMPANY_COMPUTERS);
+                    PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY)) {
+                statementComputer.setLong(1, id);
+                statementComputer.executeUpdate();
+                statementCompany.setLong(1, id);
+                result = statementCompany.executeUpdate();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            }
+            connection.commit();
+            if (result == 0) {
+                return false;
+            }
+            return true;
+        }
     }
 
     @Override

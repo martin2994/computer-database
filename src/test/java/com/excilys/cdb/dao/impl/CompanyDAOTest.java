@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class CompanyDAOTest {
     /**
      * Teste le cas normal de la fonction FindAll.
      * @throws SQLException
-     *          Exception SQL lancée
+     *             Exception SQL lancée
      */
     @Test
     public void testFindAll() throws SQLException {
@@ -94,7 +95,8 @@ public class CompanyDAOTest {
     }
 
     /**
-     * Teste la fonction FindPerPage quand le nombre de company par page est négatif.
+     * Teste la fonction FindPerPage quand le nombre de company par page est
+     * négatif.
      * @throws SQLException
      *             exception SQL lancée
      */
@@ -124,6 +126,32 @@ public class CompanyDAOTest {
     public void testFindPerPagePageInf() throws SQLException {
         Page<Company> page = companyDAO.findPerPage(-1, 10);
         assertTrue(page.getResults().isEmpty());
+    }
+
+    /**
+     * Teste le cas normal de la fonction Delete.
+     * @throws NoFactoryException
+     *             Exception lancée si la factory n'existe pas
+     * @throws NoDAOException
+     *             Exception lancée si une des DAO n'existe pas
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testDelete() throws SQLException, NoDAOException, NoFactoryException {
+        assertTrue(companyDAO.delete(2L));
+        assertTrue(Optional.empty().equals(DAOFactory.getDAO(DAOType.COMPUTER).findById(2L)));
+        assertTrue(Optional.empty().equals(companyDAO.findById(2L)));
+    }
+
+    /**
+     * Teste la fonction Delete quand l'objet est inexistant.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testDeleteNoComputer() throws SQLException {
+        assertFalse(companyDAO.delete(100L));
     }
 
     /**

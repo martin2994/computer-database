@@ -5,15 +5,18 @@ package com.excilys.cdb.enums;
  *
  */
 public enum CompanyChoice {
-    SELECTPAGE("1", "1 - Select the page to show"), BACK("2", "2 - Back to the menu");
+    SELECTPAGE("1", "1 - Select the page to show"), DELETE("2", "2 - Delete a company"), BACK("3",
+            "3 - Back to the menu");
 
     private String value = "";
     private String text = "";
 
     /**
      * Constructeur avec parametre.
-     * @param value la valeur de l'enum
-     * @param text le texte de l'enum
+     * @param value
+     *            la valeur de l'enum
+     * @param text
+     *            le texte de l'enum
      */
     CompanyChoice(String value, String text) {
         this.value = value;
@@ -22,7 +25,8 @@ public enum CompanyChoice {
 
     /**
      * Permet de récupérer l'enum à partir d'un string.
-     * @param s le string à trouver
+     * @param s
+     *            le string à trouver
      * @return l'enum correspondant
      */
     public static CompanyChoice get(String s) {

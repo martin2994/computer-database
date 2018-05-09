@@ -72,7 +72,7 @@ public class ComputerDAOTest {
     @Test
     public void testFindAll() throws SQLException {
         List<Computer> list = computerDAO.findAll();
-        assertTrue(list.size() == 15);
+        assertTrue(list.size() == 14);
     }
 
     /**
@@ -403,7 +403,7 @@ public class ComputerDAOTest {
     @Test
     public void testCount() throws SQLException {
         int maxPage = computerDAO.count();
-        assertTrue(maxPage == 15);
+        assertTrue(maxPage == 14);
     }
 
     /**

@@ -53,7 +53,6 @@ public class DAOFactory {
             Class.forName("com.mysql.jdbc.Driver");
             hikariConfig = new HikariConfig(prop);
             hikariDataSource = new HikariDataSource(hikariConfig);
-            hikariDataSource.setLeakDetectionThreshold(60 * 1000);
         } catch (IOException e) {
             LOGGER.warn("PROBLEME DE CONNEXION A LA BD " + e.getMessage());
         } catch (ClassNotFoundException e) {

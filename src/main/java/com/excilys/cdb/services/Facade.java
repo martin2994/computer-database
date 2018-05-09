@@ -274,6 +274,26 @@ public class Facade {
     }
 
     /**
+     * Permet de supprimer une company.
+     * @param id
+     *            l'id de la company à supprimer
+     * @return un boolean pour savoir si la suppression a eu lieu
+     * @throws InvalidCompanyException
+     *             Exception lancée si l'id n'est pas valide
+     */
+    public boolean deleteCompany(long id) throws InvalidCompanyException {
+        try {
+            CompanyValidator.isValidId(id);
+            if (companyDAO.delete(id)) {
+                return true;
+            }
+        } catch (SQLException e) {
+            LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
      * Permet d'avoir le nombre de computers.
      * @return le nombre de computers
      */
@@ -311,5 +331,4 @@ public class Facade {
         }
         return facade;
     }
-
 }

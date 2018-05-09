@@ -82,9 +82,9 @@ public class CliUi {
             System.out.println("####MENU####");
             System.out.println("#############");
             System.out.println();
-            System.out.println(MenuChoice.LISTCOMPUTER);
-            System.out.println(MenuChoice.LISTCOMPANY);
-            System.out.println(MenuChoice.QUIT);
+            for (MenuChoice choice : MenuChoice.values()) {
+                System.out.println(choice);
+            }
             MenuChoice input = null;
             do {
                 input = MenuChoice.get(scanner.nextLine());
@@ -127,12 +127,9 @@ public class CliUi {
             System.out.println("###ACTIONS###");
             System.out.println("#############");
             System.out.println();
-            System.out.println(ComputerChoice.SELECTPAGE);
-            System.out.println(ComputerChoice.DETAILSCOMPUTER);
-            System.out.println(ComputerChoice.CREATECOMPUTER);
-            System.out.println(ComputerChoice.UPDATECOMPUTER);
-            System.out.println(ComputerChoice.DELETECOMPUTER);
-            System.out.println(ComputerChoice.BACKMENU);
+            for (ComputerChoice choice : ComputerChoice.values()) {
+                System.out.println(choice);
+            }
             ComputerChoice input = null;
             do {
                 input = ComputerChoice.get(scanner.nextLine());
@@ -198,8 +195,9 @@ public class CliUi {
             }
             System.out.println("Page " + companies.getCurrentPage() + "/" + companies.getMaxPage());
             System.out.println();
-            System.out.println(CompanyChoice.SELECTPAGE);
-            System.out.println(CompanyChoice.BACK);
+            for (CompanyChoice choice : CompanyChoice.values()) {
+                System.out.println(choice);
+            }
             CompanyChoice input = null;
             do {
                 input = CompanyChoice.get(scanner.nextLine());
@@ -209,6 +207,9 @@ public class CliUi {
                 int page = selectPage(DAOType.COMPANY);
                 Page<Company> newPage = facade.getCompanies(page, 5);
                 showListCompanies(newPage);
+                break;
+            case DELETE:
+                deleteCompany();
                 break;
             case BACK:
                 currentPage = null;
@@ -361,6 +362,27 @@ public class CliUi {
             System.out.println("SUPPRESION EFFECTUEE");
         } catch (InvalidIdException e) {
             System.out.println("SUPPRESION NON EFFECTUEE: Erreur à cause du computer choisi");
+        }
+    }
+
+    /**
+     * Permet d'afficher la suppression d'une company.
+     */
+    public void deleteCompany() {
+        System.out.println("#################");
+        System.out.println("#DELETE COMPANY#");
+        System.out.println("#################");
+        System.out.println();
+        System.out.println("Company id:");
+        String entry = null;
+        do {
+            entry = scanner.nextLine();
+        } while (!entry.matches(R_NUMBER));
+        try {
+            facade.deleteCompany(Long.parseLong(entry));
+            System.out.println("SUPPRESION EFFECTUEE");
+        } catch (InvalidCompanyException e) {
+            System.out.println("SUPPRESION NON EFFECTUEE: Erreur à cause de la company choisi");
         }
     }
 
