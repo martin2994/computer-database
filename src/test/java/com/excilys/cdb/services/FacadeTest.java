@@ -633,6 +633,30 @@ public class FacadeTest {
     }
 
     /**
+     * Teste la cas normal de la fonction DeleteList.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteList() throws SQLException {
+        Mockito.when(computerDAO.deleteList("(1,2)")).thenReturn(true);
+        assertTrue(facade.deleteComputerList("(1,2)"));
+        Mockito.verify(computerDAO).deleteList("(1,2)");
+    }
+
+    /**
+     * Teste la fonction DeleteList quand la DAO renvoie une exception SQL.
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    @Test
+    public void testDeleteListSQLException() throws SQLException {
+        Mockito.when(computerDAO.deleteList("(1,2)")).thenThrow(SQLException.class);
+        assertFalse(facade.deleteComputerList("(1,2)"));
+        Mockito.verify(computerDAO).deleteList("(1,2)");
+    }
+
+    /**
      * Teste le cas normal de la fonction getCountComputers.
      * @throws SQLException
      *             Exception SQL lancée

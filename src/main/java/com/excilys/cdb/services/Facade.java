@@ -257,6 +257,23 @@ public class Facade {
     }
 
     /**
+     * Permet de supprimer une liste de computers.
+     * @param idList
+     *            la liste d'id
+     * @return un boolean de réussite ou non
+     */
+    public boolean deleteComputerList(String idList) {
+        try {
+            if (computerDAO.deleteList(idList)) {
+                return true;
+            }
+        } catch (SQLException e) {
+            LOGGER.debug("DELETE COMPUTER LIST: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
      * Permet d'avoir le nombre de computers.
      * @return le nombre de computers
      */

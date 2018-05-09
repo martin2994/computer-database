@@ -171,7 +171,8 @@ public class ComputerDAOTest {
     }
 
     /**
-     * Teste la fonction FindByNamePerPage avec un resultat par page au dessous des limites.
+     * Teste la fonction FindByNamePerPage avec un resultat par page au dessous des
+     * limites.
      * @throws SQLException
      *             SQLException Exception SQL lancée
      */
@@ -370,6 +371,28 @@ public class ComputerDAOTest {
     @Test
     public void testDeleteNoComputer() throws SQLException {
         assertFalse(computerDAO.delete(100L));
+    }
+
+    /**
+     * Teste le cas normal de la fonction DeleteList.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testDeleteList() throws SQLException {
+        assertTrue(computerDAO.deleteList("(15,16)"));
+        exception.expect(NoSuchElementException.class);
+        computerDAO.findById(15L).get();
+    }
+
+    /**
+     * Teste la fonction DeleteList quand les objets sont inexistants.
+     * @throws SQLException
+     *             exception SQL lancée
+     */
+    @Test
+    public void testDeleteListNoComputer() throws SQLException {
+        assertFalse(computerDAO.deleteList("(100,110)"));
     }
 
     /**

@@ -59,6 +59,11 @@ public class ComputerDAO implements DAO<Computer> {
     private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
 
     /**
+     * Requete pour le delete d'une liste d'id.
+     */
+    private final String DELETE_COMPUTER_LIST = "DELETE FROM computer WHERE id IN %s";
+
+    /**
      * Requete pour l'insert.
      */
     private final String INSERT_COMPUTER = "INSERT INTO computer (name,introduced,discontinued,company_id) values (?,?,?,?)";
@@ -313,6 +318,26 @@ public class ComputerDAO implements DAO<Computer> {
         try (Connection connection = DAOFactory.getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER)) {
             statement.setLong(1, id);
+            int result = statement.executeUpdate();
+            if (result == 0) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Permet de supprimer une liste d'id sous forme de string.
+     * @param idList
+     *            la liste d'id
+     * @return un boolean pour savoir si la suppression a eu lieu ou non
+     * @throws SQLException
+     *             Exception SQL lancée
+     */
+    public boolean deleteList(String idList) throws SQLException {
+        try (Connection connection = DAOFactory.getConnection();
+                PreparedStatement statement = connection
+                        .prepareStatement(String.format(DELETE_COMPUTER_LIST, idList))) {
             int result = statement.executeUpdate();
             if (result == 0) {
                 return false;

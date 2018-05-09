@@ -1,7 +1,10 @@
 package com.excilys.cdb.controller.servlets;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -41,41 +44,15 @@ public class DashBoardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Integer resultPerPage = (Integer) request.getSession().getAttribute("resultPerPage");
-        if (resultPerPage == null) {
-            resultPerPage = 10;
-        } else {
-            String result = request.getParameter("resultPerPage");
-            if (result != null) {
-                resultPerPage = Integer.parseInt(result);
-            }
+        String selection = request.getParameter("selection");
+        if (!StringUtils.isBlank(selection)) {
+            deleteListComputer(request, selection);
         }
-        request.getSession().setAttribute("resultPerPage", resultPerPage);
-        Integer currentPage = (Integer) request.getSession().getAttribute("currentPage");
-        if (currentPage == null) {
-            currentPage = 1;
-        } else {
-            String page = request.getParameter("page");
-            if (page != null) {
-                currentPage = Integer.parseInt(page);
-            }
-        }
-        String buttonTest = request.getParameter("buttonTest");
-        String search = request.getParameter("search");
+        int resultPerPage = getResultPerPage(request);
+        int currentPage = getCurrentPage(request);
         List<Computer> page = null;
         List<ComputerDTO> pageDTO = null;
-        if (!StringUtils.isBlank(buttonTest)) {
-            if ("Filter by name".equals(buttonTest)) {
-                currentPage = 1;
-                page = getComputerByName(request, search, currentPage, resultPerPage);
-            }
-        } else {
-            if (StringUtils.isBlank(search)) {
-                page = getComputer(request, currentPage, resultPerPage);
-            } else {
-                page = getComputerByName(request, search, currentPage, resultPerPage);
-            }
-        }
+        page = getComputer(request, currentPage, resultPerPage);
         pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
                 .collect(Collectors.toList());
         request.setAttribute("page", pageDTO);
@@ -89,6 +66,86 @@ public class DashBoardServlet extends HttpServlet {
     }
 
     /**
+     * Supprime la liste de computers sélectionnés.
+     * @param request
+     *            la requete en cours
+     * @param selection
+     *            la liste des id de computers
+     */
+    private void deleteListComputer(HttpServletRequest request, String selection) {
+        Set<Long> idComputer = Arrays.stream(selection.split(",")).map(stringId -> Long.parseLong(stringId))
+                .collect(Collectors.toSet());
+        facade.deleteComputerList(idComputer.toString().replace("[", "(").replace("]", ")"));
+    }
+
+    /**
+     * Permet de récupérer la nombre d'élement par page.
+     * @param request
+     *            la requete en cours
+     * @return la nombre d'élément par page
+     */
+    private int getResultPerPage(HttpServletRequest request) {
+        Integer resultPerPage = (Integer) request.getSession().getAttribute("resultPerPage");
+        if (resultPerPage == null) {
+            resultPerPage = 10;
+        } else {
+            String result = request.getParameter("resultPerPage");
+            if (result != null) {
+                resultPerPage = Integer.parseInt(result);
+            }
+        }
+        request.getSession().setAttribute("resultPerPage", resultPerPage);
+        return resultPerPage;
+    }
+
+    /**
+     * Permet de récupérer la page courante.
+     * @param request
+     *            la requete en cours
+     * @return la page courante
+     */
+    private int getCurrentPage(HttpServletRequest request) {
+        Integer currentPage = (Integer) request.getSession().getAttribute("currentPage");
+        if (currentPage == null) {
+            currentPage = 1;
+        } else {
+            String page = request.getParameter("page");
+            if (page != null) {
+                currentPage = Integer.parseInt(page);
+            }
+        }
+        return currentPage;
+    }
+
+    /**
+     * Permet de récupérer les computers à afficher.
+     * @param request
+     *            la requete en cours
+     * @param currentPage
+     *            la page courante
+     * @param resultPerPage
+     *            le nombre d'élement à afficher
+     * @return la page avec les computers
+     */
+    private List<Computer> getComputer(HttpServletRequest request, int currentPage, int resultPerPage) {
+        String buttonTest = request.getParameter("buttonTest");
+        String search = request.getParameter("search");
+        if (!StringUtils.isBlank(buttonTest)) {
+            if ("Filter by name".equals(buttonTest)) {
+                currentPage = 1;
+                return getComputerByNamePerPage(request, search, currentPage, resultPerPage);
+            }
+        } else {
+            if (StringUtils.isBlank(search)) {
+                return getComputerPerPage(request, currentPage, resultPerPage);
+            } else {
+                return getComputerByNamePerPage(request, search, currentPage, resultPerPage);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    /**
      * Permet de récupérer les computers d'une page.
      * @param request
      *            la requete en cours
@@ -98,7 +155,7 @@ public class DashBoardServlet extends HttpServlet {
      *            le nombre d'élément par page
      * @return la page de computer
      */
-    private List<Computer> getComputer(HttpServletRequest request, int currentPage, int resultPerPage) {
+    private List<Computer> getComputerPerPage(HttpServletRequest request, int currentPage, int resultPerPage) {
         int numberComputer = facade.getCountComputers();
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
@@ -122,7 +179,7 @@ public class DashBoardServlet extends HttpServlet {
      *            le nombre d'élément par page
      * @return la page de computer recherchée
      */
-    private List<Computer> getComputerByName(HttpServletRequest request, String search, int currentPage,
+    private List<Computer> getComputerByNamePerPage(HttpServletRequest request, String search, int currentPage,
             int resultPerPage) {
         int numberComputer = facade.getCountComputersByName(search);
         double numberPage = (double) numberComputer / (double) resultPerPage;
