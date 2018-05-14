@@ -31,7 +31,7 @@
 				</c:if>
 				<div class="col-xs-8 col-xs-offset-2 box">
 					<h1>Add Computer</h1>
-					<form name="addComputerForm" id="addComputerForm"
+					<form name="computerForm" id="computerForm"
 						action="addComputer" method="POST">
 						<fieldset>
 							<div class="form-group">
@@ -41,13 +41,13 @@
 							</div>
 							<div class="form-group">
 								<label for="introduced">Introduced date</label> <input
-									type="date" class="form-control" name="introduced"
-									placeholder="Introduced date">
+									type="date" class="form-control" id="introduced"
+									name="introduced" placeholder="Introduced date">
 							</div>
 							<div class="form-group">
 								<label for="discontinued">Discontinued date</label> <input
-									type="date" class="form-control" name="discontinued"
-									placeholder="Discontinued date">
+									type="date" class="form-control" id="discontinued"
+									name="discontinued" placeholder="Discontinued date">
 							</div>
 							<div class="form-group">
 								<label for="companyId">Company</label> <select
@@ -73,6 +73,6 @@
 	<script
 		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-	<script src="js/addcomputer.js"></script>
+	<script src="js/validation.js"></script>
 </body>
 </html>

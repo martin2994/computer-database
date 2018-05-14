@@ -31,7 +31,8 @@
 				</c:if>
 				<h1>Edit Computer</h1>
 
-				<form action="editComputer" method="POST">
+				<form action="editComputer" id="computerForm" name="computerForm"
+					method="POST">
 					<input type="hidden" value="${computer.id}" id="idComputer"
 						name="idComputer" />
 					<fieldset>
@@ -81,5 +82,10 @@
 		</div>
 	</div>
 	</section>
+	<script src="js/jquery.min.js"></script>
+	<script
+		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/validation.js"></script>
 </body>
 </html>
