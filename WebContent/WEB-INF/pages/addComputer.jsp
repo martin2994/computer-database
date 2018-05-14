@@ -27,7 +27,7 @@
 					<div class="alert alert-danger">${erreur}</div>
 				</c:if>
 				<c:if test="${!empty message}">
-					<div class="alert alert-success">${message}</div>
+					<div id="success" class="alert alert-success">${message}</div>
 				</c:if>
 				<div class="col-xs-8 col-xs-offset-2 box">
 					<h1>Add Computer</h1>
@@ -60,8 +60,8 @@
 							</div>
 						</fieldset>
 						<div class="actions pull-right">
-							<input type="submit" name="buttonTest" value="Add"
-								class="btn btn-primary"> or <a href="dashboard.html"
+							<input type="submit" id="buttonAdd" name="buttonTest" value="Add"
+								class="btn btn-primary"> or <a href="dashboard"
 								class="btn btn-default">Cancel</a>
 						</div>
 					</form>

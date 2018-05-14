@@ -27,7 +27,7 @@
 					<div class="alert alert-danger">${erreur}</div>
 				</c:if>
 				<c:if test="${!empty message}">
-					<div class="alert alert-success">${message}</div>
+					<div id="success" class="alert alert-success">${message}</div>
 				</c:if>
 				<h1>Edit Computer</h1>
 
@@ -73,9 +73,9 @@
 						</div>
 					</fieldset>
 					<div class="actions pull-right">
-						<input type="submit" name="buttonTest" value="Edit"
-							class="btn btn-primary"> or <a href="dashboard"
-							class="btn btn-default">Cancel</a>
+						<input type="submit" name="buttonTest" id="buttonEdit"
+							value="Edit" class="btn btn-primary"> or <a
+							href="dashboard" class="btn btn-default">Cancel</a>
 					</div>
 				</form>
 			</div>

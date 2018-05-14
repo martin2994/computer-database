@@ -48,7 +48,7 @@ public class DAOFactory {
      */
     private DAOFactory() {
         Properties prop = new Properties();
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input = ClassLoader.getSystemClassLoader().getResourceAsStream("config.properties")) {
             prop.load(input);
             Class.forName("com.mysql.jdbc.Driver");
             hikariConfig = new HikariConfig(prop);

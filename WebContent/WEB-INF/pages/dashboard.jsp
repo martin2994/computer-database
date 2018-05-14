@@ -60,7 +60,7 @@
 						type="checkbox" id="selectall" /> <span
 						style="vertical-align: top;"> - <a href="dashboard"
 							id="deleteSelected" onclick="$.fn.deleteSelected();"> <i
-								class="fa fa-trash-o fa-lg"></i>
+								class="fa fa-trash-o fa-lg" id="trash"></i>
 						</a>
 					</span></th>
 					<th>Computer name</th>
@@ -76,7 +76,7 @@
 			<tbody id="results">
 				<c:forEach items="${page}" var="computer">
 					<tr>
-						<td class="editMode"><input type="checkbox" name="cb"
+						<td class="editMode"><input type="checkbox" name="cb" id="name"
 							class="cb" value="${computer.id}"></td>
 						<td><a href="editComputer?id=${computer.id}" onclick="">${computer.name}</a></td>
 						<td>${computer.introduced}</td>
