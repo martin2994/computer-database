@@ -20,14 +20,23 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
 
 /**
- * Servlet implementation class AddComputerServlet.
+ * Servlet implementation class AddComputerServlet. Gére toutes les actions de
+ * l'ajout d'un computer.
  */
 @WebServlet(asyncSupported = false, name = "AddComputerServlet", urlPatterns = { "/addComputer" })
 public class AddComputerServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Le service.
+     */
     private Facade facade;
+
+    /**
+     * Emplacement de la jsp de la page Add.
+     */
+    private final String LOCATION_ADD_JSP = "/WEB-INF/pages/addComputer.jsp";
 
     /**
      * Constructeur vide.
@@ -70,7 +79,7 @@ public class AddComputerServlet extends HttpServlet {
         request.setAttribute("message", message);
         request.setAttribute("erreur", erreur);
         request.setAttribute("companies", companies);
-        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/addComputer.jsp").forward(request, response);
+        this.getServletContext().getRequestDispatcher(LOCATION_ADD_JSP).forward(request, response);
     }
 
     /**

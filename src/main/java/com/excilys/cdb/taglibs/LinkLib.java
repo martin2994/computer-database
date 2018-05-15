@@ -10,10 +10,31 @@ import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.services.Facade;
 
+/**
+ * TagLib qui permet de créer un lien avec plusieurs paramètres.
+ * @author martin
+ *
+ */
 public class LinkLib extends SimpleTagSupport {
+
+    /**
+     * La recherche voulue.
+     */
     private String search;
+
+    /**
+     * La page voulue.
+     */
     private int page;
+
+    /**
+     * Le nombre d'élement par page.
+     */
     private int count;
+
+    /**
+     * L'URI de redirection sans paramètre.
+     */
     private String uri;
 
     /**

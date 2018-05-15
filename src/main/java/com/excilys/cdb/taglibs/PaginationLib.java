@@ -9,12 +9,36 @@ import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.services.Facade;
 
+/**
+ * TagLib qui permet de gérer la pagination.
+ * @author martin
+ *
+ */
 public class PaginationLib extends SimpleTagSupport {
 
+    /**
+     * la page courante.
+     */
     private int currentPage;
+
+    /**
+     * le nombre d'élement total.
+     */
     private int numberOfElement;
+
+    /**
+     * le nombre d'élement par page.
+     */
     private int elementPerPage;
+
+    /**
+     * L'URI de redirection.
+     */
     private String uri;
+
+    /**
+     * la rechercher effectuée.
+     */
     private String search;
 
     /**

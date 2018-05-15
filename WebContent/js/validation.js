@@ -6,6 +6,9 @@ $(function() {
 		messages : {
 			computerName : "Please enter a name"
 		},
+		onfocusout : function(element) {
+			this.element(element);
+		},
 		submitHandler : function(form) {
 			form.submit();
 		}

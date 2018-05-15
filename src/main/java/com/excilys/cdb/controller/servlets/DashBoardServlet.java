@@ -14,24 +14,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
 
+/**
+ * Gére toutes les actions de la page dashboard: liste des computers,
+ * suppression et redirection vers les pages appropriées.
+ * @author martin
+ *
+ */
 @WebServlet(asyncSupported = false, name = "DashboardServlet", urlPatterns = { "/dashboard" })
 public class DashBoardServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Le service.
+     */
     private Facade facade;
 
     /**
-     * LOGGER.
+     * Emplacement de la jsp de la page dashboard.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DashBoardServlet.class);
+    private final String LOCATION_DASHBOARD_JSP = "/WEB-INF/pages/dashboard.jsp";
 
     /**
      * Constructeur vide.
@@ -56,7 +63,7 @@ public class DashBoardServlet extends HttpServlet {
         pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
                 .collect(Collectors.toList());
         request.setAttribute("page", pageDTO);
-        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request, response);
+        this.getServletContext().getRequestDispatcher(LOCATION_DASHBOARD_JSP).forward(request, response);
     }
 
     @Override

@@ -23,18 +23,27 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.Facade;
 
 /**
- * Servlet implementation class EditComputerServlet.
+ * Servlet implementation class EditComputerServlet. Gére toutes les actions de
+ * l'édition d'un computer.
  */
 @WebServlet(asyncSupported = false, name = "EditComputerServlet", urlPatterns = { "/editComputer" })
 public class EditComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Le service.
+     */
     private Facade facade;
 
     /**
      * LOGGER.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(EditComputerServlet.class);
+
+    /**
+     * Emplacement de la jsp de la page d'édition.
+     */
+    private final String LOCATION_EDIT_JSP = "/WEB-INF/pages/editComputer.jsp";
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -86,7 +95,7 @@ public class EditComputerServlet extends HttpServlet {
         request.setAttribute("message", message);
         request.setAttribute("computer", computerDTO);
         request.setAttribute("companies", companies);
-        this.getServletContext().getRequestDispatcher("/WEB-INF/pages/editComputer.jsp").forward(request, response);
+        this.getServletContext().getRequestDispatcher(LOCATION_EDIT_JSP).forward(request, response);
     }
 
     /**
