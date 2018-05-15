@@ -52,7 +52,7 @@
 							<label for="discontinued">Discontinued date</label> <input
 								type="date" class="form-control" id="discontinued"
 								name="discontinued" placeholder="Discontinued date"
-								value="${computer.discontinued}">
+								value="${computer.discontinued}" min="${computer.introduced}">
 						</div>
 						<div class="form-group">
 							<label for="companyId">Company</label> <select

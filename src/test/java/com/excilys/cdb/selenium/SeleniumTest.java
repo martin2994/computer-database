@@ -17,15 +17,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.excilys.cdb.services.Facade;
-
 public class SeleniumTest {
     private WebDriver driver;
 
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SeleniumTest.class);
 
     /**
      * Initialise le driver Firefox.

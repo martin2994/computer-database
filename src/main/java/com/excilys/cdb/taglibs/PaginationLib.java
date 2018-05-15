@@ -7,8 +7,6 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.cdb.services.Facade;
-
 /**
  * TagLib qui permet de gérer la pagination.
  * @author martin
@@ -44,7 +42,7 @@ public class PaginationLib extends SimpleTagSupport {
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaginationLib.class);
 
     /**
      * Récupère le writer de la jsp.

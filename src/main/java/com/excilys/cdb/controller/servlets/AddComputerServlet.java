@@ -17,7 +17,8 @@ import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.Facade;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 
 /**
  * Servlet implementation class AddComputerServlet. Gére toutes les actions de
@@ -29,9 +30,14 @@ public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Le service.
+     * Le service des computers.
      */
-    private Facade facade;
+    private ComputerService computerService;
+
+    /**
+     * Le service des companies.
+     */
+    private CompanyService companyService;
 
     /**
      * Emplacement de la jsp de la page Add.
@@ -43,7 +49,8 @@ public class AddComputerServlet extends HttpServlet {
      */
     public AddComputerServlet() {
         super();
-        facade = Facade.getInstance();
+        computerService = ComputerService.getInstance();
+        companyService = CompanyService.getInstance();
     }
 
     @Override
@@ -55,7 +62,7 @@ public class AddComputerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Company> companies = facade.getCompanies();
+        List<Company> companies = companyService.getCompanies();
         String buttonTest = request.getParameter("buttonTest");
         String message = null, erreur = null;
         try {
@@ -69,12 +76,10 @@ public class AddComputerServlet extends HttpServlet {
                     }
                 }
             }
-        } catch (InvalidComputerException e) {
+        } catch (InvalidComputerException | InvalidCompanyException e) {
             erreur = e.getMessage();
         } catch (DateTimeParseException e) {
             erreur = "Invalid date format.";
-        } catch (InvalidCompanyException e) {
-            erreur = "Invalid company.";
         }
         request.setAttribute("message", message);
         request.setAttribute("erreur", erreur);
@@ -110,11 +115,11 @@ public class AddComputerServlet extends HttpServlet {
         String companyId = request.getParameter("companyId");
         Company company = null;
         if (companyId != null && !"0".equals(companyId)) {
-            company = facade.getCompany(Long.parseLong(companyId));
+            company = companyService.getCompany(Long.parseLong(companyId));
         }
         Computer computer = new Computer.Builder(name).introduced(introducedDate).discontinued(discontinuedDate)
                 .manufacturer(company).build();
-        return facade.createComputer(computer);
+        return computerService.createComputer(computer);
     }
 
 }

@@ -12,7 +12,8 @@ import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.Facade;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.utils.Page;
 
 /**
@@ -48,9 +49,14 @@ public class CliUi {
     private Page<?> currentPage;
 
     /**
-     * Controleur.
+     * Le service des computers.
      */
-    private Facade facade;
+    private ComputerService computerService;
+
+    /**
+     * Le service des companies.
+     */
+    private CompanyService companyService;
 
     private final String R_NUMBER = "[0-9]+";
     private final String R_TEXT = "[a-zA-Z-0-9]+";
@@ -58,11 +64,10 @@ public class CliUi {
 
     /**
      * Constructeur pour attribuer le controler, le scanner et message d'arrivé.
-     * @param facade
-     *            le service de l'application
      */
-    public CliUi(Facade facade) {
-        this.facade = facade;
+    public CliUi() {
+        companyService = CompanyService.getInstance();
+        computerService = ComputerService.getInstance();
         scanner = new Scanner(System.in);
         System.out.println("###################");
         System.out.println("######WELCOME######");
@@ -91,10 +96,10 @@ public class CliUi {
             } while (input == null);
             switch (input) {
             case LISTCOMPUTER:
-                showListComputers(facade.getComputers(currentPage.getCurrentPage(), 5));
+                showListComputers(computerService.getComputers(currentPage.getCurrentPage(), 10));
                 break;
             case LISTCOMPANY:
-                showListCompanies(facade.getCompanies(currentPage.getCurrentPage(), 5));
+                showListCompanies(companyService.getCompanies(currentPage.getCurrentPage(), 10));
                 break;
             case QUIT:
                 goToEnd();
@@ -137,7 +142,7 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPUTER);
-                Page<Computer> newPage = facade.getComputers(page, 5);
+                Page<Computer> newPage = computerService.getComputers(page, 5);
                 showListComputers(newPage);
                 break;
             case CREATECOMPUTER:
@@ -205,7 +210,7 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPANY);
-                Page<Company> newPage = facade.getCompanies(page, 5);
+                Page<Company> newPage = companyService.getCompanies(page, 5);
                 showListCompanies(newPage);
                 break;
             case DELETE:
@@ -236,7 +241,7 @@ public class CliUi {
         } while (!id.matches(R_NUMBER));
         Computer computer;
         try {
-            computer = facade.getComputerDetails(Long.parseLong(id));
+            computer = computerService.getComputerDetails(Long.parseLong(id));
             System.out.println(computer);
         } catch (InvalidComputerException e) {
             System.out.println("Le computer choisi n'existe pas.");
@@ -277,7 +282,7 @@ public class CliUi {
         long newId;
         try {
             newComputer = fillComputer(null, name, intro, disco, companyId);
-            newId = facade.createComputer(newComputer);
+            newId = computerService.createComputer(newComputer);
             if (newId > 0) {
                 System.out.println("CREATION EFFECTUEE DU COMPUTER " + newId);
             } else {
@@ -309,7 +314,7 @@ public class CliUi {
             } while (!isComputer(entry));
             System.out.println("COMPUTER " + entry);
             Computer computerToUpdate = null;
-            computerToUpdate = facade.getComputerDetails(Long.parseLong(entry));
+            computerToUpdate = computerService.getComputerDetails(Long.parseLong(entry));
             System.out.println(computerToUpdate);
 
             System.out.println("Name:");
@@ -333,7 +338,7 @@ public class CliUi {
             } while (!entry.matches(R_NUMBER) && !entry.equals(""));
             companyId = entry;
             Computer computerUpdate = fillComputer(computerToUpdate, name, intro, disco, companyId);
-            facade.updateComputer(computerUpdate);
+            computerService.updateComputer(computerUpdate);
             System.out.println("MISE A JOUR EFFECTUEE");
         } catch (InvalidComputerException e) {
             System.out.println("MISE A JOUR NON EFFECTUEE");
@@ -358,7 +363,7 @@ public class CliUi {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER));
         try {
-            facade.deleteComputer(Long.parseLong(entry));
+            computerService.deleteComputer(Long.parseLong(entry));
             System.out.println("SUPPRESION EFFECTUEE");
         } catch (InvalidIdException e) {
             System.out.println("SUPPRESION NON EFFECTUEE: Erreur à cause du computer choisi");
@@ -379,7 +384,7 @@ public class CliUi {
             entry = scanner.nextLine();
         } while (!entry.matches(R_NUMBER));
         try {
-            facade.deleteCompany(Long.parseLong(entry));
+            companyService.deleteCompany(Long.parseLong(entry));
             System.out.println("SUPPRESION EFFECTUEE");
         } catch (InvalidCompanyException e) {
             System.out.println("SUPPRESION NON EFFECTUEE: Erreur à cause de la company choisi");
@@ -405,7 +410,7 @@ public class CliUi {
      *             Exception lancée à cause des infos du computer
      */
     public boolean isComputer(String computerId) throws InvalidComputerException {
-        return facade.getComputerDetails(Integer.parseInt(computerId)) != null;
+        return computerService.getComputerDetails(Integer.parseInt(computerId)) != null;
     }
 
     /**
@@ -456,7 +461,7 @@ public class CliUi {
             }
         }
         if (!companyId.equals("")) {
-            newComputer.setManufacturer(facade.getCompany(Integer.parseInt(companyId)));
+            newComputer.setManufacturer(companyService.getCompany(Integer.parseInt(companyId)));
         } else {
             newComputer.setManufacturer(null);
         }

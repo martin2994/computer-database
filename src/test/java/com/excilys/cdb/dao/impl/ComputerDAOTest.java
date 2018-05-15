@@ -25,7 +25,6 @@ import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.Facade;
 import com.excilys.cdb.utils.Page;
 
 public class ComputerDAOTest {
@@ -40,7 +39,7 @@ public class ComputerDAOTest {
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDAOTest.class);
 
     /**
      * Initialise un computer et la DAO avant chaque méthode.

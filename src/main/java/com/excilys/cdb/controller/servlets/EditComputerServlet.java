@@ -20,7 +20,8 @@ import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.Facade;
+import com.excilys.cdb.services.CompanyService;
+import com.excilys.cdb.services.ComputerService;
 
 /**
  * Servlet implementation class EditComputerServlet. Gére toutes les actions de
@@ -31,9 +32,14 @@ public class EditComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Le service.
+     * Le service des computers.
      */
-    private Facade facade;
+    private ComputerService computerService;
+
+    /**
+     * Le service des companies.
+     */
+    private CompanyService companyService;
 
     /**
      * LOGGER.
@@ -50,7 +56,8 @@ public class EditComputerServlet extends HttpServlet {
      */
     public EditComputerServlet() {
         super();
-        facade = Facade.getInstance();
+        computerService = ComputerService.getInstance();
+        companyService = CompanyService.getInstance();
     }
 
     /**
@@ -81,16 +88,13 @@ public class EditComputerServlet extends HttpServlet {
                 }
             } else {
                 computerDTO = DTOMapper.convertComputerToComputerDTO(
-                        facade.getComputerDetails(Long.parseLong(request.getParameter("id"))));
+                        computerService.getComputerDetails(Long.parseLong(request.getParameter("id"))));
             }
-        } catch (NumberFormatException | InvalidComputerException e) {
-            LOGGER.debug("ERROR UPDATE " + e.getMessage());
-            error = e.getMessage();
-        } catch (InvalidCompanyException e) {
+        } catch (NumberFormatException | InvalidComputerException | InvalidCompanyException e) {
             LOGGER.debug("ERROR UPDATE " + e.getMessage());
             error = e.getMessage();
         }
-        List<Company> companies = facade.getCompanies();
+        List<Company> companies = companyService.getCompanies();
         request.setAttribute("erreur", error);
         request.setAttribute("message", message);
         request.setAttribute("computer", computerDTO);
@@ -113,7 +117,7 @@ public class EditComputerServlet extends HttpServlet {
     private ComputerDTO updateComputer(HttpServletRequest request)
             throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
         ComputerDTO computerDTO = DTOMapper.convertComputerToComputerDTO(
-                facade.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));
+                computerService.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));
         String name = request.getParameter("computerName");
         String introduced = request.getParameter("introduced");
         LocalDate introducedDate = null;
@@ -130,14 +134,14 @@ public class EditComputerServlet extends HttpServlet {
         long idCompany = Long.parseLong(companyId);
         if (companyId != null && !"0".equals(companyId)) {
             if (idCompany != computerDTO.getManufacturerId()) {
-                company = facade.getCompany(idCompany);
+                company = companyService.getCompany(idCompany);
             } else {
                 company = new Company(idCompany, computerDTO.getManufacturer());
             }
         }
         Computer computer = new Computer.Builder(name).id(computerDTO.getId()).introduced(introducedDate)
                 .discontinued(discontinuedDate).manufacturer(company).build();
-        return DTOMapper.convertComputerToComputerDTO(facade.updateComputer(computer));
+        return DTOMapper.convertComputerToComputerDTO(computerService.updateComputer(computer));
     }
 
 }

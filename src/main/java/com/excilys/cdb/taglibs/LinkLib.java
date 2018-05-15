@@ -8,8 +8,6 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.cdb.services.Facade;
-
 /**
  * TagLib qui permet de créer un lien avec plusieurs paramètres.
  * @author martin
@@ -40,7 +38,7 @@ public class LinkLib extends SimpleTagSupport {
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinkLib.class);
 
     /**
      * Affiche les différents éléments de pagination.

@@ -13,6 +13,7 @@ import java.util.Optional;
 import com.excilys.cdb.dao.DAO;
 import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.mapper.DateMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -138,22 +139,7 @@ public class ComputerDAO implements DAO<Computer> {
                 statement.setInt(1, page * resultPerPage);
                 statement.setInt(2, resultPerPage);
                 try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        Company company;
-                        if (rs.getInt("company.id") > 0) {
-                            company = new Company(rs.getInt("company.id"), rs.getString("company.name"));
-                        } else {
-                            company = null;
-                        }
-                        Computer computer = new Computer.Builder(rs.getString("computer.name"))
-                                .id(rs.getInt("computer.id"))
-                                .introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
-                                .discontinued(
-                                        DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
-                                .manufacturer(company).build();
-
-                        computers.add(computer);
-                    }
+                    computers = ComputerMapper.convertListComputerSQLToPageComputer(rs);
                 }
             }
             computers.setMaxPage(count());
@@ -186,22 +172,7 @@ public class ComputerDAO implements DAO<Computer> {
                 statement.setInt(3, page * resultPerPage);
                 statement.setInt(4, resultPerPage);
                 try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        Company company;
-                        if (rs.getInt("company.id") > 0) {
-                            company = new Company(rs.getInt("company.id"), rs.getString("company.name"));
-                        } else {
-                            company = null;
-                        }
-                        Computer computer = new Computer.Builder(rs.getString("computer.name"))
-                                .id(rs.getInt("computer.id"))
-                                .introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
-                                .discontinued(
-                                        DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
-                                .manufacturer(company).build();
-
-                        computers.add(computer);
-                    }
+                    computers = ComputerMapper.convertListComputerSQLToPageComputer(rs);
                 }
             }
             computers.setMaxPage(count());
@@ -223,15 +194,7 @@ public class ComputerDAO implements DAO<Computer> {
                 PreparedStatement statement = connection.prepareStatement(COMPUTER_BY_ID, ResultSet.CONCUR_READ_ONLY)) {
             statement.setLong(1, id);
             try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    Company company = new Company(rs.getInt("company.id"), rs.getString("company.name"));
-                    computer = Optional.ofNullable(new Computer.Builder(rs.getString("computer.name"))
-                            .id(rs.getInt("computer.id"))
-                            .introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
-                            .discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
-                            .manufacturer(company).build());
-
-                }
+                computer = ComputerMapper.convertComputerSQLToComputer(rs);
             }
             return computer;
         }

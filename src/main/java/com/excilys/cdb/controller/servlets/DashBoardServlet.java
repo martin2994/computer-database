@@ -2,9 +2,7 @@ package com.excilys.cdb.controller.servlets;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -16,9 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.services.Facade;
+import com.excilys.cdb.services.ComputerService;
 
 /**
  * Gére toutes les actions de la page dashboard: liste des computers,
@@ -31,9 +30,9 @@ public class DashBoardServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Le service.
+     * Le service des computers.
      */
-    private Facade facade;
+    private ComputerService computerService;
 
     /**
      * Emplacement de la jsp de la page dashboard.
@@ -45,7 +44,7 @@ public class DashBoardServlet extends HttpServlet {
      */
     public DashBoardServlet() {
         super();
-        facade = Facade.getInstance();
+        computerService = ComputerService.getInstance();
     }
 
     @Override
@@ -80,9 +79,7 @@ public class DashBoardServlet extends HttpServlet {
      *            la liste des id de computers
      */
     private void deleteListComputer(HttpServletRequest request, String selection) {
-        Set<Long> idComputer = Arrays.stream(selection.split(",")).map(stringId -> Long.parseLong(stringId))
-                .collect(Collectors.toSet());
-        facade.deleteComputerList(idComputer.toString().replace("[", "(").replace("]", ")"));
+        computerService.deleteComputerList(ComputerMapper.convertListId(selection));
     }
 
     /**
@@ -163,7 +160,7 @@ public class DashBoardServlet extends HttpServlet {
      * @return la page de computer
      */
     private List<Computer> getComputerPerPage(HttpServletRequest request, int currentPage, int resultPerPage) {
-        int numberComputer = facade.getCountComputers();
+        int numberComputer = computerService.getCountComputers();
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
         if (currentPage > numberOfPage) {
@@ -171,7 +168,7 @@ public class DashBoardServlet extends HttpServlet {
         }
         request.getSession().setAttribute("currentPage", currentPage);
         request.setAttribute("nbComputers", numberComputer);
-        return facade.getComputers(currentPage - 1, resultPerPage).getResults();
+        return computerService.getComputers(currentPage - 1, resultPerPage).getResults();
     }
 
     /**
@@ -188,7 +185,7 @@ public class DashBoardServlet extends HttpServlet {
      */
     private List<Computer> getComputerByNamePerPage(HttpServletRequest request, String search, int currentPage,
             int resultPerPage) {
-        int numberComputer = facade.getCountComputersByName(search);
+        int numberComputer = computerService.getCountComputersByName(search);
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
         if (currentPage > numberOfPage) {
@@ -197,7 +194,7 @@ public class DashBoardServlet extends HttpServlet {
         request.getSession().setAttribute("currentPage", currentPage);
         request.setAttribute("searchParam", search);
         request.setAttribute("nbComputers", numberComputer);
-        return facade.getComputersByName(search, currentPage - 1, resultPerPage).getResults();
+        return computerService.getComputersByName(search, currentPage - 1, resultPerPage).getResults();
     }
 
 }

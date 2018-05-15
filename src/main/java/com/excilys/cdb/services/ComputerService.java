@@ -1,8 +1,6 @@
 package com.excilys.cdb.services;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +15,11 @@ import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidIdException;
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
-import com.excilys.cdb.validators.CompanyValidator;
 import com.excilys.cdb.validators.ComputerValidator;
 
-/**
- * Facade Regroupe les différentes actions de l'utilisateur.
- */
-public class Facade {
-
+public class ComputerService {
     /**
      * DAO de company.
      */
@@ -41,17 +33,17 @@ public class Facade {
     /**
      * LOGGER.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Facade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 
     /**
      * le singleton.
      */
-    private static Facade facade;
+    private static ComputerService computerService;
 
     /**
      * Constructeur qui récupère les différentes DAO.
      */
-    private Facade() {
+    private ComputerService() {
         try {
             this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
             this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
@@ -69,16 +61,17 @@ public class Facade {
      * @return La liste des computer
      */
     public Page<Computer> getComputers(int page, int resultPerPage) {
+        Page<Computer> cPage = new Page<>();
         try {
             if (page >= 0 && resultPerPage >= 1) {
-                return computerDAO.findPerPage(page, resultPerPage);
+                cPage = computerDAO.findPerPage(page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPUTER PAGE");
             }
         } catch (SQLException e) {
             LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
         }
-        return new Page<>();
+        return cPage;
     }
 
     /**
@@ -92,68 +85,17 @@ public class Facade {
      * @return La liste des computer
      */
     public Page<Computer> getComputersByName(String search, int page, int resultPerPage) {
+        Page<Computer> cPage = new Page<>();
         try {
             if (page >= 0 && resultPerPage >= 1) {
-                return computerDAO.findByNamePerPage(search, page, resultPerPage);
+                cPage = computerDAO.findByNamePerPage(search, page, resultPerPage);
             } else {
                 LOGGER.info("INVALID COMPUTER PAGE");
             }
         } catch (SQLException e) {
             LOGGER.debug("FIND BY NAME COMPUTERS: " + e.getMessage());
         }
-        return new Page<>();
-    }
-
-    /**
-     * Récupère la liste de toutes les company.
-     * @return la liste des company
-     */
-    public List<Company> getCompanies() {
-        try {
-            return companyDAO.findAll();
-        } catch (SQLException e) {
-            LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * Récupère la liste des company par page.
-     * @param page
-     *            la page à afficher
-     * @param resultPerPage
-     *            le nombre de computer par page
-     * @return La liste des company
-     */
-    public Page<Company> getCompanies(int page, int resultPerPage) {
-        try {
-            if (page >= 0 && resultPerPage >= 1) {
-                return companyDAO.findPerPage(page, resultPerPage);
-            } else {
-                LOGGER.info("INVALID COMPANY PAGE");
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("FIND ALL COMPANIES: " + e.getMessage());
-        }
-        return new Page<>();
-    }
-
-    /**
-     * Récupère une company en fonction de son id.
-     * @param id
-     *            l'id de la company
-     * @return la company
-     * @throws InvalidCompanyException
-     *             Exception sur les companies
-     */
-    public Company getCompany(long id) throws InvalidCompanyException {
-        try {
-            CompanyValidator.isValidId(id);
-            return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException("L'id n'est pas valide."));
-        } catch (SQLException e) {
-            LOGGER.debug("GET COMPANY " + id + ": " + e.getMessage());
-        }
-        throw new InvalidCompanyException("Une erreur est survenue.");
+        return cPage;
     }
 
     /**
@@ -185,6 +127,7 @@ public class Facade {
      *             Exception lancée quand la company n'est pas valide
      */
     public long createComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException {
+        long result = 0;
         try {
             ComputerValidator.isValidComputer(computer);
             if (computer.getManufacturer() != null) {
@@ -193,13 +136,13 @@ public class Facade {
                     throw new InvalidCompanyException("La company n'existe pas.");
                 }
             }
-            return computerDAO.add(computer);
+            result = computerDAO.add(computer);
         } catch (SQLException e) {
             LOGGER.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
         } catch (NoObjectException e) {
             LOGGER.debug("CREATE COMPUTER WITH NULL OBJECT" + e.getMessage());
         }
-        return 0;
+        return result;
     }
 
     /**
@@ -245,15 +188,16 @@ public class Facade {
      *             Exception lancée si l'id du computer n'est pas valide
      */
     public boolean deleteComputer(long id) throws InvalidIdException {
+        boolean result = false;
         try {
             ComputerValidator.isValidId(id);
             if (computerDAO.delete(id)) {
-                return true;
+                result = true;
             }
         } catch (SQLException e) {
             LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
         }
-        return false;
+        return result;
     }
 
     /**
@@ -263,34 +207,15 @@ public class Facade {
      * @return un boolean de réussite ou non
      */
     public boolean deleteComputerList(String idList) {
+        boolean result = false;
         try {
             if (computerDAO.deleteList(idList)) {
-                return true;
+                result = true;
             }
         } catch (SQLException e) {
             LOGGER.debug("DELETE COMPUTER LIST: " + e.getMessage());
         }
-        return false;
-    }
-
-    /**
-     * Permet de supprimer une company.
-     * @param id
-     *            l'id de la company à supprimer
-     * @return un boolean pour savoir si la suppression a eu lieu
-     * @throws InvalidCompanyException
-     *             Exception lancée si l'id n'est pas valide
-     */
-    public boolean deleteCompany(long id) throws InvalidCompanyException {
-        try {
-            CompanyValidator.isValidId(id);
-            if (companyDAO.delete(id)) {
-                return true;
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
-        }
-        return false;
+        return result;
     }
 
     /**
@@ -298,12 +223,13 @@ public class Facade {
      * @return le nombre de computers
      */
     public int getCountComputers() {
+        int result = 0;
         try {
-            return computerDAO.count();
+            result = computerDAO.count();
         } catch (SQLException e) {
             LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
         }
-        return 0;
+        return result;
     }
 
     /**
@@ -313,22 +239,23 @@ public class Facade {
      * @return le nombre de computers
      */
     public int getCountComputersByName(String search) {
+        int result = 0;
         try {
-            return computerDAO.countByName(search);
+            result = computerDAO.countByName(search);
         } catch (SQLException e) {
             LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
         }
-        return 0;
+        return result;
     }
 
     /**
-     * Récupère le singleton de la façade.
-     * @return le singleton Facade
+     * Récupère le singleton de la façade computer.
+     * @return le singleton Facade computer
      */
-    public static Facade getInstance() {
-        if (facade == null) {
-            facade = new Facade();
+    public static ComputerService getInstance() {
+        if (computerService == null) {
+            computerService = new ComputerService();
         }
-        return facade;
+        return computerService;
     }
 }
