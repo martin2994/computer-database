@@ -91,7 +91,7 @@ public class EditComputerServlet extends HttpServlet {
                         computerService.getComputerDetails(Long.parseLong(request.getParameter("id"))));
             }
         } catch (NumberFormatException | InvalidComputerException | InvalidCompanyException e) {
-            LOGGER.debug("ERROR UPDATE " + e.getMessage());
+            LOGGER.warn("ERROR UPDATE " + e.getMessage());
             error = e.getMessage();
         }
         List<Company> companies = companyService.getCompanies();

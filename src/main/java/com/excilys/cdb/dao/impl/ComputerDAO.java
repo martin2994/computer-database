@@ -15,7 +15,6 @@ import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.mapper.DateMapper;
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
@@ -102,20 +101,7 @@ public class ComputerDAO implements DAO<Computer> {
         try (Connection connection = DAOFactory.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
                 ResultSet rs = statement.executeQuery()) {
-            while (rs.next()) {
-                Company company;
-                if (rs.getInt("company.id") > 0) {
-                    company = new Company(rs.getInt("company.id"), rs.getString("company.name"));
-                } else {
-                    company = null;
-                }
-                Computer computer = new Computer.Builder(rs.getString("computer.name")).id(rs.getInt("computer.id"))
-                        .introduced(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.introduced")))
-                        .discontinued(DateMapper.convertTimeStampToLocal(rs.getTimestamp("computer.discontinued")))
-                        .manufacturer(company).build();
-
-                computers.add(computer);
-            }
+            computers = ComputerMapper.convertListComputerSQLToListComputer(rs);
         }
         return computers;
     }
