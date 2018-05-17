@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.excilys.cdb.SpringTestConfiguration;
-import com.excilys.cdb.exceptions.NoDAOException;
-import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -121,15 +119,12 @@ public class CompanyDAOTest {
 
     /**
      * Teste le cas normal de la fonction Delete.
-     * @throws NoFactoryException
-     *             Exception lancée si la factory n'existe pas
-     * @throws NoDAOException
      *             Exception lancée si une des DAO n'existe pas
      * @throws SQLException
      *             exception SQL lancée
      */
     @Test
-    public void testDelete() throws SQLException, NoDAOException, NoFactoryException {
+    public void testDelete() throws SQLException {
         assertTrue(companyDAO.delete(2L));
         assertTrue(Optional.empty().equals(computerDAO.findById(2L)));
         assertTrue(Optional.empty().equals(companyDAO.findById(2L)));
