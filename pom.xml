@@ -32,7 +32,8 @@
 		<selenium.version>3.4.0</selenium.version>
 		<testng.version>6.8</testng.version>
 		<selenium-maven.version>1.0.1</selenium-maven.version>
-		<maven-surefire.version>2.5</maven-surefire.version>
+		<maven-surefire.version>2.21.0</maven-surefire.version>
+		<junit-platform-surefire.version>1.2.0</junit-platform-surefire.version>
 	</properties>
 
 	<dependencies>
@@ -233,7 +234,7 @@
 
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.21.0</version>
+				<version>${maven-surefire.version}</version>
 				<executions>
 					<execution>
 						<id>test</id>
@@ -252,7 +253,7 @@
 					<dependency>
 						<groupId>org.junit.platform</groupId>
 						<artifactId>junit-platform-surefire-provider</artifactId>
-						<version>1.2.0</version>
+						<version>${junit-platform-surefire.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -261,7 +262,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.21.0</version>
+				<version>${maven-surefire.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -279,7 +280,7 @@
 					<dependency>
 						<groupId>org.apache.maven.surefire</groupId>
 						<artifactId>surefire-testng</artifactId>
-						<version>2.21.0</version>
+						<version>${maven-surefire.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -287,7 +288,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>selenium-maven-plugin</artifactId>
-				<version>1.0.1</version>
+				<version>${selenium-maven.version}</version>
 				<configuration>
 					<background>true</background>
 					<startURL>jdbc:mysql://localhost:3306/test-cdb?useSSL=false</startURL>
