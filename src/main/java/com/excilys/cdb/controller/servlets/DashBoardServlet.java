@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.mapper.ComputerMapper;
@@ -32,6 +35,7 @@ public class DashBoardServlet extends HttpServlet {
     /**
      * Le service des computers.
      */
+    @Autowired
     private ComputerService computerService;
 
     /**
@@ -39,12 +43,10 @@ public class DashBoardServlet extends HttpServlet {
      */
     private final String LOCATION_DASHBOARD_JSP = "/WEB-INF/pages/dashboard.jsp";
 
-    /**
-     * Constructeur vide.
-     */
-    public DashBoardServlet() {
-        super();
-        computerService = ComputerService.getInstance();
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override
@@ -134,6 +136,7 @@ public class DashBoardServlet extends HttpServlet {
     private List<Computer> getComputer(HttpServletRequest request, int currentPage, int resultPerPage) {
         String buttonTest = request.getParameter("buttonTest");
         String search = request.getParameter("search");
+        List<Computer> computers = new ArrayList<>();
         if (!StringUtils.isBlank(buttonTest)) {
             if ("Filter by name".equals(buttonTest)) {
                 currentPage = 1;
@@ -141,12 +144,12 @@ public class DashBoardServlet extends HttpServlet {
             }
         } else {
             if (StringUtils.isBlank(search)) {
-                return getComputerPerPage(request, currentPage, resultPerPage);
+                computers = getComputerPerPage(request, currentPage, resultPerPage);
             } else {
-                return getComputerByNamePerPage(request, search, currentPage, resultPerPage);
+                computers = getComputerByNamePerPage(request, search, currentPage, resultPerPage);
             }
         }
-        return new ArrayList<>();
+        return computers;
     }
 
     /**

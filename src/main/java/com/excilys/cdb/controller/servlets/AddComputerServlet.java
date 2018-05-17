@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
@@ -32,11 +35,13 @@ public class AddComputerServlet extends HttpServlet {
     /**
      * Le service des computers.
      */
+    @Autowired
     private ComputerService computerService;
 
     /**
      * Le service des companies.
      */
+    @Autowired
     private CompanyService companyService;
 
     /**
@@ -44,13 +49,10 @@ public class AddComputerServlet extends HttpServlet {
      */
     private final String LOCATION_ADD_JSP = "/WEB-INF/pages/addComputer.jsp";
 
-    /**
-     * Constructeur vide.
-     */
-    public AddComputerServlet() {
-        super();
-        computerService = ComputerService.getInstance();
-        companyService = CompanyService.getInstance();
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override

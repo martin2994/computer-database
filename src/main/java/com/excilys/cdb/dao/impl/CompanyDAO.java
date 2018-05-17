@@ -8,14 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import com.excilys.cdb.dao.DAO;
-import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
 /**
  * DAO pour Company Regroupe les différentes transactions sur les Company.
  */
+
+@Repository
 public class CompanyDAO implements DAO<Company> {
 
     /**
@@ -53,10 +59,8 @@ public class CompanyDAO implements DAO<Company> {
      */
     private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM computer WHERE computer.company_id = ?";
 
-    /**
-     * le singleton.
-     */
-    private static CompanyDAO companyDAO;
+    @Autowired
+    private DataSource dataSource;
 
     /**
      * Constructeur privé vide.
@@ -73,7 +77,7 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public List<Company> findAll() throws SQLException {
         List<Company> companies = new ArrayList<>();
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES);
                 ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
@@ -96,7 +100,7 @@ public class CompanyDAO implements DAO<Company> {
     public Page<Company> findPerPage(int page, int resultPerPage) throws SQLException {
         Page<Company> companies = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE)) {
                 companies.setResultPerPage(resultPerPage);
                 statement.setInt(1, page * resultPerPage);
@@ -121,7 +125,7 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public Optional<Company> findById(long id) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(COMPANY_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -139,7 +143,7 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public int count() throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(MAX_PAGE);
                 ResultSet rs = statement.executeQuery()) {
             if (rs.next()) {
@@ -158,7 +162,8 @@ public class CompanyDAO implements DAO<Company> {
     @Override
     public boolean delete(long id) throws SQLException {
         int result = 0;
-        try (Connection connection = DAOFactory.getConnection()) {
+        boolean delete = false;
+        try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statementComputer = connection.prepareStatement(DELETE_COMPANY_COMPUTERS);
                     PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY)) {
@@ -171,10 +176,10 @@ public class CompanyDAO implements DAO<Company> {
                 throw e;
             }
             connection.commit();
-            if (result == 0) {
-                return false;
+            if (result != 0) {
+                delete = true;
             }
-            return true;
+            return delete;
         }
     }
 
@@ -193,7 +198,7 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public boolean isExist(long id) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY)) {
             statement.setLong(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -203,17 +208,6 @@ public class CompanyDAO implements DAO<Company> {
                 return false;
             }
         }
-    }
-
-    /**
-     * Récupère le singleton de companyDao.
-     * @return le singleton
-     */
-    public static CompanyDAO getInstance() {
-        if (companyDAO == null) {
-            companyDAO = new CompanyDAO();
-        }
-        return companyDAO;
     }
 
 }

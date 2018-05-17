@@ -105,7 +105,9 @@ public class ComputerMapper {
      * @return la liste sous le bon format
      */
     public static String convertListId(String listId) {
-        return Arrays.stream(listId.split(",")).map(stringId -> Long.parseLong(stringId)).collect(Collectors.toSet())
+        return Arrays.stream(listId.split(","))
+                .map(stringId -> Long.parseLong(stringId))
+                .collect(Collectors.toSet())
                 .toString().replace("[", "(").replace("]", ")");
     }
 

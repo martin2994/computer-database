@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import com.excilys.cdb.dao.DAO;
-import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.mapper.DateMapper;
@@ -21,6 +25,7 @@ import com.excilys.cdb.utils.Page;
 /**
  * DAO des Computer Regroupe l'ensemble des transactions sur les computer.
  */
+@Repository
 public class ComputerDAO implements DAO<Computer> {
 
     /**
@@ -78,10 +83,8 @@ public class ComputerDAO implements DAO<Computer> {
      */
     private final String MAX_PAGE_BY_NAME = "SELECT COUNT(computer.id) FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id WHERE computer.name LIKE ? or company.name LIKE ? ";
 
-    /**
-     * le singleton.
-     */
-    private static ComputerDAO computerDAO;
+    @Autowired
+    private DataSource dataSource;
 
     /**
      * Constructeur privé vide.
@@ -98,7 +101,7 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public List<Computer> findAll() throws SQLException {
         List<Computer> computers = new ArrayList<>();
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(ALL_COMPUTERS, ResultSet.CONCUR_READ_ONLY);
                 ResultSet rs = statement.executeQuery()) {
             computers = ComputerMapper.convertListComputerSQLToListComputer(rs);
@@ -118,7 +121,7 @@ public class ComputerDAO implements DAO<Computer> {
     public Page<Computer> findPerPage(int page, int resultPerPage) throws SQLException {
         Page<Computer> computers = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(ALL_COMPUTERS_PER_PAGE,
                             ResultSet.CONCUR_READ_ONLY)) {
                 computers.setResultPerPage(resultPerPage);
@@ -149,7 +152,7 @@ public class ComputerDAO implements DAO<Computer> {
     public Page<Computer> findByNamePerPage(String search, int page, int resultPerPage) throws SQLException {
         Page<Computer> computers = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(COMPUTERS_BY_NAME,
                             ResultSet.CONCUR_READ_ONLY)) {
                 statement.setString(1, "%" + search + "%");
@@ -176,7 +179,7 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public Optional<Computer> findById(long id) throws SQLException {
         Optional<Computer> computer = Optional.empty();
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(COMPUTER_BY_ID, ResultSet.CONCUR_READ_ONLY)) {
             statement.setLong(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -199,7 +202,7 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public long add(Computer computer) throws SQLException, NoObjectException {
         if (computer != null) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(INSERT_COMPUTER,
                             Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, computer.getName());
@@ -242,7 +245,7 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public boolean isExist(long id) throws SQLException {
         if (id >= 0) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(COMPUTER_EXIST,
                             ResultSet.CONCUR_READ_ONLY)) {
                 statement.setLong(1, id);
@@ -264,7 +267,7 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public boolean delete(long id) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_COMPUTER)) {
             statement.setLong(1, id);
             int result = statement.executeUpdate();
@@ -284,7 +287,7 @@ public class ComputerDAO implements DAO<Computer> {
      *             Exception SQL lancée
      */
     public boolean deleteList(String idList) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection
                         .prepareStatement(String.format(DELETE_COMPUTER_LIST, idList))) {
             int result = statement.executeUpdate();
@@ -308,7 +311,7 @@ public class ComputerDAO implements DAO<Computer> {
     public Optional<Computer> update(Computer computer) throws SQLException, NoObjectException {
         Optional<Computer> optComputer = Optional.empty();
         if (computer != null) {
-            try (Connection connection = DAOFactory.getConnection();
+            try (Connection connection = dataSource.getConnection();
                     PreparedStatement statement = connection.prepareStatement(UPDATE_COMPUTER)) {
                 statement.setString(1, computer.getName());
                 Timestamp date = null;
@@ -343,7 +346,7 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public int count() throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(MAX_PAGE);
                 ResultSet rs = statement.executeQuery()) {
             if (rs.next()) {
@@ -362,7 +365,7 @@ public class ComputerDAO implements DAO<Computer> {
      *             Exception SQL lancée
      */
     public int countByName(String search) throws SQLException {
-        try (Connection connection = DAOFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(MAX_PAGE_BY_NAME)) {
             statement.setString(1, "%" + search + "%");
             statement.setString(2, "%" + search + "%");
@@ -374,16 +377,4 @@ public class ComputerDAO implements DAO<Computer> {
             return 0;
         }
     }
-
-    /**
-     * Récupère le singleton computerDAO.
-     * @return le ComputerDAO
-     */
-    public static ComputerDAO getInstance() {
-        if (computerDAO == null) {
-            computerDAO = new ComputerDAO();
-        }
-        return computerDAO;
-    }
-
 }

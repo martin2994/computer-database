@@ -3,6 +3,9 @@ package com.excilys.cdb.ui;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.AbstractApplicationContext;
+
 import com.excilys.cdb.enums.CompanyChoice;
 import com.excilys.cdb.enums.ComputerChoice;
 import com.excilys.cdb.enums.DAOType;
@@ -51,12 +54,16 @@ public class CliUi {
     /**
      * Le service des computers.
      */
+    @Autowired
     private ComputerService computerService;
 
     /**
      * Le service des companies.
      */
+    @Autowired
     private CompanyService companyService;
+
+    private AbstractApplicationContext context;
 
     private final String R_NUMBER = "[0-9]+";
     private final String R_TEXT = "[a-zA-Z-0-9]+";
@@ -64,10 +71,13 @@ public class CliUi {
 
     /**
      * Constructeur pour attribuer le controler, le scanner et message d'arrivé.
+     * @param context
+     *            le contexte de l'application
      */
-    public CliUi() {
-        companyService = CompanyService.getInstance();
-        computerService = ComputerService.getInstance();
+    public CliUi(AbstractApplicationContext context) {
+        this.context = context;
+        companyService = (CompanyService) context.getBean("companyService");
+        computerService = (ComputerService) context.getBean("computerService");
         scanner = new Scanner(System.in);
         System.out.println("###################");
         System.out.println("######WELCOME######");
@@ -395,6 +405,7 @@ public class CliUi {
      * Affichage de fin.
      */
     public void goToEnd() {
+        context.close();
         scanner.close();
         System.out.println("###################");
         System.out.println("########BYE########");

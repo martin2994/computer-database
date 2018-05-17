@@ -13,14 +13,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>5.0.6.RELEASE</spring.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<commons.lang.version>3.7</commons.lang.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.0.9</logback.version>
 		<mysql.version>5.1.46</mysql.version>
-		<mockito.version>2.18.0</mockito.version>
-		<junit.version>4.12</junit.version>
+		<mockito.version>2.18.3</mockito.version>
+		<junit.platform.version>1.2.0-M1</junit.platform.version>
+		<junit.version>5.2.0-M1</junit.version>
 		<servlet.version>3.1.0</servlet.version>
 		<jstl.version>1.2</jstl.version>
 		<jsp.version>2.3.1</jsp.version>
@@ -34,6 +36,36 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -58,17 +90,22 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>${mockito.version}</version>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit.platform.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
 		</dependency>
 
 		<dependency>
@@ -195,22 +232,76 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>selenium-maven-plugin</artifactId>
-				<version>${selenium-maven.version}</version>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.21.0</version>
 				<executions>
 					<execution>
-						<id>start</id>
+						<id>test</id>
+						<phase>test</phase>
+						<configuration>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+							<excludedGroups>
+								com.excilys.cdb.selenium
+							</excludedGroups>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>1.2.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- Selenium -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.21.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/selenium/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.surefire</groupId>
+						<artifactId>surefire-testng</artifactId>
+						<version>2.21.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>selenium-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<configuration>
+					<background>true</background>
+					<startURL>jdbc:mysql://localhost:3306/test-cdb?useSSL=false</startURL>
+				</configuration>
+				<executions>
+					<execution>
+						<id>start-selenium-server</id>
 						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>start-server</goal>
 						</goals>
-						<configuration>
-							<background>true</background>
-						</configuration>
 					</execution>
 					<execution>
-						<id>stop</id>
+						<id>stop-selenium-server</id>
 						<phase>post-integration-test</phase>
 						<goals>
 							<goal>stop-server</goal>
@@ -218,46 +309,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire.version}</version>
-				<configuration>
-					<excludes>
-						<exclude>**/selenium/*.java</exclude> <!-- Les tests selenium sont exclus de la phase de test -->
-					</excludes>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<testNGArtifactName>none:none</testNGArtifactName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>test-testng</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<junitArtifactName>none:none</junitArtifactName>
-
-							<excludes>
-								<exclude>none</exclude>
-							</excludes>
-							<includes>
-								<include>**/selenium/*Test.java</include> <!-- ...en incluant les tests selenium -->
-							</includes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
 

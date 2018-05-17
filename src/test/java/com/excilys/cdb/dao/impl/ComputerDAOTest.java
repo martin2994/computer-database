@@ -4,31 +4,36 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.ExpectedException;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import com.excilys.cdb.dao.DAOFactory;
-import com.excilys.cdb.enums.DAOType;
-import com.excilys.cdb.exceptions.NoDAOException;
-import com.excilys.cdb.exceptions.NoFactoryException;
+import com.excilys.cdb.SpringTestConfiguration;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
+@SpringJUnitConfig(classes = SpringTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 public class ComputerDAOTest {
 
+    @Autowired
     private ComputerDAO computerDAO;
 
     private Computer computerTest;
@@ -42,24 +47,18 @@ public class ComputerDAOTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDAOTest.class);
 
     /**
-     * Initialise un computer et la DAO avant chaque méthode.
-     * @throws NoDAOException
-     *             exception lancée pour la DAO
-     * @throws NoFactoryException
-     *             exception lancée pour la fabrique
+     * Initialise un computer.
      */
-    @Before
-    public void setUp() throws NoDAOException, NoFactoryException {
+    @BeforeEach
+    public void setUp() {
         computerTest = new Computer.Builder("test").build();
-        computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
     }
 
     /**
      * Met à null tous les objets.
      */
-    @After
+    @AfterEach
     public void tearDown() {
-        computerDAO = null;
         computerTest = null;
     }
 
@@ -97,8 +96,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindByIdBadId() throws SQLException {
-        exception.expect(NoSuchElementException.class);
-        computerDAO.findById(-1L).get();
+        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(-1L).get());
     }
 
     /**
@@ -203,8 +201,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testAddNull() throws SQLException, NoObjectException {
-        exception.expect(NoObjectException.class);
-        computerDAO.add(null);
+        assertThrows(NoObjectException.class, () -> computerDAO.add(null));
 
     }
 
@@ -292,8 +289,7 @@ public class ComputerDAOTest {
     public void testUpdateWithInexistantId() throws SQLException, NoObjectException {
         Computer computer = computerTest;
         computer.setId(700L);
-        exception.expect(NoSuchElementException.class);
-        computerDAO.update(computer).get();
+        assertThrows(NoSuchElementException.class, () -> computerDAO.update(computer).get());
     }
 
     /**
@@ -326,9 +322,8 @@ public class ComputerDAOTest {
      *             Exception lancé quand un objet est null ou inexistant
      */
     @Test
-    public void testUpdateNull() throws SQLException, NoObjectException {
-        exception.expect(NoObjectException.class);
-        computerDAO.update(null);
+    public void testUpdateNull() throws SQLException {
+        assertThrows(NoObjectException.class, () -> computerDAO.update(null));
     }
 
     /**
@@ -358,8 +353,7 @@ public class ComputerDAOTest {
     @Test
     public void testDelete() throws SQLException {
         assertTrue(computerDAO.delete(3L));
-        exception.expect(NoSuchElementException.class);
-        computerDAO.findById(3L).get();
+        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(3L).get());
     }
 
     /**
@@ -380,8 +374,7 @@ public class ComputerDAOTest {
     @Test
     public void testDeleteList() throws SQLException {
         assertTrue(computerDAO.deleteList("(15,16)"));
-        exception.expect(NoSuchElementException.class);
-        computerDAO.findById(15L).get();
+        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(15L).get());
     }
 
     /**

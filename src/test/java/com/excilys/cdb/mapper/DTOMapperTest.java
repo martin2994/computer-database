@@ -3,7 +3,7 @@ package com.excilys.cdb.mapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.model.Computer;

@@ -4,13 +4,11 @@ import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
-import com.excilys.cdb.enums.DAOType;
-import com.excilys.cdb.exceptions.NoDAOException;
-import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
@@ -19,38 +17,24 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.ComputerValidator;
 
+@Service
 public class ComputerService {
     /**
      * DAO de company.
      */
+    @Autowired
     private CompanyDAO companyDAO;
 
     /**
      * DAO de computer.
      */
+    @Autowired
     private ComputerDAO computerDAO;
 
     /**
      * LOGGER.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
-
-    /**
-     * le singleton.
-     */
-    private static ComputerService computerService;
-
-    /**
-     * Constructeur qui récupère les différentes DAO.
-     */
-    private ComputerService() {
-        try {
-            this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
-            this.computerDAO = (ComputerDAO) DAOFactory.getDAO(DAOType.COMPUTER);
-        } catch (NoDAOException | NoFactoryException e) {
-            LOGGER.debug("DAO exception: " + e.getMessage());
-        }
-    }
 
     /**
      * Récupère la liste des computer par page.
@@ -248,14 +232,4 @@ public class ComputerService {
         return result;
     }
 
-    /**
-     * Récupère le singleton de la façade computer.
-     * @return le singleton Facade computer
-     */
-    public static ComputerService getInstance() {
-        if (computerService == null) {
-            computerService = new ComputerService();
-        }
-        return computerService;
-    }
 }

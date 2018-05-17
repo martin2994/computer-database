@@ -1,8 +1,8 @@
 package com.excilys.cdb.services;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -10,18 +10,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import com.excilys.cdb.SpringTestConfiguration;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.exceptions.NoObjectException;
@@ -33,7 +34,8 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringJUnitConfig(classes = SpringTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 public class ComputerServiceTest {
 
     @Mock
@@ -45,15 +47,15 @@ public class ComputerServiceTest {
     @InjectMocks
     private ComputerService computerService;
 
-    private Computer computer;
+    @Autowired
+    private ComputerService computerServiceBean;
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+    private Computer computer;
 
     /**
      * Initialise les données Mockito et objet.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         computer = new Computer.Builder("test").build();
@@ -62,7 +64,7 @@ public class ComputerServiceTest {
     /**
      * Réinitialise les données.
      */
-    @After
+    @AfterEach
     public void tearDown() {
         computer = null;
     }
@@ -87,7 +89,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testGetComputersBadResultPerPage() {
-        assertTrue(computerService.getComputers(0, -1).getResults().isEmpty());
+        assertTrue(computerServiceBean.getComputers(0, -1).getResults().isEmpty());
     }
 
     /**
@@ -95,7 +97,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testGetComputersWithBadPageInf() {
-        Page<Computer> computers = computerService.getComputers(-1, 10);
+        Page<Computer> computers = computerServiceBean.getComputers(-1, 10);
         assertTrue(computers.getResults().isEmpty());
     }
 
@@ -131,7 +133,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testGetComputersByNameBadResultPerPage() {
-        assertTrue(computerService.getComputersByName("test", 0, -1).getResults().isEmpty());
+        assertTrue(computerServiceBean.getComputersByName("test", 0, -1).getResults().isEmpty());
     }
 
     /**
@@ -139,7 +141,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testGetComputersbyNameWithBadPageInf() {
-        Page<Computer> computers = computerService.getComputersByName("test", -1, 10);
+        Page<Computer> computers = computerServiceBean.getComputersByName("test", -1, 10);
         assertTrue(computers.getResults().isEmpty());
     }
 
@@ -176,8 +178,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testGetComputerWithBadId() throws InvalidComputerException {
-        exception.expect(InvalidIdException.class);
-        computerService.getComputerDetails(-1L);
+        assertThrows(InvalidIdException.class, () -> computerServiceBean.getComputerDetails(-1L));
     }
 
     /**
@@ -188,10 +189,9 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      */
     @Test
-    public void testGetComputerException() throws SQLException, InvalidComputerException {
+    public void testGetComputerException() throws SQLException {
         Mockito.when(computerDAO.findById(1L)).thenThrow(SQLException.class);
-        exception.expect(InvalidComputerException.class);
-        computerService.getComputerDetails(1);
+        assertThrows(InvalidComputerException.class, () -> computerService.getComputerDetails(1));
         Mockito.verify(computerDAO).findById(1L);
     }
 
@@ -223,8 +223,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testCreateComputerNull() throws InvalidComputerException, InvalidCompanyException {
-        exception.expect(InvalidComputerException.class);
-        computerService.createComputer(null);
+        assertThrows(InvalidComputerException.class, () -> computerServiceBean.createComputer(null));
     }
 
     /**
@@ -237,8 +236,7 @@ public class ComputerServiceTest {
     @Test
     public void testCreateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
         computer.setName(null);
-        exception.expect(InvalidComputerException.class);
-        computerService.createComputer(computer);
+        assertThrows(InvalidComputerException.class, () -> computerServiceBean.createComputer(computer));
     }
 
     /**
@@ -254,8 +252,7 @@ public class ComputerServiceTest {
     public void testCreateComputerBadCompany() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(companyDAO.isExist(60L)).thenReturn(false);
-        exception.expect(InvalidCompanyException.class);
-        computerService.createComputer(computer);
+        assertThrows(InvalidCompanyException.class, () -> computerService.createComputer(computer));
         Mockito.verify(companyDAO).isExist(60L);
     }
 
@@ -270,8 +267,7 @@ public class ComputerServiceTest {
     public void testCreateComputerBadDates() throws InvalidComputerException, InvalidCompanyException {
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
-        exception.expect(InvalidComputerException.class);
-        computerService.createComputer(computer);
+        assertThrows(InvalidDateException.class, () -> computerServiceBean.createComputer(computer));
     }
 
     /**
@@ -342,9 +338,8 @@ public class ComputerServiceTest {
      *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testUpdateComputerNull() throws InvalidComputerException, InvalidCompanyException {
-        exception.expect(InvalidComputerException.class);
-        computerService.updateComputer(null);
+    public void testUpdateComputerNull() {
+        assertThrows(InvalidComputerException.class, () -> computerServiceBean.updateComputer(null));
     }
 
     /**
@@ -358,8 +353,7 @@ public class ComputerServiceTest {
     public void testUpdateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         computer.setName(null);
-        exception.expect(InvalidComputerException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidComputerException.class, () -> computerServiceBean.updateComputer(computer));
     }
 
     /**
@@ -377,8 +371,7 @@ public class ComputerServiceTest {
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
         Mockito.when(companyDAO.isExist(60L)).thenReturn(false);
-        exception.expect(InvalidCompanyException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidCompanyException.class, () -> computerService.updateComputer(computer));
         Mockito.verify(computerDAO).isExist(1L);
         Mockito.verify(companyDAO).isExist(60L);
     }
@@ -396,8 +389,7 @@ public class ComputerServiceTest {
     public void testUpdateComputerBadId() throws SQLException, InvalidComputerException, InvalidCompanyException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(false);
-        exception.expect(InvalidComputerException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidComputerException.class, () -> computerService.updateComputer(computer));
         Mockito.verify(computerDAO).isExist(1L);
     }
 
@@ -415,8 +407,7 @@ public class ComputerServiceTest {
         computer.setId(1L);
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
-        exception.expect(InvalidDateException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidDateException.class, () -> computerServiceBean.updateComputer(computer));
     }
 
     /**
@@ -436,8 +427,7 @@ public class ComputerServiceTest {
         computer.setId(1L);
         Mockito.when(computerDAO.update(computer)).thenThrow(SQLException.class);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        exception.expect(InvalidComputerException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidComputerException.class, () -> computerService.updateComputer(computer));
         Mockito.verify(computerDAO).update(computer);
     }
 
@@ -458,18 +448,8 @@ public class ComputerServiceTest {
         computer.setId(1L);
         Mockito.when(computerDAO.update(computer)).thenThrow(NoObjectException.class);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
-        exception.expect(InvalidComputerException.class);
-        computerService.updateComputer(computer);
+        assertThrows(InvalidComputerException.class, () -> computerService.updateComputer(computer));
         Mockito.verify(computerDAO).update(computer);
-    }
-
-    /**
-     * Teste la fonction GetInstance.
-     */
-    @Test
-    public void testGetInstance() {
-        ComputerService facade = ComputerService.getInstance();
-        assertNotNull(facade);
     }
 
     /**
@@ -511,8 +491,7 @@ public class ComputerServiceTest {
      */
     @Test
     public void testDeleteComputerBadIdInf() throws SQLException, InvalidIdException {
-        exception.expect(InvalidIdException.class);
-        computerService.deleteComputer(-1L);
+        assertThrows(InvalidIdException.class, () -> computerServiceBean.deleteComputer(-1L));
     }
 
     /**

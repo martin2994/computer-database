@@ -6,43 +6,27 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.excilys.cdb.dao.DAOFactory;
 import com.excilys.cdb.dao.impl.CompanyDAO;
-import com.excilys.cdb.enums.DAOType;
-import com.excilys.cdb.exceptions.NoDAOException;
-import com.excilys.cdb.exceptions.NoFactoryException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.CompanyValidator;
 
+@Service
 public class CompanyService {
     /**
      * DAO de company.
      */
+    @Autowired
     private CompanyDAO companyDAO;
 
     /**
      * LOGGER.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
-
-    /**
-     * le singleton.
-     */
-    private static CompanyService companyService;
-
-    /**
-     * Constructeur qui récupère les différentes DAO.
-     */
-    private CompanyService() {
-        try {
-            this.companyDAO = (CompanyDAO) DAOFactory.getDAO(DAOType.COMPANY);
-        } catch (NoDAOException | NoFactoryException e) {
-            LOGGER.debug("DAO exception: " + e.getMessage());
-        }
-    }
 
     /**
      * Récupère la liste de toutes les company.
@@ -119,14 +103,4 @@ public class CompanyService {
         return result;
     }
 
-    /**
-     * Récupère le singleton de la façade Company.
-     * @return le singleton Facade Company
-     */
-    public static CompanyService getInstance() {
-        if (companyService == null) {
-            companyService = new CompanyService();
-        }
-        return companyService;
-    }
 }

@@ -1,33 +1,37 @@
 package com.excilys.cdb.services;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import com.excilys.cdb.SpringTestConfiguration;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringJUnitConfig(classes = SpringTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 public class CompanyServiceTest {
 
     @Mock
@@ -39,15 +43,20 @@ public class CompanyServiceTest {
     @InjectMocks
     private CompanyService companyService;
 
+    @Autowired
+    private CompanyService companyServiceBean;
+
     private Company company;
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+    /**
+     * LOGGER.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyServiceTest.class);
 
     /**
      * Initialise les données Mockito et objet.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         company = new Company(1, "test");
@@ -56,7 +65,7 @@ public class CompanyServiceTest {
     /**
      * Réinitialise les données.
      */
-    @After
+    @AfterEach
     public void tearDown() {
         company = null;
     }
@@ -68,9 +77,10 @@ public class CompanyServiceTest {
      */
     @Test
     public void testGetCompanies() throws SQLException {
-        List<Company> companies = Collections.nCopies(5, company);
+        List<Company> companies = Collections.nCopies(5, new Company(1, "test"));
         Mockito.when(companyDAO.findAll()).thenReturn(companies);
         List<Company> companiesTest = companyService.getCompanies();
+        LOGGER.info(companiesTest.toString());
         assertTrue(companiesTest.size() == 5 && companiesTest.get(0).equals(company));
         Mockito.verify(companyDAO).findAll();
     }
@@ -95,7 +105,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testGetCompaniesBadResultPerPage() {
-        assertTrue(companyService.getCompanies(0, -1).getResults().isEmpty());
+        assertTrue(companyServiceBean.getCompanies(0, -1).getResults().isEmpty());
     }
 
     /**
@@ -103,7 +113,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testGetCompaniesWithBadPageInf() {
-        Page<Company> companies = companyService.getCompanies(-1, 10);
+        Page<Company> companies = companyServiceBean.getCompanies(-1, 10);
         assertTrue(companies.getResults().isEmpty());
     }
 
@@ -139,9 +149,8 @@ public class CompanyServiceTest {
      *             Exception lancée quand la company n'est pas valide
      */
     @Test
-    public void testGetCompanyWithBadId() throws InvalidCompanyException {
-        exception.expect(InvalidCompanyException.class);
-        companyService.getCompany(-1L);
+    public void testGetCompanyWithBadId() {
+        assertThrows(InvalidCompanyException.class, () -> companyServiceBean.getCompany(-1L));
     }
 
     /**
@@ -154,18 +163,8 @@ public class CompanyServiceTest {
     @Test
     public void testGetCompanyException() throws SQLException, InvalidCompanyException {
         Mockito.when(companyDAO.findById(1L)).thenThrow(SQLException.class);
-        exception.expect(InvalidCompanyException.class);
-        companyService.getCompany(1);
+        assertThrows(InvalidCompanyException.class, () -> companyService.getCompany(1));
         Mockito.verify(companyDAO).findById(1L);
-    }
-
-    /**
-     * Teste la fonction GetInstance.
-     */
-    @Test
-    public void testGetInstance() {
-        CompanyService facade = CompanyService.getInstance();
-        assertNotNull(facade);
     }
 
     /**
@@ -207,8 +206,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testDeleteCompanyBadIdInf() throws SQLException, InvalidCompanyException {
-        exception.expect(InvalidCompanyException.class);
-        companyService.deleteCompany(-1L);
+        assertThrows(InvalidCompanyException.class, () -> companyServiceBean.deleteCompany(-1L));
     }
 
     /**
