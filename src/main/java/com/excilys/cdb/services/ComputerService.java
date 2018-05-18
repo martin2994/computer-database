@@ -37,6 +37,12 @@ public class ComputerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 
     /**
+     * Constructeur privé.
+     */
+    private ComputerService() {
+    }
+
+    /**
      * Récupère la liste des computer par page.
      * @param page
      *            la page à afficher

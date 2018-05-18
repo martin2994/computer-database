@@ -29,6 +29,13 @@ public class CompanyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 
     /**
+     * Constructeur privé.
+     */
+    private CompanyService() {
+
+    }
+
+    /**
      * Récupère la liste de toutes les company.
      * @return la liste des company
      */

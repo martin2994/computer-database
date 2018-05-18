@@ -25,8 +25,8 @@ public class SpringConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfiguration.class);
 
     /**
-     * .
-     * @return .
+     * Bean pour initialiser la connexion via Hikari.
+     * @return la dataSource
      */
     @Bean
     public DataSource dataSource() {

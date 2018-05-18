@@ -76,8 +76,8 @@ public class CliUi {
      */
     public CliUi(AbstractApplicationContext context) {
         this.context = context;
-        companyService = (CompanyService) context.getBean("companyService");
-        computerService = (ComputerService) context.getBean("computerService");
+        companyService = context.getBean(CompanyService.class);
+        computerService = context.getBean(ComputerService.class);
         scanner = new Scanner(System.in);
         System.out.println("###################");
         System.out.println("######WELCOME######");
