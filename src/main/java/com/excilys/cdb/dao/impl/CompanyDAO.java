@@ -74,6 +74,8 @@ public class CompanyDAO implements DAO<Company> {
      * @throws SQLException
      *             Exception SQL lancée
      */
+
+
     @Override
     public List<Company> findAll() throws SQLException {
         List<Company> companies = new ArrayList<>();
