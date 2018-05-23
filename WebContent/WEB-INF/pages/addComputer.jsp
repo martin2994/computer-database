@@ -6,15 +6,16 @@
 <head>
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <!-- Bootstrap -->
-<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="css/main.css" rel="stylesheet" media="screen">
+<link href="/cdb/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="/cdb/css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="/cdb/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="dashboard"> Application - Computer
+		<a class="navbar-brand" href="/cdb/computer"> Application - Computer
 			Database </a>
 	</div>
 	</header>
@@ -61,7 +62,7 @@
 						</fieldset>
 						<div class="actions pull-right">
 							<input type="submit" id="buttonAdd" name="buttonTest" value="Add"
-								class="btn btn-primary"> or <a href="dashboard"
+								class="btn btn-primary"> or <a href="/cdb/computer"
 								class="btn btn-default">Cancel</a>
 						</div>
 					</form>
@@ -69,10 +70,10 @@
 			</div>
 		</div>
 	</section>
-	<script src="js/jquery.min.js"></script>
+	<script src="/cdb/js/jquery.min.js"></script>
 	<script
 		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/validation.js"></script>
+	<script src="/cdb/js/bootstrap.min.js"></script>
+	<script src="/cdb/js/validation.js"></script>
 </body>
 </html>
