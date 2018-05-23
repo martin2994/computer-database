@@ -10,6 +10,7 @@ import com.excilys.cdb.enums.CompanyChoice;
 import com.excilys.cdb.enums.ComputerChoice;
 import com.excilys.cdb.enums.DAOType;
 import com.excilys.cdb.enums.MenuChoice;
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidIdException;
@@ -106,10 +107,18 @@ public class CliUi {
             } while (input == null);
             switch (input) {
             case LISTCOMPUTER:
-                showListComputers(computerService.getComputers(currentPage.getCurrentPage(), 10));
+                try {
+                    showListComputers(computerService.getComputers(currentPage.getCurrentPage(), 10));
+                } catch (InvalidComputerException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case LISTCOMPANY:
-                showListCompanies(companyService.getCompanies(currentPage.getCurrentPage(), 10));
+                try {
+                    showListCompanies(companyService.getCompanies(currentPage.getCurrentPage(), 10));
+                } catch (InvalidCompanyException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case QUIT:
                 goToEnd();
@@ -152,8 +161,13 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPUTER);
-                Page<Computer> newPage = computerService.getComputers(page, 5);
-                showListComputers(newPage);
+                Page<Computer> newPage;
+                try {
+                    newPage = computerService.getComputers(page, 10);
+                    showListComputers(newPage);
+                } catch (InvalidComputerException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case CREATECOMPUTER:
                 createComputer();
@@ -220,8 +234,13 @@ public class CliUi {
             switch (input) {
             case SELECTPAGE:
                 int page = selectPage(DAOType.COMPANY);
-                Page<Company> newPage = companyService.getCompanies(page, 5);
-                showListCompanies(newPage);
+                Page<Company> newPage;
+                try {
+                    newPage = companyService.getCompanies(page, 10);
+                    showListCompanies(newPage);
+                } catch (InvalidCompanyException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case DELETE:
                 deleteCompany();
@@ -255,6 +274,8 @@ public class CliUi {
             System.out.println(computer);
         } catch (InvalidComputerException e) {
             System.out.println("Le computer choisi n'existe pas.");
+        } catch (NoObjectException e) {
+            System.out.println("Mauvaise requete.");
         }
     }
 
@@ -302,6 +323,8 @@ public class CliUi {
             System.out.println("Une erreur est survenue à cause du nouveau computer.");
         } catch (InvalidCompanyException e) {
             System.out.println("Une erreur est survenue à cause de la company du nouveau computer.");
+        } catch (NoObjectException e) {
+            System.out.println("Mauvaise requete.");
         }
     }
 
@@ -356,6 +379,8 @@ public class CliUi {
         } catch (InvalidCompanyException e) {
             System.out.println("MISE A JOUR NON EFFECTUEE");
             System.out.println("Une erreur est survenue à cause de la company choisie.");
+        } catch (NoObjectException e) {
+            System.out.println("Mauvaise requete");
         }
     }
 
@@ -419,8 +444,10 @@ public class CliUi {
      * @return un booléen (true: existe, false: n'existe pas)
      * @throws InvalidComputerException
      *             Exception lancée à cause des infos du computer
+     * @throws NoObjectException
+     *              Exception lancée quand la requete echoue (pas de resultat)
      */
-    public boolean isComputer(String computerId) throws InvalidComputerException {
+    public boolean isComputer(String computerId) throws InvalidComputerException, NoObjectException {
         return computerService.getComputerDetails(Integer.parseInt(computerId)) != null;
     }
 
@@ -441,9 +468,11 @@ public class CliUi {
      *             Exception lancée à cause des infos du computer
      * @throws InvalidCompanyException
      *             Exception lancée à cause de la company
+     * @throws NoObjectException
+     *             Exception lancée quand la requete échoue ( pas de resultat)
      */
     public Computer fillComputer(Computer computer, String name, String intro, String disco, String companyId)
-            throws InvalidComputerException, InvalidCompanyException {
+            throws InvalidComputerException, InvalidCompanyException, NoObjectException {
         String newName = null;
         if (!name.equals("")) {
             newName = name;

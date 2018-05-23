@@ -2,10 +2,9 @@ package com.excilys.cdb.dao.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.excilys.cdb.SpringTestConfiguration;
+import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -39,11 +40,11 @@ public class CompanyDAOTest {
 
     /**
      * Teste le cas normal de la fonction findById.
-     * @throws SQLException
-     *             exception SQL lancée
+     * @throws NoObjectException
+     *          Excpetion lancée quand la requete échoue
      */
     @Test
-    public void testFindById() throws SQLException {
+    public void testFindById() throws NoObjectException {
         Company company = companyDAO.findById(1L).get();
         assertTrue("Apple Inc.".equals(company.getName()));
         assertTrue(company.getId() == 1L);
@@ -51,33 +52,28 @@ public class CompanyDAOTest {
 
     /**
      * Teste la fonction findById avec un mauvais id.
-     * @throws SQLException
-     *             exception SQL lancée
      */
-    // @Test
-    // public void testFindByIdBadId() throws SQLException {
-    // exception.expect(NoSuchElementException.class);
-    // companyDAO.findById(-1L).get();
-    // }
+    @Test
+    public void testFindByIdBadId() {
+        assertThrows(NoObjectException.class, () -> companyDAO.findById(-1L).get());
+    }
 
     /**
      * Teste le cas normal de la fonction FindAll.
-     * @throws SQLException
-     *             Exception SQL lancée
      */
     @Test
-    public void testFindAll() throws SQLException {
+    public void testFindAll() {
         List<Company> list = companyDAO.findAll();
         assertTrue(list.size() == 2);
     }
 
     /**
      * Teste le cas normal de la fonction FindPerPage.
-     * @throws SQLException
-     *             exception SQL lancée
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
     @Test
-    public void testFindPerPage() throws SQLException {
+    public void testFindPerPage() throws InvalidCompanyException {
         Page<Company> page = companyDAO.findPerPage(0, 10);
         assertTrue(page.getMaxPage() == 1);
         assertTrue(page.getResults().size() == 2);
@@ -86,101 +82,83 @@ public class CompanyDAOTest {
     /**
      * Teste la fonction FindPerPage quand le nombre de company par page est
      * négatif.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testFindPerPageBadResultPerPage() throws SQLException {
-        Page<Company> page = companyDAO.findPerPage(0, -1);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPageBadResultPerPage() {
+        assertThrows(InvalidCompanyException.class, () -> companyDAO.findPerPage(0, -1));
     }
 
     /**
      * Teste la fonction FindPerPage avec une page au dessus des limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
     @Test
-    public void testFindPerPagePageSup() throws SQLException {
-        Page<Company> page = companyDAO.findPerPage(100, 10);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPagePageSup() throws InvalidCompanyException {
+        assertTrue(companyDAO.findPerPage(100, 10).getResults().isEmpty());
     }
 
     /**
      * Teste la fonction FindPerPage avec une page au dessosu des limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindPerPagePageInf() throws SQLException {
-        Page<Company> page = companyDAO.findPerPage(-1, 10);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPagePageInf() {
+        assertThrows(InvalidCompanyException.class, () -> companyDAO.findPerPage(-1, 10));
     }
 
     /**
      * Teste le cas normal de la fonction Delete.
-     *             Exception lancée si une des DAO n'existe pas
-     * @throws SQLException
-     *             exception SQL lancée
+     * @throws NoObjectException
+     *          Exception lancée quand la requete échoue
      */
     @Test
-    public void testDelete() throws SQLException {
+    public void testDelete() throws NoObjectException {
         assertTrue(companyDAO.delete(2L));
-        assertTrue(Optional.empty().equals(computerDAO.findById(2L)));
-        assertTrue(Optional.empty().equals(companyDAO.findById(2L)));
+        assertThrows(NoObjectException.class, () -> computerDAO.findById(2L));
+        assertThrows(NoObjectException.class, () -> companyDAO.findById(2L));
     }
 
     /**
      * Teste la fonction Delete quand l'objet est inexistant.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testDeleteNoComputer() throws SQLException {
+    public void testDeleteNoComputer() {
         assertFalse(companyDAO.delete(100L));
     }
 
     /**
      * Teste la fonction Count.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testCount() throws SQLException {
+    public void testCount() {
         int maxPage = companyDAO.count();
         assertTrue(maxPage == 2);
     }
 
     /**
      * Teste la fonction isExist.
-     * @throws SQLException
-     *             ExceptionSQL lancée
+     * @throws NoObjectException
+     *          Exception lancée quand il n'y a pas de resultat
      */
     @Test
-    public void testIsExist() throws SQLException {
+    public void testIsExist() throws NoObjectException {
         boolean test = companyDAO.isExist(1L);
         assertTrue(test);
     }
 
     /**
      * Teste la fonction isExist avec un mauvais argument.
-     * @throws SQLException
-     *             ExceptionSQL lancée
      */
     @Test
-    public void testIsExistWithBadId() throws SQLException {
-        boolean test = companyDAO.isExist(100L);
-        assertFalse(test);
+    public void testIsExistWithBadId() {
+        assertThrows(NoObjectException.class, () ->  companyDAO.isExist(100L));
     }
 
     /**
      * Teste la fonction isExist avec un mauvais argument.
-     * @throws SQLException
-     *             ExceptionSQL lancée
      */
     @Test
-    public void testIsExistBadArgument() throws SQLException {
-        boolean test = companyDAO.isExist(-1L);
-        assertFalse(test);
+    public void testIsExistBadArgument() {
+        assertThrows(NoObjectException.class, () ->  companyDAO.isExist(-1L));
     }
 }

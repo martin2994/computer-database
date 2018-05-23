@@ -1,7 +1,5 @@
 package com.excilys.cdb.services;
 
-import java.sql.SQLException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,18 +47,17 @@ public class ComputerService {
      * @param resultPerPage
      *            le nombre de computer par page
      * @return La liste des computer
+     * @throws InvalidComputerException
+     *              Exception lancée quand une requete a echoué
      */
-    public Page<Computer> getComputers(int page, int resultPerPage) {
+    public Page<Computer> getComputers(int page, int resultPerPage) throws InvalidComputerException {
         Page<Computer> cPage = new Page<>();
-        try {
-            if (page >= 0 && resultPerPage >= 1) {
-                cPage = computerDAO.findPerPage(page, resultPerPage);
-            } else {
-                LOGGER.info("INVALID COMPUTER PAGE");
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
+        if (page >= 0 && resultPerPage >= 1) {
+            cPage = computerDAO.findPerPage(page, resultPerPage);
+        } else {
+            LOGGER.info("INVALID COMPUTER PAGE");
         }
+
         return cPage;
     }
 
@@ -73,17 +70,15 @@ public class ComputerService {
      * @param resultPerPage
      *            le nombre de computer par page
      * @return La liste des computer
+     * @throws InvalidComputerException
+     *              Exception lancée quand une requete a échoué
      */
-    public Page<Computer> getComputersByName(String search, int page, int resultPerPage) {
+    public Page<Computer> getComputersByName(String search, int page, int resultPerPage) throws InvalidComputerException {
         Page<Computer> cPage = new Page<>();
-        try {
-            if (page >= 0 && resultPerPage >= 1) {
-                cPage = computerDAO.findByNamePerPage(search, page, resultPerPage);
-            } else {
-                LOGGER.info("INVALID COMPUTER PAGE");
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("FIND BY NAME COMPUTERS: " + e.getMessage());
+        if (page >= 0 && resultPerPage >= 1) {
+            cPage = computerDAO.findByNamePerPage(search, page, resultPerPage);
+        } else {
+            LOGGER.info("INVALID COMPUTER PAGE");
         }
         return cPage;
     }
@@ -95,15 +90,12 @@ public class ComputerService {
      * @return le computer
      * @throws InvalidComputerException
      *             Exception sur les computers
+     * @throws NoObjectException
+     *              Exception lancée quand la requete echoue ( pas de resultat)
      */
-    public Computer getComputerDetails(long id) throws InvalidComputerException {
-        try {
-            ComputerValidator.isValidId(id);
-            return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException("L'id n'est pas valide."));
-        } catch (SQLException e) {
-            LOGGER.debug("GET COMPUTER " + id + ": " + e.getMessage());
-        }
-        throw new InvalidComputerException("Une erreur est survenue.");
+    public Computer getComputerDetails(long id) throws InvalidComputerException, NoObjectException {
+        ComputerValidator.isValidId(id);
+        return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException("L'id n'est pas valide."));
     }
 
     /**
@@ -127,10 +119,9 @@ public class ComputerService {
                 }
             }
             result = computerDAO.add(computer);
-        } catch (SQLException e) {
-            LOGGER.debug("CREATE COMPUTER " + computer.getId() + ": " + e.getMessage());
         } catch (NoObjectException e) {
             LOGGER.debug("CREATE COMPUTER WITH NULL OBJECT" + e.getMessage());
+            throw new InvalidComputerException("Les informations sont incompletes.");
         }
         return result;
     }
@@ -160,9 +151,6 @@ public class ComputerService {
             }
             return computerDAO.update(computer)
                     .orElseThrow(() -> new InvalidComputerException("Les infos du computer ne sont pas valides."));
-
-        } catch (SQLException e) {
-            LOGGER.debug("UPDATE COMPUTER " + computer.getId() + ": " + e.getMessage());
         } catch (NoObjectException e) {
             LOGGER.debug("UPDATE COMPUTER NULL " + e.getMessage());
         }
@@ -179,13 +167,9 @@ public class ComputerService {
      */
     public boolean deleteComputer(long id) throws InvalidIdException {
         boolean result = false;
-        try {
-            ComputerValidator.isValidId(id);
-            if (computerDAO.delete(id)) {
-                result = true;
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
+        ComputerValidator.isValidId(id);
+        if (computerDAO.delete(id)) {
+            result = true;
         }
         return result;
     }
@@ -198,12 +182,8 @@ public class ComputerService {
      */
     public boolean deleteComputerList(String idList) {
         boolean result = false;
-        try {
-            if (computerDAO.deleteList(idList)) {
-                result = true;
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("DELETE COMPUTER LIST: " + e.getMessage());
+        if (computerDAO.deleteList(idList)) {
+            result = true;
         }
         return result;
     }
@@ -214,11 +194,7 @@ public class ComputerService {
      */
     public int getCountComputers() {
         int result = 0;
-        try {
-            result = computerDAO.count();
-        } catch (SQLException e) {
-            LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
-        }
+        result = computerDAO.count();
         return result;
     }
 
@@ -230,11 +206,7 @@ public class ComputerService {
      */
     public int getCountComputersByName(String search) {
         int result = 0;
-        try {
-            result = computerDAO.countByName(search);
-        } catch (SQLException e) {
-            LOGGER.debug("ERREUR SQL COUNT " + e.getMessage());
-        }
+        result = computerDAO.countByName(search);
         return result;
     }
 

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.excilys.cdb.SpringTestConfiguration;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
@@ -72,11 +72,9 @@ public class CompanyServiceTest {
 
     /**
      * Teste le cas normal de la fonction GetCompanies.
-     * @throws SQLException
-     *             Exception SQL lancée
      */
     @Test
-    public void testGetCompanies() throws SQLException {
+    public void testGetCompanies() {
         List<Company> companies = Collections.nCopies(5, new Company(1, "test"));
         Mockito.when(companyDAO.findAll()).thenReturn(companies);
         List<Company> companiesTest = companyService.getCompanies();
@@ -87,11 +85,11 @@ public class CompanyServiceTest {
 
     /**
      * Teste le cas normal de la fonction GetCompanies avec page.
-     * @throws SQLException
-     *             Exception SQL lancée
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
     @Test
-    public void testGetCompaniesPerPage() throws SQLException {
+    public void testGetCompaniesPerPage() throws InvalidCompanyException {
         List<Company> companies = Collections.nCopies(5, company);
         Page<Company> page = new Page<>();
         page.setResults(companies);
@@ -102,42 +100,34 @@ public class CompanyServiceTest {
 
     /**
      * Teste le cas ou le nombre de companies par page est négatif.
+     * @throws InvalidCompanyException
+     *                  Exception lancée quand la requete echoue
      */
     @Test
-    public void testGetCompaniesBadResultPerPage() {
+    public void testGetCompaniesBadResultPerPage() throws InvalidCompanyException {
         assertTrue(companyServiceBean.getCompanies(0, -1).getResults().isEmpty());
     }
 
     /**
      * Teste la fonction GetCompanies quand la page est négative.
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
     @Test
-    public void testGetCompaniesWithBadPageInf() {
+    public void testGetCompaniesWithBadPageInf() throws InvalidCompanyException {
         Page<Company> companies = companyServiceBean.getCompanies(-1, 10);
         assertTrue(companies.getResults().isEmpty());
     }
 
     /**
-     * Teste la fonction GetCompanies quand une exception est lancée.
-     * @throws SQLException
-     *             Exception SQL lancée
-     */
-    @Test
-    public void testGetCompaniesException() throws SQLException {
-        Mockito.when(companyDAO.findPerPage(1, 10)).thenThrow(SQLException.class);
-        assertTrue(companyService.getCompanies(1, 10).getResults().isEmpty());
-        Mockito.verify(companyDAO).findPerPage(1, 10);
-    }
-
-    /**
      * Teste le cas normal de la fonction GetCompany.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws InvalidCompanyException
      *             Exception lancée quand la company n'est pas valide
+     * @throws NoObjectException
+     *              Exception lancée quand la requete echoue (pas de resultat)
      */
     @Test
-    public void testGetCompany() throws SQLException, InvalidCompanyException {
+    public void testGetCompany() throws InvalidCompanyException, NoObjectException {
         Mockito.when(companyDAO.findById(1L)).thenReturn(Optional.ofNullable(company));
         assertTrue("test".equals(companyService.getCompany(1L).getName()));
         Mockito.verify(companyDAO).findById(1L);
@@ -154,28 +144,12 @@ public class CompanyServiceTest {
     }
 
     /**
-     * Teste la fonction GetCompany quand une exception est lancée.
-     * @throws SQLException
-     *             Exception SQL lancée
-     * @throws InvalidCompanyException
-     *             Exception lancée quand la company n'est pas valide
-     */
-    @Test
-    public void testGetCompanyException() throws SQLException, InvalidCompanyException {
-        Mockito.when(companyDAO.findById(1L)).thenThrow(SQLException.class);
-        assertThrows(InvalidCompanyException.class, () -> companyService.getCompany(1));
-        Mockito.verify(companyDAO).findById(1L);
-    }
-
-    /**
      * Teste le cas normal de la fonction DeleteCompany.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws InvalidCompanyException
      *             Exception lancée quand l'id n'est pas valide
      */
     @Test
-    public void testDeleteCompany() throws SQLException, InvalidCompanyException {
+    public void testDeleteCompany() throws InvalidCompanyException {
         Mockito.when(companyDAO.delete(1L)).thenReturn(true);
         assertTrue(companyService.deleteCompany(1L));
         Mockito.verify(companyDAO).delete(1L);
@@ -184,13 +158,11 @@ public class CompanyServiceTest {
 
     /**
      * Teste la fonction DeleteCompany quand il n'y a pas de correspodance.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws InvalidCompanyException
      *             Exception lancée quand l'id n'est pas valide
      */
     @Test
-    public void testDeleteCompanyNoCompany() throws SQLException, InvalidCompanyException {
+    public void testDeleteCompanyNoCompany() throws InvalidCompanyException {
         Mockito.when(companyDAO.delete(1L)).thenReturn(false);
         assertFalse(companyService.deleteCompany(1L));
         Mockito.verify(companyDAO).delete(1L);
@@ -199,28 +171,12 @@ public class CompanyServiceTest {
 
     /**
      * Teste la fonction DeleteCompany quand l'id est négatif.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws InvalidCompanyException
      *             Exception lancée quand l'id n'est pas valide
      */
     @Test
-    public void testDeleteCompanyBadIdInf() throws SQLException, InvalidCompanyException {
+    public void testDeleteCompanyBadIdInf() throws InvalidCompanyException {
         assertThrows(InvalidCompanyException.class, () -> companyServiceBean.deleteCompany(-1L));
     }
 
-    /**
-     * Teste la fonction DeleteCompany quand la DAO lance une exception.
-     * @throws SQLException
-     *             Exception SQL lancée
-     * @throws InvalidCompanyException
-     *             Exception lancée quand l'id n'est pas valide
-     */
-    @Test
-    public void testDeleteCompanyException() throws SQLException, InvalidCompanyException {
-        Mockito.when(companyDAO.delete(1L)).thenThrow(SQLException.class);
-        assertFalse(companyService.deleteCompany(1L));
-        Mockito.verify(companyDAO).delete(1L);
-
-    }
 }

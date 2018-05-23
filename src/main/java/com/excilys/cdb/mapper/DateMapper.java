@@ -16,7 +16,7 @@ public class DateMapper {
      *            Timestamp à convertir
      * @return LocalDate la date en LocalDate
      */
-    public static LocalDate convertTimeStampToLocal(final Timestamp time) {
+    public static LocalDate timeStampToLocal(final Timestamp time) {
         if (time != null) {
             return time.toLocalDateTime().toLocalDate();
         }
@@ -30,7 +30,7 @@ public class DateMapper {
      *            LocalDate à convertir
      * @return TimeStamp la date en TimeStamp
      */
-    public static Timestamp convertLocalDateToTimeStamp(final LocalDate date) {
+    public static Timestamp localDateToTimeStamp(final LocalDate date) {
         if (date != null) {
             return Timestamp.valueOf(date.atStartOfDay());
         }

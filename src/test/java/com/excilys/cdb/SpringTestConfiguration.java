@@ -16,7 +16,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@ComponentScan(basePackages = { "com.excilys.cdb" })
+@ComponentScan(basePackages = {"com.excilys.cdb.dao.impl", "com.excilys.cdb.services" })
 public class SpringTestConfiguration {
     /**
      * LOGGER.

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
@@ -78,7 +79,7 @@ public class AddComputerServlet extends HttpServlet {
                     }
                 }
             }
-        } catch (InvalidComputerException | InvalidCompanyException e) {
+        } catch (InvalidComputerException | InvalidCompanyException | NoObjectException e) {
             erreur = e.getMessage();
         } catch (DateTimeParseException e) {
             erreur = "Invalid date format.";
@@ -100,9 +101,11 @@ public class AddComputerServlet extends HttpServlet {
      *             Exception lancée quand on entre un id qui n'est pas un nombre
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalide
+     * @throws NoObjectException
+     *              Exception lancée quand la requete echoue ( pas de resultat)
      */
     private long createComputer(HttpServletRequest request)
-            throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
+            throws NumberFormatException, InvalidCompanyException, InvalidComputerException, NoObjectException {
         String name = request.getParameter("computerName");
         String introduced = request.getParameter("introduced");
         LocalDate introducedDate = null;

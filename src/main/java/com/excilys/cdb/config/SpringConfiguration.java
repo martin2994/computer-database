@@ -1,4 +1,4 @@
-package com.excilys.cdb.launchers;
+package com.excilys.cdb.config;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@ComponentScan(basePackages = { "com.excilys.cdb" })
+@ComponentScan(basePackages = { "com.excilys.cdb.controller.servlets", "com.excilys.cdb.dao.impl", "com.excilys.cdb.services" })
 public class SpringConfiguration {
 
     /**

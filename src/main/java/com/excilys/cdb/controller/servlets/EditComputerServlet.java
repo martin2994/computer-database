@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.mapper.DTOMapper;
@@ -89,10 +90,10 @@ public class EditComputerServlet extends HttpServlet {
                     message = "Update done.";
                 }
             } else {
-                computerDTO = DTOMapper.convertComputerToComputerDTO(
-                        computerService.getComputerDetails(Long.parseLong(request.getParameter("id"))));
+                computerDTO = DTOMapper
+                        .fromComputer(computerService.getComputerDetails(Long.parseLong(request.getParameter("id"))));
             }
-        } catch (NumberFormatException | InvalidComputerException | InvalidCompanyException e) {
+        } catch (NumberFormatException | InvalidComputerException | InvalidCompanyException | NoObjectException e) {
             LOGGER.warn("ERROR UPDATE " + e.getMessage());
             error = e.getMessage();
         }
@@ -115,11 +116,13 @@ public class EditComputerServlet extends HttpServlet {
      *             Exception lancée quand on entre un id qui n'est pas un nombre
      * @throws InvalidComputerException
      *             Exception lancée quand les infos du computer sont invalide
+     * @throws NoObjectException
+     *             Exception lancée quand la requete echoue (pas de resultat)
      */
     private ComputerDTO updateComputer(HttpServletRequest request)
-            throws NumberFormatException, InvalidCompanyException, InvalidComputerException {
-        ComputerDTO computerDTO = DTOMapper.convertComputerToComputerDTO(
-                computerService.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));
+            throws NumberFormatException, InvalidCompanyException, InvalidComputerException, NoObjectException {
+        ComputerDTO computerDTO = DTOMapper
+                .fromComputer(computerService.getComputerDetails(Long.parseLong(request.getParameter("idComputer"))));
         String name = request.getParameter("computerName");
         String introduced = request.getParameter("introduced");
         LocalDate introducedDate = null;
@@ -143,7 +146,7 @@ public class EditComputerServlet extends HttpServlet {
         }
         Computer computer = new Computer.Builder(name).id(computerDTO.getId()).introduced(introducedDate)
                 .discontinued(discontinuedDate).manufacturer(company).build();
-        return DTOMapper.convertComputerToComputerDTO(computerService.updateComputer(computer));
+        return DTOMapper.fromComputer(computerService.updateComputer(computer));
     }
 
 }

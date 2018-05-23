@@ -1,19 +1,21 @@
 package com.excilys.cdb.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.dao.DAO;
+import com.excilys.cdb.dao.mapper.CompanyRowMapper;
+import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -62,32 +64,27 @@ public class CompanyDAO implements DAO<Company> {
     @Autowired
     private DataSource dataSource;
 
+    private JdbcTemplate jdbcTemplate;
+
     /**
      * Constructeur privé vide.
      */
     private CompanyDAO() {
     }
 
+    @PostConstruct
+    private void initJdbc() {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
     /**
      * Permet de récupérer la liste de toutes les company.
      * @return La liste des Company
-     * @throws SQLException
-     *             Exception SQL lancée
      */
 
-
     @Override
-    public List<Company> findAll() throws SQLException {
-        List<Company> companies = new ArrayList<>();
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES);
-                ResultSet rs = statement.executeQuery()) {
-            while (rs.next()) {
-                companies.add(new Company(rs.getInt("id"), rs.getString("name")));
-            }
-        }
-        return companies;
-
+    public List<Company> findAll() {
+        return jdbcTemplate.query(ALL_COMPANIES, new CompanyRowMapper());
     }
 
     /**
@@ -97,24 +94,19 @@ public class CompanyDAO implements DAO<Company> {
      * @param resultPerPage
      *            nombre de computer par page
      * @return La liste des Company
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
     @Override
-    public Page<Company> findPerPage(int page, int resultPerPage) throws SQLException {
+    public Page<Company> findPerPage(int page, int resultPerPage) throws InvalidCompanyException {
         Page<Company> companies = new Page<>();
-        if (page >= 0 && resultPerPage >= 1) {
-            try (Connection connection = dataSource.getConnection();
-                    PreparedStatement statement = connection.prepareStatement(ALL_COMPANIES_PER_PAGE)) {
-                companies.setResultPerPage(resultPerPage);
-                statement.setInt(1, page * resultPerPage);
-                statement.setInt(2, resultPerPage);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        companies.add(new Company(rs.getInt("id"), rs.getString("name")));
-                    }
-                }
-            }
+        try {
+            companies.setResults(jdbcTemplate.query(ALL_COMPANIES_PER_PAGE,
+                    new Object[] {page * resultPerPage, resultPerPage }, new CompanyRowMapper()));
             companies.setCurrentPage(page);
             companies.setMaxPage(count());
+        } catch (BadSqlGrammarException e) {
+            throw new InvalidCompanyException("Bad request");
         }
         return companies;
     }
@@ -126,17 +118,12 @@ public class CompanyDAO implements DAO<Company> {
      * @return La company correspondante
      */
     @Override
-    public Optional<Company> findById(long id) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(COMPANY_BY_ID)) {
-            statement.setLong(1, id);
-            try (ResultSet rs = statement.executeQuery()) {
-                Optional<Company> company = Optional.empty();
-                if (rs.next()) {
-                    company = Optional.ofNullable(new Company(rs.getInt("id"), rs.getString("name")));
-                }
-                return company;
-            }
+    public Optional<Company> findById(long id) throws NoObjectException {
+        try {
+            return Optional.ofNullable(
+                    jdbcTemplate.queryForObject(COMPANY_BY_ID, new Object[] {id }, new CompanyRowMapper()));
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoObjectException("No result for this request");
         }
     }
 
@@ -144,16 +131,8 @@ public class CompanyDAO implements DAO<Company> {
      * Récupère le nombre d'élement.
      */
     @Override
-    public int count() throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(MAX_PAGE);
-                ResultSet rs = statement.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        }
-
+    public int count() {
+        return jdbcTemplate.queryForObject(MAX_PAGE, Integer.class);
     }
 
     @Override
@@ -162,27 +141,9 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     @Override
-    public boolean delete(long id) throws SQLException {
-        int result = 0;
-        boolean delete = false;
-        try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement statementComputer = connection.prepareStatement(DELETE_COMPANY_COMPUTERS);
-                    PreparedStatement statementCompany = connection.prepareStatement(DELETE_COMPANY)) {
-                statementComputer.setLong(1, id);
-                statementComputer.executeUpdate();
-                statementCompany.setLong(1, id);
-                result = statementCompany.executeUpdate();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            }
-            connection.commit();
-            if (result != 0) {
-                delete = true;
-            }
-            return delete;
-        }
+    public boolean delete(long id) {
+        jdbcTemplate.update(DELETE_COMPANY_COMPUTERS, new Object[] {id });
+        return jdbcTemplate.update(DELETE_COMPANY, new Object[] {id }) == 1;
     }
 
     @Override
@@ -195,21 +156,18 @@ public class CompanyDAO implements DAO<Company> {
      * @param id
      *            la company à verifier
      * @return un booleen avec la réponse
-     * @throws SQLException
-     *             Exception SQL lancée
+     * @throws NoObjectException
+     *          Exception lancée quand il n'y a pas de resultat
      */
     @Override
-    public boolean isExist(long id) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(COMPANY_EXIST, ResultSet.CONCUR_READ_ONLY)) {
-            statement.setLong(1, id);
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    return true;
-                }
-                return false;
-            }
+    public boolean isExist(long id) throws NoObjectException {
+        boolean result = false;
+        try {
+            result = jdbcTemplate.queryForObject(COMPANY_EXIST, new Object[] {id }, Integer.class) > 0;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoObjectException("No result");
         }
+        return result;
     }
 
 }

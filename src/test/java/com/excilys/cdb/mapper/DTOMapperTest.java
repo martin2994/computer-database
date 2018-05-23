@@ -18,7 +18,7 @@ public class DTOMapperTest {
         ComputerDTO computerDTO = new ComputerDTO();
         computerDTO.setId(1);
         computerDTO.setName("test");
-        ComputerDTO computerResult = DTOMapper.convertComputerToComputerDTO(new Computer.Builder("test").id(1L).build());
+        ComputerDTO computerResult = DTOMapper.fromComputer(new Computer.Builder("test").id(1L).build());
         assertEquals(computerDTO, computerResult);
     }
 
@@ -27,6 +27,6 @@ public class DTOMapperTest {
      */
     @Test
     public void testConvertComputerToComputerDTONull() {
-        assertNull(DTOMapper.convertComputerToComputerDTO(null));
+        assertNull(DTOMapper.fromComputer(null));
     }
 }

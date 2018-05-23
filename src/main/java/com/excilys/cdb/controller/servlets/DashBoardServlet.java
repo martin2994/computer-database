@@ -13,10 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.mapper.ComputerMapper;
 import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Computer;
@@ -37,6 +40,11 @@ public class DashBoardServlet extends HttpServlet {
      */
     @Autowired
     private ComputerService computerService;
+
+    /**
+     * LOGGER.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DashBoardServlet.class);
 
     /**
      * Emplacement de la jsp de la page dashboard.
@@ -60,9 +68,12 @@ public class DashBoardServlet extends HttpServlet {
         int currentPage = getCurrentPage(request);
         List<Computer> page = null;
         List<ComputerDTO> pageDTO = null;
-        page = getComputer(request, currentPage, resultPerPage);
-        pageDTO = page.stream().map(computers -> DTOMapper.convertComputerToComputerDTO(computers))
-                .collect(Collectors.toList());
+        try {
+            page = getComputer(request, currentPage, resultPerPage);
+        } catch (InvalidComputerException e) {
+            LOGGER.debug(e.getMessage());
+        }
+        pageDTO = page.stream().map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
         request.setAttribute("page", pageDTO);
         this.getServletContext().getRequestDispatcher(LOCATION_DASHBOARD_JSP).forward(request, response);
     }
@@ -91,16 +102,12 @@ public class DashBoardServlet extends HttpServlet {
      * @return la nombre d'élément par page
      */
     private int getResultPerPage(HttpServletRequest request) {
-        Integer resultPerPage = (Integer) request.getSession().getAttribute("resultPerPage");
-        if (resultPerPage == null) {
-            resultPerPage = 10;
-        } else {
-            String result = request.getParameter("resultPerPage");
-            if (result != null) {
-                resultPerPage = Integer.parseInt(result);
-            }
+        String resultPerPageString = request.getParameter("resultPerPage");
+        int resultPerPage = 10;
+        if (!StringUtils.isBlank(resultPerPageString) && StringUtils.isNumeric(resultPerPageString)) {
+            resultPerPage = Integer.parseInt(resultPerPageString);
         }
-        request.getSession().setAttribute("resultPerPage", resultPerPage);
+        request.setAttribute("resultPerPage", resultPerPage);
         return resultPerPage;
     }
 
@@ -111,14 +118,10 @@ public class DashBoardServlet extends HttpServlet {
      * @return la page courante
      */
     private int getCurrentPage(HttpServletRequest request) {
-        Integer currentPage = (Integer) request.getSession().getAttribute("currentPage");
-        if (currentPage == null) {
-            currentPage = 1;
-        } else {
-            String page = request.getParameter("page");
-            if (page != null) {
-                currentPage = Integer.parseInt(page);
-            }
+        String currentPageString = request.getParameter("page");
+        int currentPage = 1;
+        if (!StringUtils.isBlank(currentPageString)  && StringUtils.isNumeric(currentPageString)) {
+            currentPage = Integer.parseInt(currentPageString);
         }
         return currentPage;
     }
@@ -132,8 +135,10 @@ public class DashBoardServlet extends HttpServlet {
      * @param resultPerPage
      *            le nombre d'élement à afficher
      * @return la page avec les computers
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete echoue
      */
-    private List<Computer> getComputer(HttpServletRequest request, int currentPage, int resultPerPage) {
+    private List<Computer> getComputer(HttpServletRequest request, int currentPage, int resultPerPage) throws InvalidComputerException {
         String buttonTest = request.getParameter("buttonTest");
         String search = request.getParameter("search");
         List<Computer> computers = new ArrayList<>();
@@ -161,8 +166,10 @@ public class DashBoardServlet extends HttpServlet {
      * @param resultPerPage
      *            le nombre d'élément par page
      * @return la page de computer
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete echoue
      */
-    private List<Computer> getComputerPerPage(HttpServletRequest request, int currentPage, int resultPerPage) {
+    private List<Computer> getComputerPerPage(HttpServletRequest request, int currentPage, int resultPerPage) throws InvalidComputerException {
         int numberComputer = computerService.getCountComputers();
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);
@@ -185,9 +192,11 @@ public class DashBoardServlet extends HttpServlet {
      * @param resultPerPage
      *            le nombre d'élément par page
      * @return la page de computer recherchée
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete echoue
      */
     private List<Computer> getComputerByNamePerPage(HttpServletRequest request, String search, int currentPage,
-            int resultPerPage) {
+            int resultPerPage) throws InvalidComputerException {
         int numberComputer = computerService.getCountComputersByName(search);
         double numberPage = (double) numberComputer / (double) resultPerPage;
         int numberOfPage = (int) Math.ceil(numberPage);

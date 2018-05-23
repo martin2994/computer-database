@@ -11,7 +11,7 @@ public class DTOMapper {
      *            le computer à convertir
      * @return le computerDTO résultat
      */
-    public static ComputerDTO convertComputerToComputerDTO(Computer computer) {
+    public static ComputerDTO fromComputer(Computer computer) {
         if (computer != null) {
             return new ComputerDTO(computer);
         }

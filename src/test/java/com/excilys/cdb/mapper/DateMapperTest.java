@@ -17,7 +17,7 @@ public class DateMapperTest {
     @Test
     public void testConvertTimestampToLocal() {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        LocalDate localDate = DateMapper.convertTimeStampToLocal(timestamp);
+        LocalDate localDate = DateMapper.timeStampToLocal(timestamp);
         assertTrue(localDate.equals(LocalDate.now()));
     }
 
@@ -26,7 +26,7 @@ public class DateMapperTest {
      */
     @Test
     public void testConvertTimestampToLocalNull() {
-        LocalDate localDate = DateMapper.convertTimeStampToLocal(null);
+        LocalDate localDate = DateMapper.timeStampToLocal(null);
         assertNull(localDate);
     }
 
@@ -35,7 +35,7 @@ public class DateMapperTest {
      */
     @Test
     public void testConvertLocalDateToTimestamp() {
-        Timestamp timestamp = DateMapper.convertLocalDateToTimeStamp(LocalDate.now());
+        Timestamp timestamp = DateMapper.localDateToTimeStamp(LocalDate.now());
         assertTrue(timestamp.toLocalDateTime().toLocalDate().equals(LocalDate.now()));
     }
 
@@ -44,7 +44,7 @@ public class DateMapperTest {
      */
     @Test
     public void testConvertLocalDateToTimestampNull() {
-        Timestamp sTimestamp = DateMapper.convertLocalDateToTimeStamp(null);
+        Timestamp sTimestamp = DateMapper.localDateToTimeStamp(null);
         assertNull(sTimestamp);
     }
 

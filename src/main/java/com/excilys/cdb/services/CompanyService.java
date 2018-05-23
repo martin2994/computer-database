@@ -8,8 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
+import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
@@ -41,11 +43,7 @@ public class CompanyService {
      */
     public List<Company> getCompanies() {
         List<Company> companies = new ArrayList<>();
-        try {
-            companies = companyDAO.findAll();
-        } catch (SQLException e) {
-            LOGGER.debug("FIND ALL COMPUTERS: " + e.getMessage());
-        }
+        companies = companyDAO.findAll();
         return companies;
     }
 
@@ -56,17 +54,15 @@ public class CompanyService {
      * @param resultPerPage
      *            le nombre de computer par page
      * @return La liste des company
+     * @throws InvalidCompanyException
+     *              Exception lancée quand la requete echoue
      */
-    public Page<Company> getCompanies(int page, int resultPerPage) {
+    public Page<Company> getCompanies(int page, int resultPerPage) throws InvalidCompanyException {
         Page<Company> cPage = new Page<>();
-        try {
-            if (page >= 0 && resultPerPage >= 1) {
-                cPage = companyDAO.findPerPage(page, resultPerPage);
-            } else {
-                LOGGER.info("INVALID COMPANY PAGE");
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("FIND ALL COMPANIES: " + e.getMessage());
+        if (page >= 0 && resultPerPage >= 1) {
+            cPage = companyDAO.findPerPage(page, resultPerPage);
+        } else {
+            LOGGER.info("INVALID COMPANY PAGE");
         }
         return cPage;
     }
@@ -78,15 +74,12 @@ public class CompanyService {
      * @return la company
      * @throws InvalidCompanyException
      *             Exception sur les companies
+     * @throws NoObjectException
+     *              Exception lancée quand la requete echoue (pas de resultat)
      */
-    public Company getCompany(long id) throws InvalidCompanyException {
-        try {
-            CompanyValidator.isValidId(id);
-            return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException("L'id n'est pas valide."));
-        } catch (SQLException e) {
-            LOGGER.debug("GET COMPANY " + id + ": " + e.getMessage());
-        }
-        throw new InvalidCompanyException("Une erreur est survenue.");
+    public Company getCompany(long id) throws InvalidCompanyException, NoObjectException {
+        CompanyValidator.isValidId(id);
+        return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException("L'id n'est pas valide."));
     }
 
     /**
@@ -97,15 +90,12 @@ public class CompanyService {
      * @throws InvalidCompanyException
      *             Exception lancée si l'id n'est pas valide
      */
+    @Transactional(readOnly = false, rollbackFor = SQLException.class)
     public boolean deleteCompany(long id) throws InvalidCompanyException {
         boolean result = false;
-        try {
-            CompanyValidator.isValidId(id);
-            if (companyDAO.delete(id)) {
-                result = true;
-            }
-        } catch (SQLException e) {
-            LOGGER.debug("DELETE COMPUTER " + id + ": " + e.getMessage());
+        CompanyValidator.isValidId(id);
+        if (companyDAO.delete(id)) {
+            result = true;
         }
         return result;
     }

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.excilys.cdb.SpringTestConfiguration;
 import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
@@ -64,22 +64,20 @@ public class ComputerDAOTest {
 
     /**
      * Teste le cas normal de la fonction FindAll.
-     * @throws SQLException
-     *             Exception SQL lancée
      */
     @Test
-    public void testFindAll() throws SQLException {
+    public void testFindAll()  {
         List<Computer> list = computerDAO.findAll();
         assertTrue(list.size() == 14);
     }
 
     /**
      * Teste le cas normal de la fonction findById.
-     * @throws SQLException
-     *             exception SQL lancée
+     * @throws NoObjectException
+     *              Exception lancé quand la requete échoue
      */
     @Test
-    public void testFindById() throws SQLException {
+    public void testFindById() throws NoObjectException {
         Computer computer = computerDAO.findById(1L).get();
         assertTrue("MacBook".equals(computer.getName()));
         assertTrue(computer.getId() == 1L);
@@ -91,21 +89,19 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction findById avec un mauvais id.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testFindByIdBadId() throws SQLException {
-        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(-1L).get());
+    public void testFindByIdBadId()  {
+        assertThrows(NoObjectException.class, () -> computerDAO.findById(-1L).get());
     }
 
     /**
      * Teste le cas normal de la fonction FindPerPage.
-     * @throws SQLException
-     *             exception SQL lancée
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete est mal formée
      */
     @Test
-    public void testFindPerPage() throws SQLException {
+    public void testFindPerPage() throws InvalidComputerException  {
         Page<Computer> page = computerDAO.findPerPage(0, 10);
         assertTrue(page.getMaxPage() == 2);
         assertTrue(page.getResults().size() == 10);
@@ -114,106 +110,87 @@ public class ComputerDAOTest {
     /**
      * Teste la fonction FindPerPage quand le nombre de computer par page est
      * négatif.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testFindPerPageBadResultPerPage() throws SQLException {
-        Page<Computer> page = computerDAO.findPerPage(0, -1);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPageBadResultPerPage()  {
+        assertThrows(InvalidComputerException.class, () -> computerDAO.findPerPage(0, -1));
     }
 
     /**
      * Teste la fonction FindPerPage avec une page au dessus des limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete echoue
      */
     @Test
-    public void testFindPerPagePageSup() throws SQLException {
-        Page<Computer> page = computerDAO.findPerPage(100, 10);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPagePageSup() throws InvalidComputerException {
+        assertTrue(computerDAO.findPerPage(100, 10).getResults().isEmpty());
     }
 
     /**
      * Teste la fonction FindPerPage avec une page au dessous des limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindPerPagePageInf() throws SQLException {
-        Page<Computer> page = computerDAO.findPerPage(-1, 10);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindPerPagePageInf()  {
+        assertThrows(InvalidComputerException.class, () -> computerDAO.findPerPage(-1, 10));
     }
 
     /**
      * Teste la fonction FindByNamePerPage.
-     * @throws SQLException
-     *             Exception SQL lancée
+     * @throws InvalidComputerException
+     *              Exception lancée quand la requete est mal formée
      */
     @Test
-    public void testFindPerPageByName() throws SQLException {
+    public void testFindPerPageByName() throws InvalidComputerException  {
         Page<Computer> page = computerDAO.findByNamePerPage("MacBook", 0, 10);
         assertTrue(page.getResults().size() == 2);
     }
 
     /**
      * Teste la fonction FindByNamePerPage avec une page au dessous des limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindByNamePerPagePageInf() throws SQLException {
-        Page<Computer> page = computerDAO.findByNamePerPage("Apple", -1, 10);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindByNamePerPagePageInf()  {
+        assertThrows(InvalidComputerException.class, () -> computerDAO.findByNamePerPage("Apple", -1, 10));
     }
 
     /**
      * Teste la fonction FindByNamePerPage avec un resultat par page au dessous des
      * limites.
-     * @throws SQLException
-     *             SQLException Exception SQL lancée
      */
     @Test
-    public void testFindByNamePerPageResultInf() throws SQLException {
-        Page<Computer> page = computerDAO.findByNamePerPage("Apple", 10, -1);
-        assertTrue(page.getResults().isEmpty());
+    public void testFindByNamePerPageResultInf()  {
+        assertThrows(InvalidComputerException.class, () -> computerDAO.findByNamePerPage("Apple", 10, -1));
     }
 
     /**
      * Teste le cas normal de la fonction Add.
-     * @throws SQLException
-     *             exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
      */
     @Test
-    public void testAdd() throws SQLException, NoObjectException {
+    public void testAdd() throws NoObjectException {
         long id = computerDAO.add(computerTest);
         assertTrue(id == 15);
     }
 
     /**
      * Teste la fonction Add avec un argument null.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet null
      */
     @Test
-    public void testAddNull() throws SQLException, NoObjectException {
+    public void testAddNull() throws NoObjectException {
         assertThrows(NoObjectException.class, () -> computerDAO.add(null));
 
     }
 
     /**
      * Teste la fonction Add quand on ajoute une company inexistante.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null
      */
     @Test
-    public void testAddWithInexistantCompany() throws SQLException, NoObjectException {
+    public void testAddWithInexistantCompany() throws NoObjectException {
         Company company = new Company();
         company.setId(60);
         company.setName("test");
@@ -228,13 +205,11 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction Add avec un argument possédent un id.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
      */
     @Test
-    public void testAddWithId() throws SQLException, NoObjectException {
+    public void testAddWithId() throws NoObjectException {
         computerTest.setId(1L);
         long id = computerDAO.add(computerTest);
         assertTrue(id == 16);
@@ -242,13 +217,11 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction Add avec des dates.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
      */
     @Test
-    public void testAddDate() throws SQLException, NoObjectException {
+    public void testAddDate() throws NoObjectException {
         computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
         long id = computerDAO.add(computerTest);
         Computer computer = computerDAO.findById(id).get();
@@ -262,13 +235,11 @@ public class ComputerDAOTest {
 
     /**
      * Teste la cas normal de la fonction Update.
-     * @throws SQLException
-     *             exception SQL lancée
      * @throws NoObjectException
      *             Exception lancé quand un objet est null ou inexistant
      */
     @Test
-    public void testUpdate() throws SQLException, NoObjectException {
+    public void testUpdate() throws NoObjectException {
         Computer computer = computerTest;
         computer.setId(5L);
         Company company = new Company();
@@ -280,13 +251,11 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction Update sur unr computer avec un id inexistant.
-     * @throws SQLException
-     *             exception SQL lancée
      * @throws NoObjectException
      *             Exception lancé quand un objet est null ou inexistant
      */
     @Test
-    public void testUpdateWithInexistantId() throws SQLException, NoObjectException {
+    public void testUpdateWithInexistantId() throws NoObjectException {
         Computer computer = computerTest;
         computer.setId(700L);
         assertThrows(NoSuchElementException.class, () -> computerDAO.update(computer).get());
@@ -294,13 +263,11 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction update quand on change avec une company inexistante.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null
      */
     @Test
-    public void testUpdateWithInexistantCompany() throws SQLException, NoObjectException {
+    public void testUpdateWithInexistantCompany() throws NoObjectException {
         Company company = new Company();
         company.setId(60);
         company.setName("test");
@@ -316,25 +283,21 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction Update quand le computer est null.
-     * @throws SQLException
-     *             exception SQL lancée
      * @throws NoObjectException
      *             Exception lancé quand un objet est null ou inexistant
      */
     @Test
-    public void testUpdateNull() throws SQLException {
+    public void testUpdateNull()  {
         assertThrows(NoObjectException.class, () -> computerDAO.update(null));
     }
 
     /**
      * Teste la fonction Update avec des dates.
-     * @throws SQLException
-     *             Exception SQL lancée
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
      */
     @Test
-    public void testUpdateDate() throws SQLException, NoObjectException {
+    public void testUpdateDate() throws NoObjectException {
         computerTest.setId(4L);
         computerTest.setIntroduced(LocalDate.parse("2010-01-01"));
         Computer computer = computerDAO.update(computerTest).get();
@@ -347,64 +310,52 @@ public class ComputerDAOTest {
 
     /**
      * Teste le cas normal de la fonction Delete.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testDelete() throws SQLException {
+    public void testDelete()  {
         assertTrue(computerDAO.delete(3L));
-        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(3L).get());
+        assertThrows(NoObjectException.class, () -> computerDAO.findById(3L).get());
     }
 
     /**
      * Teste la fonction Delete quand l'objet est inexistant.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testDeleteNoComputer() throws SQLException {
+    public void testDeleteNoComputer()  {
         assertFalse(computerDAO.delete(100L));
     }
 
     /**
      * Teste le cas normal de la fonction DeleteList.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testDeleteList() throws SQLException {
-        assertTrue(computerDAO.deleteList("(15,16)"));
-        assertThrows(NoSuchElementException.class, () -> computerDAO.findById(15L).get());
+    public void testDeleteList()  {
+        assertTrue(computerDAO.deleteList("(8,9)"));
+        assertThrows(NoObjectException.class, () -> computerDAO.findById(8L).get());
     }
 
     /**
      * Teste la fonction DeleteList quand les objets sont inexistants.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testDeleteListNoComputer() throws SQLException {
+    public void testDeleteListNoComputer()  {
         assertFalse(computerDAO.deleteList("(100,110)"));
     }
 
     /**
      * Teste la fonction Count.
-     * @throws SQLException
-     *             exception SQL lancée
      */
     @Test
-    public void testCount() throws SQLException {
+    public void testCount()  {
         int maxPage = computerDAO.count();
         assertTrue(maxPage == 14);
     }
 
     /**
      * Teste la fonction CountByName.
-     * @throws SQLException
-     *             Exception Sql lancée
      */
     @Test
-    public void testCountByName() throws SQLException {
+    public void testCountByName()  {
         int maxPage = computerDAO.countByName("MacBook");
         System.out.println(maxPage);
         assertTrue(maxPage == 2);
@@ -412,35 +363,29 @@ public class ComputerDAOTest {
 
     /**
      * Teste la fonction isExist.
-     * @throws SQLException
-     *             ExceptionSQL lancée
+     * @throws NoObjectException
+     *              Exception lancée quand il n'y a pas de resultat
      */
     @Test
-    public void testIsExist() throws SQLException {
+    public void testIsExist() throws NoObjectException  {
         boolean test = computerDAO.isExist(1L);
         assertTrue(test);
     }
 
     /**
      * Teste la fonction isExist avec un mauvais argument.
-     * @throws SQLException
-     *             ExceptionSQL lancée
      */
     @Test
-    public void testIsExistWithBadId() throws SQLException {
-        boolean test = computerDAO.isExist(100L);
-        assertFalse(test);
+    public void testIsExistWithBadId()  {
+        assertThrows(NoObjectException.class, () -> computerDAO.isExist(100L));
     }
 
     /**
      * Teste la fonction isExist avec un mauvais argument.
-     * @throws SQLException
-     *             ExceptionSQL lancée
      */
     @Test
-    public void testIsExistBadArgument() throws SQLException {
-        boolean test = computerDAO.isExist(-1L);
-        assertFalse(test);
+    public void testIsExistBadArgument() {
+        assertThrows(NoObjectException.class, () -> computerDAO.isExist(-1L));
     }
 
 }
