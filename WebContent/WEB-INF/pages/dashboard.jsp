@@ -18,7 +18,7 @@
 	<!-- <p>${fn:length(page)}</p> -->
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="dashboard"> Application - Computer
+		<a class="navbar-brand" href=""computer""> Application - Computer
 			Database </a>
 	</div>
 	</header>
@@ -28,7 +28,7 @@
 		<h1 id="homeTitle">${nbComputers}&nbsp;Computers&nbsp;found</h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
-				<form id="searchForm" action="dashboard" method="GET"
+				<form id="searchForm" action="computer" method="GET"
 					class="form-inline">
 
 					<input type="search" id="searchbox" name="search"
@@ -45,7 +45,7 @@
 		</div>
 	</div>
 
-	<form id="deleteForm" action="dashboard" method="POST">
+	<form id="deleteForm" action="delete" method="POST">
 		<input type="hidden" name="selection" id="selection" value=""/>
 	</form>
 
@@ -91,21 +91,21 @@
 	<footer class="navbar-fixed-bottom">
 	<div class="container text-center">
 
-		<c:url var="myURLPage" value="dashboard">
+		<c:url var="myURLPage" value="computer">
 			<c:param name="page" value="${currentPage}" />
 		</c:url>
 
-		<mylib:pagination uri="dashboard" search="${searchParam}"
+		<mylib:pagination uri="computer" search="${searchParam}"
 			elementPerPage="${resultPerPage}" currentPage="${currentPage}"
 			numberOfElement="${nbComputers}" />
 
 		<div class="btn-group btn-group-sm pull-right" role="group">
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="10"/>>10</a>
+				href=<mylib:link uri="computer" search="${searchParam}" page="${currentPage}" count="10"/>>10</a>
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="50"/>>50</a>
+				href=<mylib:link uri="computer" search="${searchParam}" page="${currentPage}" count="50"/>>50</a>
 			<a class="btn btn-default"
-				href=<mylib:link uri="dashboard" search="${searchParam}" page="${currentPage}" count="100"/>>100</a>
+				href=<mylib:link uri="computer" search="${searchParam}" page="${currentPage}" count="100"/>>100</a>
 		</div>
 	</div>
 	</footer>
