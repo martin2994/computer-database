@@ -31,7 +31,7 @@
 				</c:if>
 				<h1>Edit Computer</h1>
 
-				<form action="editComputer" id="computerForm" name="computerForm"
+				<form action="/cdb/computer/${computer.id}" id="computerForm" name="computerForm"
 					method="POST">
 					<input type="hidden" value="${computer.id}" id="idComputer"
 						name="idComputer" />

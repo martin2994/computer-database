@@ -1,5 +1,6 @@
 package com.excilys.cdb.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.exceptions.NoObjectException;
+import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.mapper.ComputerMapper;
@@ -140,10 +142,44 @@ public class ComputerController {
 
     /**
      * Permet de créer un computer.
+     * @param name
+     *            Le nom du computer
+     * @param introduced
+     *            la date d'intro
+     * @param discontinued
+     *            la date de fin
+     * @param companyId
+     *            l'id de sa company
+     * @param model
+     *            le modèle
      * @return la jsp affichée
      */
-    @PostMapping(value = "add")
-    public String createComputer() {
+    @PostMapping(value = "/add")
+    public String createComputer(@RequestParam("computerName") String name,
+            @RequestParam("introduced") String introduced, @RequestParam("discontinued") String discontinued,
+            @RequestParam("companyId") String companyId, ModelMap model) {
+        try {
+            LocalDate introducedDate = null;
+            if (!introduced.isEmpty()) {
+                introducedDate = LocalDate.parse(introduced);
+            }
+            LocalDate discontinuedDate = null;
+            if (!discontinued.isEmpty()) {
+                discontinuedDate = LocalDate.parse(discontinued);
+            }
+            Company company = null;
+            if (companyId != null && !"0".equals(companyId)) {
+                company = companyService.getCompany(Long.parseLong(companyId));
+            }
+            Computer computer = new Computer.Builder(name).introduced(introducedDate).discontinued(discontinuedDate)
+                    .manufacturer(company).build();
+            long id = computerService.createComputer(computer);
+            model.addAttribute("message", "Computer created with id " + id);
+        } catch (InvalidComputerException | InvalidCompanyException | NoObjectException e) {
+            model.addAttribute("erreur", e.getMessage());
+        }
+        List<Company> companies = companyService.getCompanies();
+        model.addAttribute("companies", companies);
         return ADDCOMPUTER_JSP;
     }
 
@@ -164,17 +200,58 @@ public class ComputerController {
             model.addAttribute("computer", computerDTO);
         } catch (NoObjectException | InvalidComputerException e) {
             LOGGER.debug(e.getMessage());
+            model.addAttribute("erreur", e.getMessage());
         }
         return EDITCOMPUTER_JSP;
     }
 
     /**
      * Permet de modifier un computer.
+     * @param id
+     *            id du computer
+     * @param name
+     *            Le nom du computer
+     * @param introduced
+     *            la date d'intro
+     * @param discontinued
+     *            la date de fin
+     * @param companyId
+     *            l'id de sa company
+     * @param model
+     *            le modèle
      * @return la jsp affichée
      */
     @PostMapping(value = "/{id}")
-    public String editComputer() {
-        return EDITCOMPUTER_JSP;
+    public String editComputer(@PathVariable("id") Integer id, @RequestParam("computerName") String name,
+            @RequestParam("introduced") String introduced, @RequestParam("discontinued") String discontinued,
+            @RequestParam("companyId") String companyId, ModelMap model) {
+        try {
+            ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
+            LocalDate introducedDate = null;
+            if (!introduced.isEmpty()) {
+                introducedDate = LocalDate.parse(introduced);
+            }
+            LocalDate discontinuedDate = null;
+            if (!discontinued.isEmpty()) {
+                discontinuedDate = LocalDate.parse(discontinued);
+            }
+            Company company = null;
+            long idCompany = Long.parseLong(companyId);
+            if (companyId != null && !"0".equals(companyId)) {
+                if (idCompany != computerDTO.getManufacturerId()) {
+                    company = companyService.getCompany(idCompany);
+                } else {
+                    company = new Company(idCompany, computerDTO.getManufacturer());
+                }
+            }
+            Computer computer = new Computer.Builder(name).id(computerDTO.getId()).introduced(introducedDate)
+                    .discontinued(discontinuedDate).manufacturer(company).build();
+            computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
+            model.addAttribute("message", "Computer updated");
+        } catch (InvalidComputerException | InvalidCompanyException | NoObjectException e) {
+            model.addAttribute("erreur", e.getMessage());
+        }
+        return editComputerPage(id, model);
     }
 
 }
