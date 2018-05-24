@@ -13,7 +13,7 @@ public class SpringMain implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SpringConfiguration.class);
+        context.register(SpringConfigurationWeb.class);
         ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcher", new DispatcherServlet(context));
         servlet.setLoadOnStartup(1);
         servlet.addMapping("/");

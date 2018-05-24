@@ -3,10 +3,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib uri="/WEB-INF/tagLibs/mylib.tld" prefix="mylib"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<title>Computer Database</title>
+<title><spring:message code="application.name" /></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 
@@ -19,14 +20,13 @@
 	<!-- <p>${fn:length(page)}</p> -->
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="/cdb/computer"> Application - Computer
-			Database </a>
+		<a class="navbar-brand" href="/cdb/computer"> <spring:message code="application.title" /></a>
 	</div>
 	</header>
 
 	<section id="main">
 	<div class="container">
-		<h1 id="homeTitle">${nbComputers}&nbsp;Computers&nbsp;found</h1>
+		<h1 id="homeTitle">${nbComputers}&nbsp<spring:message code="dashboard.text.found"/></h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
 				<form id="searchForm" action="computer" method="GET"
@@ -39,9 +39,8 @@
 				</form>
 			</div>
 			<div class="pull-right">
-				<a class="btn btn-success" id="addComputer" href="computer/add">Add
-					Computer</a> <a class="btn btn-default" id="editComputer" href="#"
-					onclick="$.fn.toggleEditMode();">Edit</a>
+				<a class="btn btn-success" id="addComputer" href="computer/add"><spring:message code="dashboard.button.add"/></a> <a class="btn btn-default" id="editComputer" href="#"
+					onclick="$.fn.toggleEditMode();"><spring:message code="dashboard.button.edit"/></a>
 			</div>
 		</div>
 	</div>
@@ -64,12 +63,12 @@
 								class="fa fa-trash-o fa-lg" id="trash"></i>
 						</a>
 					</span></th>
-					<th>Computer name</th>
-					<th>Introduced date</th>
+					<th><spring:message code="label.text.computerName"/></th>
+					<th><spring:message code="label.text.introduced"/></th>
 					<!-- Table header for Discontinued Date -->
-					<th>Discontinued date</th>
+					<th><spring:message code="label.text.discontinued"/></th>
 					<!-- Table header for Company -->
-					<th>Company</th>
+					<th><spring:message code="label.text.company"/></th>
 
 				</tr>
 			</thead>

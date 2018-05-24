@@ -48,7 +48,7 @@ public class SeleniumTest {
     @Test
     public void verifyAddButtonDashboard() {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://localhost:8080/cdb/dashboard");
+        driver.get("http://localhost:8080/cdb/computer");
         driver.findElement(By.id("addComputer")).click();
         WebElement form = driver.findElement(By.id("computerForm"));
         assertNotNull(form);
@@ -60,7 +60,7 @@ public class SeleniumTest {
     @Test
     public void verifySearchDashboard() {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://localhost:8080/cdb/dashboard");
+        driver.get("http://localhost:8080/cdb/computer");
         WebElement searchInput = driver.findElement(By.id("searchbox"));
         searchInput.sendKeys("test");
         driver.findElement(By.id("searchsubmit")).click();
@@ -74,7 +74,7 @@ public class SeleniumTest {
     @Test
     public void verifyAddComputerWithCompany() {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://localhost:8080/cdb/addComputer");
+        driver.get("http://localhost:8080/cdb/computer/add");
         WebElement input = driver.findElement(By.name("computerName"));
         input.sendKeys("testSelenium");
         Select company = new Select(driver.findElement(By.name("companyId")));
@@ -91,7 +91,7 @@ public class SeleniumTest {
     @Test
     public void verifyDeleteComputer() {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://localhost:8080/cdb/dashboard");
+        driver.get("http://localhost:8080/cdb/computer");
         driver.findElement(By.id("editComputer")).click();
         driver.findElements(By.name("cb")).get(0).click();
         driver.findElement(By.id("trash")).click();
@@ -108,7 +108,7 @@ public class SeleniumTest {
     @Test
     public void verifyEditComputer() {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://localhost:8080/cdb/editComputer?id=5");
+        driver.get("http://localhost:8080/cdb/computer/5");
         WebElement input = driver.findElement(By.name("computerName"));
         input.sendKeys("testSeleniumEdit");
         driver.findElement(By.id("buttonEdit")).click();

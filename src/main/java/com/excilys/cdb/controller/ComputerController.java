@@ -1,5 +1,6 @@
 package com.excilys.cdb.controller;
 
+import java.time.DateTimeException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ public class ComputerController {
     private static final String DASHBOARD_JSP = "dashboard";
     private static final String ADDCOMPUTER_JSP = "addComputer";
     private static final String EDITCOMPUTER_JSP = "editComputer";
+    private static final String ERROR_404_JSP = "404";
 
     /**
      * LOGGER.
@@ -160,16 +162,20 @@ public class ComputerController {
     @PostMapping(value = "/add")
     public String createComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
             BindingResult bindingResult, ModelMap model) {
+        String erreur = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 long id = computerService.createComputer(computer);
                 model.addAttribute("message", "Computer created with id " + id);
             } catch (InvalidComputerException | InvalidCompanyException e) {
-                model.addAttribute("erreur", e.getMessage());
+                erreur = e.getMessage();
+            } catch (DateTimeException e) {
+                erreur = "Date invalide";
             }
             List<Company> companies = companyService.getCompanies();
             model.addAttribute("companies", companies);
+            model.addAttribute("erreur", erreur);
         }
         return ADDCOMPUTER_JSP;
     }
@@ -191,7 +197,7 @@ public class ComputerController {
             model.addAttribute("computer", computerDTO);
         } catch (NoObjectException | InvalidComputerException e) {
             LOGGER.debug(e.getMessage());
-            model.addAttribute("erreur", e.getMessage());
+            return ERROR_404_JSP;
         }
         return EDITCOMPUTER_JSP;
     }
@@ -209,15 +215,19 @@ public class ComputerController {
     @PostMapping(value = "/{id}")
     public String editComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, BindingResult bindingResult,
             ModelMap model) {
+        String erreur = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
                 model.addAttribute("message", "Computer updated");
             } catch (InvalidComputerException | InvalidCompanyException e) {
-                model.addAttribute("erreur", e.getMessage());
+                erreur = e.getMessage();
+            } catch (DateTimeException e) {
+                erreur = "Date invalide";
             }
         }
+        model.addAttribute("erreur", erreur);
         return editComputerPage(computerDTO.getId(), model);
     }
 

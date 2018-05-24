@@ -1,5 +1,6 @@
 package com.excilys.cdb.mapper;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 
 import com.excilys.cdb.dtos.ComputerDTO;
@@ -23,10 +24,13 @@ public class DTOMapper {
 
     /**
      * Convertit un computerDTo vers un computer.
-     * @param computerDTO le dto à convertir
+     * @param computerDTO
+     *            le dto à convertir
      * @return le computer
+     * @throws DateTimeException
+     *             Exception lancée si la date n'a pas le bon format
      */
-    public static Computer toComputer(ComputerDTO computerDTO) {
+    public static Computer toComputer(ComputerDTO computerDTO) throws DateTimeException {
         long id = 0;
         if (computerDTO.getId() != 0) {
             id = computerDTO.getId();
@@ -44,8 +48,8 @@ public class DTOMapper {
             company = new Company();
             company.setId(computerDTO.getManufacturerId());
         }
-        return new Computer.Builder(computerDTO.getName()).id(id).introduced(introducedDate).discontinued(discontinuedDate)
-                .manufacturer(company).build();
+        return new Computer.Builder(computerDTO.getName()).id(id).introduced(introducedDate)
+                .discontinued(discontinuedDate).manufacturer(company).build();
     }
 
 }
