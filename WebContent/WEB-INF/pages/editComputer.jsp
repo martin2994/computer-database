@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -31,32 +32,33 @@
 				</c:if>
 				<h1>Edit Computer</h1>
 
-				<form action="/cdb/computer/${computer.id}" id="computerForm" name="computerForm"
+				<form:form action="/cdb/computer/${computer.id}" modelAttribute="computer" id="computerForm" name="computerForm"
 					method="POST">
-					<input type="hidden" value="${computer.id}" id="idComputer"
+					<form:input type="hidden" path="id" value="${computer.id}" id="idComputer"
 						name="idComputer" />
 					<fieldset>
 						<div class="form-group">
-							<label for="computerName">Computer name</label> <input
-								type="text" class="form-control" id="computerName"
+							<form:label path="name" for="computerName">Computer name</form:label> <form:input
+								type="text" path="name" class="form-control" id="computerName"
 								name="computerName" placeholder="Computer name"
-								value="${computer.name}" required>
+								value="${computer.name}" required="true"/>
 						</div>
 						<div class="form-group">
-							<label for="introduced">Introduced date</label> <input
-								type="date" class="form-control" id="introduced"
+							<form:label path="introduced" for="introduced">Introduced date</form:label> <form:input
+								type="date" class="form-control" path="introduced" id="introduced"
 								name="introduced" placeholder="Introduced date"
-								value="${computer.introduced}">
+								value="${computer.introduced}"/>
 						</div>
 						<div class="form-group">
-							<label for="discontinued">Discontinued date</label> <input
-								type="date" class="form-control" id="discontinued"
+							<form:label path="discontinued" for="discontinued">Discontinued date</form:label> <form:input
+								type="date" class="form-control" path="discontinued" id="discontinued"
 								name="discontinued" placeholder="Discontinued date"
-								value="${computer.discontinued}" min="${computer.introduced}">
+								value="${computer.discontinued}" min="${computer.introduced}"/>
 						</div>
 						<div class="form-group">
-							<label for="companyId">Company</label> <select
-								class="form-control" name="companyId"
+							<form:label path="manufacturerId" for="companyId">Company</form:label> 
+							<form:select
+								class="form-control" path="manufacturerId" name="companyId"
 								value="${computer.manufacturerId}">
 								<option value="0">No company</option>
 								<c:forEach items="${companies}" var="company">
@@ -69,7 +71,7 @@
 										</c:otherwise>
 									</c:choose>
 								</c:forEach>
-							</select>
+							</form:select>
 						</div>
 					</fieldset>
 					<div class="actions pull-right">
@@ -77,7 +79,7 @@
 							value="Edit" class="btn btn-primary"> or <a
 							href="/cdb/computer" class="btn btn-default">Cancel</a>
 					</div>
-				</form>
+				</form:form>
 			</div>
 		</div>
 	</div>

@@ -6,14 +6,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class ErrorController {
 
-    @RequestMapping("/404")
-    public String redirectTo404() {
-        return "404";
+    @RequestMapping("/400")
+    public String redirectTo400() {
+        return "400";
     }
 
     @RequestMapping("/403")
     public String redirectTo403() {
         return "403";
+    }
+
+    @RequestMapping("/404")
+    public String redirectTo404() {
+        return "404";
     }
 
     @RequestMapping("/500")

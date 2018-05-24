@@ -1,8 +1,9 @@
 package com.excilys.cdb.controller;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -10,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -89,12 +92,15 @@ public class ComputerController {
         List<ComputerDTO> pageDTO = null;
         int count = 0;
         try {
+            int currentPage = nbPage;
             if (StringUtils.isBlank(search)) {
                 count = computerService.getCountComputers();
-                page = computerService.getComputers(nbPage - 1, resultPerPage).getResults();
+                currentPage = getCurrentPage(currentPage, count, resultPerPage);
+                page = computerService.getComputers(currentPage - 1, resultPerPage).getResults();
             } else {
                 count = computerService.getCountComputersByName(search);
-                page = computerService.getComputersByName(search, nbPage - 1, resultPerPage).getResults();
+                currentPage = getCurrentPage(currentPage, count, resultPerPage);
+                page = computerService.getComputersByName(search, currentPage - 1, resultPerPage).getResults();
             }
         } catch (InvalidComputerException e) {
             LOGGER.debug(e.getMessage());
@@ -137,49 +143,34 @@ public class ComputerController {
     public String addComputerPage(ModelMap model) {
         List<Company> companies = companyService.getCompanies();
         model.addAttribute("companies", companies);
+        model.addAttribute("computer", new ComputerDTO());
         return ADDCOMPUTER_JSP;
     }
 
     /**
      * Permet de créer un computer.
-     * @param name
-     *            Le nom du computer
-     * @param introduced
-     *            la date d'intro
-     * @param discontinued
-     *            la date de fin
-     * @param companyId
-     *            l'id de sa company
+     * @param computerDTO
+     *            Le dto du formulaire
      * @param model
      *            le modèle
+     * @param bindingResult
+     *            bind le dto
      * @return la jsp affichée
      */
     @PostMapping(value = "/add")
-    public String createComputer(@RequestParam("computerName") String name,
-            @RequestParam("introduced") String introduced, @RequestParam("discontinued") String discontinued,
-            @RequestParam("companyId") String companyId, ModelMap model) {
-        try {
-            LocalDate introducedDate = null;
-            if (!introduced.isEmpty()) {
-                introducedDate = LocalDate.parse(introduced);
+    public String createComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
+            BindingResult bindingResult, ModelMap model) {
+        if (!bindingResult.hasErrors()) {
+            try {
+                Computer computer = DTOMapper.toComputer(computerDTO);
+                long id = computerService.createComputer(computer);
+                model.addAttribute("message", "Computer created with id " + id);
+            } catch (InvalidComputerException | InvalidCompanyException e) {
+                model.addAttribute("erreur", e.getMessage());
             }
-            LocalDate discontinuedDate = null;
-            if (!discontinued.isEmpty()) {
-                discontinuedDate = LocalDate.parse(discontinued);
-            }
-            Company company = null;
-            if (companyId != null && !"0".equals(companyId)) {
-                company = companyService.getCompany(Long.parseLong(companyId));
-            }
-            Computer computer = new Computer.Builder(name).introduced(introducedDate).discontinued(discontinuedDate)
-                    .manufacturer(company).build();
-            long id = computerService.createComputer(computer);
-            model.addAttribute("message", "Computer created with id " + id);
-        } catch (InvalidComputerException | InvalidCompanyException | NoObjectException e) {
-            model.addAttribute("erreur", e.getMessage());
+            List<Company> companies = companyService.getCompanies();
+            model.addAttribute("companies", companies);
         }
-        List<Company> companies = companyService.getCompanies();
-        model.addAttribute("companies", companies);
         return ADDCOMPUTER_JSP;
     }
 
@@ -192,7 +183,7 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @GetMapping(value = "/{id}")
-    public String editComputerPage(@PathVariable("id") Integer id, ModelMap model) {
+    public String editComputerPage(@PathVariable("id") Long id, ModelMap model) {
         List<Company> companies = companyService.getCompanies();
         model.addAttribute("companies", companies);
         try {
@@ -207,51 +198,45 @@ public class ComputerController {
 
     /**
      * Permet de modifier un computer.
-     * @param id
-     *            id du computer
-     * @param name
-     *            Le nom du computer
-     * @param introduced
-     *            la date d'intro
-     * @param discontinued
-     *            la date de fin
-     * @param companyId
-     *            l'id de sa company
+     * @param computerDTO
+     *            le dto du formulaire
      * @param model
      *            le modèle
+     * @param bindingResult
+     *            bind le dto
      * @return la jsp affichée
      */
     @PostMapping(value = "/{id}")
-    public String editComputer(@PathVariable("id") Integer id, @RequestParam("computerName") String name,
-            @RequestParam("introduced") String introduced, @RequestParam("discontinued") String discontinued,
-            @RequestParam("companyId") String companyId, ModelMap model) {
-        try {
-            ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
-            LocalDate introducedDate = null;
-            if (!introduced.isEmpty()) {
-                introducedDate = LocalDate.parse(introduced);
+    public String editComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, BindingResult bindingResult,
+            ModelMap model) {
+        if (!bindingResult.hasErrors()) {
+            try {
+                Computer computer = DTOMapper.toComputer(computerDTO);
+                computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
+                model.addAttribute("message", "Computer updated");
+            } catch (InvalidComputerException | InvalidCompanyException e) {
+                model.addAttribute("erreur", e.getMessage());
             }
-            LocalDate discontinuedDate = null;
-            if (!discontinued.isEmpty()) {
-                discontinuedDate = LocalDate.parse(discontinued);
-            }
-            Company company = null;
-            long idCompany = Long.parseLong(companyId);
-            if (companyId != null && !"0".equals(companyId)) {
-                if (idCompany != computerDTO.getManufacturerId()) {
-                    company = companyService.getCompany(idCompany);
-                } else {
-                    company = new Company(idCompany, computerDTO.getManufacturer());
-                }
-            }
-            Computer computer = new Computer.Builder(name).id(computerDTO.getId()).introduced(introducedDate)
-                    .discontinued(discontinuedDate).manufacturer(company).build();
-            computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
-            model.addAttribute("message", "Computer updated");
-        } catch (InvalidComputerException | InvalidCompanyException | NoObjectException e) {
-            model.addAttribute("erreur", e.getMessage());
         }
-        return editComputerPage(id, model);
+        return editComputerPage(computerDTO.getId(), model);
+    }
+
+    /**
+     * Permet de calculer la page courante.
+     * @param currentPage
+     *            la page voulue
+     * @param count
+     *            le nombre de computers
+     * @param resultPerPage
+     *            le nombre de computers par page
+     * @return la page visible
+     */
+    private int getCurrentPage(int currentPage, int count, int resultPerPage) {
+        int maxPage = (int) Math.ceil((double) count / (double) resultPerPage);
+        if (currentPage > maxPage) {
+            currentPage = maxPage;
+        }
+        return currentPage;
     }
 
 }
