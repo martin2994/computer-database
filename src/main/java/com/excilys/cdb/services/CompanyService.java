@@ -22,7 +22,6 @@ public class CompanyService {
     /**
      * DAO de company.
      */
-    @Autowired
     private CompanyDAO companyDAO;
 
     /**
@@ -31,14 +30,17 @@ public class CompanyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 
     /**
-     * Constructeur privé.
+     * Constructeur privé et injecte la dao.
+     * @param companyDAO la dao des companies
      */
-    private CompanyService() {
+    @Autowired
+    private CompanyService(CompanyDAO companyDAO) {
+        this.companyDAO = companyDAO;
 
     }
 
     /**
-     * Récupère la liste de toutes les company.
+     * Récupère la liste de toutes les companies.
      * @return la liste des company
      */
     public List<Company> getCompanies() {
@@ -48,14 +50,14 @@ public class CompanyService {
     }
 
     /**
-     * Récupère la liste des company par page.
+     * Récupère la liste des companies par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
-     *            le nombre de computer par page
+     *            le nombre de computers par page
      * @return La liste des company
      * @throws InvalidCompanyException
-     *              Exception lancée quand la requete echoue
+     *             Exception lancée quand la requete echoue
      */
     public Page<Company> getCompanies(int page, int resultPerPage) throws InvalidCompanyException {
         Page<Company> cPage = new Page<>();
@@ -75,7 +77,7 @@ public class CompanyService {
      * @throws InvalidCompanyException
      *             Exception sur les companies
      * @throws NoObjectException
-     *              Exception lancée quand la requete echoue (pas de resultat)
+     *             Exception lancée quand la requete echoue (pas de resultat)
      */
     public Company getCompany(long id) throws InvalidCompanyException, NoObjectException {
         CompanyValidator.isValidId(id);

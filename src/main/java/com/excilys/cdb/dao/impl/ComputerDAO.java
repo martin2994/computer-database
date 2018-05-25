@@ -25,7 +25,7 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
 /**
- * DAO des Computer Regroupe l'ensemble des transactions sur les computer.
+ * DAO des Computer Regroupe l'ensemble des transactions sur les computers.
  */
 @Repository
 public class ComputerDAO implements DAO<Computer> {
@@ -80,15 +80,18 @@ public class ComputerDAO implements DAO<Computer> {
      */
     private final String MAX_PAGE_BY_NAME = "SELECT COUNT(computer.id) FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id WHERE computer.name LIKE ? or company.name LIKE ? ";
 
-    @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate jdbcTemplate;
 
     /**
-     * Constructeur privé vide.
+     * Constructeur privé qui injecte la dataSource.
+     * @param dataSource
+     *            la dataSource
      */
-    private ComputerDAO() {
+    @Autowired
+    private ComputerDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @PostConstruct
@@ -106,7 +109,7 @@ public class ComputerDAO implements DAO<Computer> {
     }
 
     /**
-     * Permet de récupérer la liste de tous les computer page par page.
+     * Permet de récupérer la liste de tous les computers page par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -137,14 +140,16 @@ public class ComputerDAO implements DAO<Computer> {
      *            le nombre d'élément par page
      * @return la liste des computers
      * @throws InvalidComputerException
-     *              Exception lancée quand la requete est mal formée
+     *             Exception lancée quand la requete est mal formée
      */
-    public Page<Computer> findByNamePerPage(String search, int page, int resultPerPage) throws InvalidComputerException {
+    public Page<Computer> findByNamePerPage(String search, int page, int resultPerPage)
+            throws InvalidComputerException {
         Page<Computer> computers = new Page<>();
         String allSearch = "%" + search + "%";
         try {
             computers.setResults(jdbcTemplate.query(COMPUTERS_BY_NAME,
-                    new Object[] {allSearch, allSearch, page * resultPerPage, resultPerPage }, new ComputerRowMapper()));
+                    new Object[] {allSearch, allSearch, page * resultPerPage, resultPerPage },
+                    new ComputerRowMapper()));
             computers.setMaxPage(countByName(search));
             computers.setCurrentPage(page);
         } catch (BadSqlGrammarException e) {
@@ -159,13 +164,13 @@ public class ComputerDAO implements DAO<Computer> {
      *            l'id du computer à rechercher
      * @return Le computer correspondant
      * @throws NoObjectException
-     *          Excpetion lancée si la requete échoue
+     *             Excpetion lancée si la requete échoue
      */
     @Override
     public Optional<Computer> findById(long id) throws NoObjectException {
         try {
             return Optional.ofNullable(
-                    jdbcTemplate.queryForObject(COMPUTER_BY_ID, new Object[]  {id }, new ComputerRowMapper()));
+                    jdbcTemplate.queryForObject(COMPUTER_BY_ID, new Object[] {id }, new ComputerRowMapper()));
         } catch (EmptyResultDataAccessException e) {
             throw new NoObjectException("No result for this request");
         }
@@ -199,13 +204,13 @@ public class ComputerDAO implements DAO<Computer> {
      *            le computer à verifier
      * @return un booleen avec la réponse
      * @throws NoObjectException
-     *          Exception lancée quand la requete echoue (pas de resultat)
+     *             Exception lancée quand la requete echoue (pas de resultat)
      */
     @Override
     public boolean isExist(long id) throws NoObjectException {
         boolean result = false;
         try {
-            result =  jdbcTemplate.queryForObject(COMPUTER_EXIST, new Object[] {id }, Integer.class) > 0;
+            result = jdbcTemplate.queryForObject(COMPUTER_EXIST, new Object[] {id }, Integer.class) > 0;
         } catch (EmptyResultDataAccessException e) {
             throw new NoObjectException("Pas de resultat");
         }

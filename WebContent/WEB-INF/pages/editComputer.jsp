@@ -8,10 +8,13 @@
 <head>
 <title><spring:message code="application.name" /></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<c:set var="currentPath" value="${pageContext.request.contextPath}"></c:set>
+
 <!-- Bootstrap -->
-<link href="/cdb/css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="/cdb/css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="/cdb/css/main.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -32,7 +35,7 @@
 				</c:if>
 				<h1><spring:message code="editComputer.text.title"/></h1>
 
-				<form:form action="/cdb/computer/${computer.id}" modelAttribute="computer" id="computerForm" name="computerForm"
+				<form:form action="${currentPath}/computer/${computer.id}" modelAttribute="computer" id="computerForm" name="computerForm"
 					method="POST">
 					<form:input type="hidden" path="id" value="${computer.id}" id="idComputer"
 						name="idComputer" />
@@ -77,17 +80,17 @@
 					<div class="actions pull-right">
 						<input type="submit" name="buttonTest" id="buttonEdit"
 							value="<spring:message code='text.edit'/>" class="btn btn-primary"> <spring:message code="text.or"/> <a
-							href="/cdb/computer" class="btn btn-default"> <spring:message code="text.cancel"/></a>
+							href="${currentPath}/computer" class="btn btn-default"> <spring:message code="text.cancel"/></a>
 					</div>
 				</form:form>
 			</div>
 		</div>
 	</div>
 	</section>
-	<script src="/cdb/js/jquery.min.js"></script>
+	<script src="${currentPath}/js/jquery.min.js"></script>
 	<script
 		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
-	<script src="/cdb/js/bootstrap.min.js"></script>
-	<script src="/cdb/js/validation.js"></script>
+	<script src="${currentPath}/js/bootstrap.min.js"></script>
+	<script src="${currentPath}/js/validation.js"></script>
 </body>
 </html>

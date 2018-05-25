@@ -2,6 +2,7 @@ package com.excilys.cdb.controller;
 
 import java.time.DateTimeException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -42,6 +44,8 @@ public class ComputerController {
      */
     private ComputerService computerService;
 
+    private MessageSource messageSource;
+
     /**
      * Le service des companies.
      */
@@ -66,11 +70,14 @@ public class ComputerController {
      *            Le service à injecter
      * @param companyService
      *            Le service à injecter
+     * @param messageSource les messages internationalisés
      */
     @Autowired
-    public ComputerController(ComputerService computerService, CompanyService companyService) {
+    public ComputerController(ComputerService computerService, CompanyService companyService,
+            MessageSource messageSource) {
         this.computerService = computerService;
         this.companyService = companyService;
+        this.messageSource = messageSource;
     }
 
     /**
@@ -127,7 +134,6 @@ public class ComputerController {
     @PostMapping(value = "/delete")
     public String deleteComputers(@RequestBody String selection, ModelMap model) {
         try {
-            LOGGER.debug(selection);
             computerService.deleteComputerList(ComputerMapper.convertListId(selection));
         } catch (InvalidIdException e) {
             LOGGER.debug(e.getMessage());
@@ -157,21 +163,25 @@ public class ComputerController {
      *            le modèle
      * @param bindingResult
      *            bind le dto
+     * @param locale
+     *            le language local
      * @return la jsp affichée
      */
     @PostMapping(value = "/add")
     public String createComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
-            BindingResult bindingResult, ModelMap model) {
-        String erreur = "";
+            BindingResult bindingResult, ModelMap model, Locale locale) {
+        String erreur = "", message = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 long id = computerService.createComputer(computer);
-                model.addAttribute("message", "Computer created with id " + id);
+                message = messageSource.getMessage("java.text.created", new Object[] {id }, locale);
+                model.addAttribute("message", message);
             } catch (InvalidComputerException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
-                erreur = "Date invalide";
+                message = messageSource.getMessage("java.text.error.date", null, locale);
+                erreur = message;
             }
             List<Company> companies = companyService.getCompanies();
             model.addAttribute("companies", companies);
@@ -190,6 +200,7 @@ public class ComputerController {
      */
     @GetMapping(value = "/{id}")
     public String editComputerPage(@PathVariable("id") Long id, ModelMap model) {
+        String jsp = EDITCOMPUTER_JSP;
         List<Company> companies = companyService.getCompanies();
         model.addAttribute("companies", companies);
         try {
@@ -197,9 +208,9 @@ public class ComputerController {
             model.addAttribute("computer", computerDTO);
         } catch (NoObjectException | InvalidComputerException e) {
             LOGGER.debug(e.getMessage());
-            return ERROR_404_JSP;
+            jsp = ERROR_404_JSP;
         }
-        return EDITCOMPUTER_JSP;
+        return jsp;
     }
 
     /**
@@ -210,21 +221,25 @@ public class ComputerController {
      *            le modèle
      * @param bindingResult
      *            bind le dto
+     * @param locale
+     *            le language local
      * @return la jsp affichée
      */
     @PostMapping(value = "/{id}")
     public String editComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, BindingResult bindingResult,
-            ModelMap model) {
-        String erreur = "";
+            ModelMap model, Locale locale) {
+        String erreur = "", message = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
-                model.addAttribute("message", "Computer updated");
+                message = messageSource.getMessage("java.text.updated", null, locale);
+                model.addAttribute("message", message);
             } catch (InvalidComputerException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
-                erreur = "Date invalide";
+                message = messageSource.getMessage("java.text.error.date", null, locale);
+                erreur = message;
             }
         }
         model.addAttribute("erreur", erreur);

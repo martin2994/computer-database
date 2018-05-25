@@ -20,13 +20,11 @@ public class ComputerService {
     /**
      * DAO de company.
      */
-    @Autowired
     private CompanyDAO companyDAO;
 
     /**
      * DAO de computer.
      */
-    @Autowired
     private ComputerDAO computerDAO;
 
     /**
@@ -35,20 +33,25 @@ public class ComputerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerService.class);
 
     /**
-     * Constructeur privé.
+     * Constructeur privé et injecte les DAO.
+     * @param companyDAO la dao des companies
+     * @param computerDAO la dao des computers
      */
-    private ComputerService() {
+    @Autowired
+    private ComputerService(CompanyDAO companyDAO, ComputerDAO computerDAO) {
+        this.companyDAO = companyDAO;
+        this.computerDAO = computerDAO;
     }
 
     /**
-     * Récupère la liste des computer par page.
+     * Récupère la liste des computers par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
-     *            le nombre de computer par page
+     *            le nombre de computers par page
      * @return La liste des computer
      * @throws InvalidComputerException
-     *              Exception lancée quand une requete a echoué
+     *             Exception lancée quand une requete a echoué
      */
     public Page<Computer> getComputers(int page, int resultPerPage) throws InvalidComputerException {
         Page<Computer> cPage = new Page<>();
@@ -62,7 +65,7 @@ public class ComputerService {
     }
 
     /**
-     * Récupère la liste des computer triée et recherchée par page.
+     * Récupère la liste des computers triée et recherchée par page.
      * @param search
      *            le nom à rechercher
      * @param page
@@ -71,9 +74,10 @@ public class ComputerService {
      *            le nombre de computer par page
      * @return La liste des computer
      * @throws InvalidComputerException
-     *              Exception lancée quand une requete a échoué
+     *             Exception lancée quand une requete a échoué
      */
-    public Page<Computer> getComputersByName(String search, int page, int resultPerPage) throws InvalidComputerException {
+    public Page<Computer> getComputersByName(String search, int page, int resultPerPage)
+            throws InvalidComputerException {
         Page<Computer> cPage = new Page<>();
         if (page >= 0 && resultPerPage >= 1) {
             cPage = computerDAO.findByNamePerPage(search, page, resultPerPage);
@@ -91,7 +95,7 @@ public class ComputerService {
      * @throws InvalidComputerException
      *             Exception sur les computers
      * @throws NoObjectException
-     *              Exception lancée quand la requete echoue ( pas de resultat)
+     *             Exception lancée quand la requete echoue ( pas de resultat)
      */
     public Computer getComputerDetails(long id) throws InvalidComputerException, NoObjectException {
         ComputerValidator.isValidId(id);

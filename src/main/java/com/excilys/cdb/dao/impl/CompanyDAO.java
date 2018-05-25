@@ -20,7 +20,7 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
 /**
- * DAO pour Company Regroupe les différentes transactions sur les Company.
+ * DAO pour Company Regroupe les différentes transactions sur les Companies.
  */
 
 @Repository
@@ -61,15 +61,17 @@ public class CompanyDAO implements DAO<Company> {
      */
     private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM computer WHERE computer.company_id = ?";
 
-    @Autowired
     private DataSource dataSource;
 
     private JdbcTemplate jdbcTemplate;
 
     /**
-     * Constructeur privé vide.
+     * Constructeur privé qui injecte la dataSource.
+     * @param dataSource la datasource
      */
-    private CompanyDAO() {
+    @Autowired
+    private CompanyDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @PostConstruct
@@ -78,7 +80,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     /**
-     * Permet de récupérer la liste de toutes les company.
+     * Permet de récupérer la liste de toutes les companies.
      * @return La liste des Company
      */
 
@@ -88,7 +90,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     /**
-     * Permet de récupérer la liste de toutes les company page par page.
+     * Permet de récupérer la liste de toutes les companies page par page.
      * @param page
      *            la page à afficher
      * @param resultPerPage
@@ -152,7 +154,7 @@ public class CompanyDAO implements DAO<Company> {
     }
 
     /**
-     * Regarde si la company.
+     * Regarde si la company existe.
      * @param id
      *            la company à verifier
      * @return un booleen avec la réponse
