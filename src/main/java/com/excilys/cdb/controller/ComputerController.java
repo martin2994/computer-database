@@ -3,6 +3,7 @@ package com.excilys.cdb.controller;
 import java.time.DateTimeException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -132,7 +132,7 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @PostMapping(value = "/delete")
-    public String deleteComputers(@RequestBody String selection, ModelMap model) {
+    public String deleteComputers(@RequestParam(value = "selection", required = true) Set<Long> selection, ModelMap model) {
         try {
             computerService.deleteComputerList(ComputerMapper.convertListId(selection));
         } catch (InvalidIdException e) {
