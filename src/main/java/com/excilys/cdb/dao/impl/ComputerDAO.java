@@ -8,8 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -87,20 +85,14 @@ public class ComputerDAO implements DAO<Computer> {
 
     private JdbcTemplate jdbcTemplate;
 
-    private MessageSource messageSource;
-
-
     /**
      * Constructeur privé qui injecte la dataSource.
      * @param dataSource
      *            la dataSource
-     * @param messageSource
-     *            Message Internationaliser
      */
     @Autowired
-    private ComputerDAO(DataSource dataSource, MessageSource messageSource) {
+    private ComputerDAO(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.messageSource = messageSource;
     }
 
     @PostConstruct
@@ -134,7 +126,7 @@ public class ComputerDAO implements DAO<Computer> {
             computers.setCurrentPage(page);
             computers.setMaxPage(count());
         } catch (BadSqlGrammarException e) {
-            String message = messageSource.getMessage(ExceptionMessage.BAD_ACCESS.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.BAD_ACCESS.getMessage();
             throw new InvalidComputerException(message);
         }
         return computers;
@@ -163,7 +155,7 @@ public class ComputerDAO implements DAO<Computer> {
             computers.setMaxPage(countByName(search));
             computers.setCurrentPage(page);
         } catch (BadSqlGrammarException e) {
-            String message = messageSource.getMessage(ExceptionMessage.BAD_ACCESS.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.BAD_ACCESS.getMessage();
             throw new InvalidComputerException(message);
         }
         return computers;
@@ -183,7 +175,7 @@ public class ComputerDAO implements DAO<Computer> {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(COMPUTER_BY_ID, new Object[] {id }, new ComputerRowMapper()));
         } catch (EmptyResultDataAccessException e) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_RESULT.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_RESULT.getMessage();
             throw new NoObjectException(message);
         }
     }
@@ -199,8 +191,7 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public long add(Computer computer) throws NoObjectException {
         if (computer == null) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_COMPUTER_TO_CREATE.getMessage(), null,
-                    LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_COMPUTER_TO_CREATE.getMessage();
             throw new NoObjectException(message);
         }
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
@@ -226,7 +217,7 @@ public class ComputerDAO implements DAO<Computer> {
         try {
             result = jdbcTemplate.queryForObject(COMPUTER_EXIST, new Object[] {id }, Integer.class) > 0;
         } catch (EmptyResultDataAccessException e) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_RESULT.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_RESULT.getMessage();
             throw new NoObjectException(message);
         }
         return result;
@@ -266,8 +257,7 @@ public class ComputerDAO implements DAO<Computer> {
     public Optional<Computer> update(Computer computer) throws NoObjectException {
         Optional<Computer> computerOpt = Optional.empty();
         if (computer == null) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_COMPUTER_TO_UPDATE.getMessage(), null,
-                    LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_COMPUTER_TO_UPDATE.getMessage();
             throw new NoObjectException(message);
         }
         int result = jdbcTemplate.update(UPDATE_COMPUTER,

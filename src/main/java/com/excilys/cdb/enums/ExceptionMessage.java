@@ -1,11 +1,11 @@
 package com.excilys.cdb.enums;
 
 public enum ExceptionMessage {
-    BAD_ACCESS("text.error.bad_access"), NO_RESULT("text.error.no_result"), NO_COMPUTER_TO_UPDATE(
-            "text.error.no_computer_update"), NO_COMPUTER_TO_CREATE("text.error.no_computer_create"), INVALID_ID(
-                    "text.error.invalid_id"), NO_COMPANY("text.error.no_company"), UNCOMPLETE_INFO(
-                            "text.error.uncomplete_info"), NO_COMPUTER("text.error.no_computer"), INVALID_INFO(
-                                    "text.error.invalid_info"), ERROR("text.error");
+    BAD_ACCESS("Bad access"), NO_RESULT(" No result"), NO_COMPUTER_TO_UPDATE(
+            "No computer to update"), NO_COMPUTER_TO_CREATE("No computer to add"), INVALID_ID(
+                    "Invalid id"), NO_COMPANY("This company does not exist"), UNCOMPLETE_INFO(
+                            "Uncomplete informations"), NO_COMPUTER("This computer does not exist"), INVALID_INFO(
+                                    "Invalid informations"), ERROR("An error occured");
 
     private String message;
 

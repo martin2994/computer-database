@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public class Computer {
 
     private long id;
+
     private String name;
     private LocalDate introduced;
     private LocalDate discontinued;

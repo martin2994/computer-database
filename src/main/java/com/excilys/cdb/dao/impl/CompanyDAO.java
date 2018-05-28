@@ -7,8 +7,6 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -68,17 +66,13 @@ public class CompanyDAO implements DAO<Company> {
 
     private JdbcTemplate jdbcTemplate;
 
-    private MessageSource messageSource;
-
     /**
      * Constructeur privé qui injecte la dataSource.
      * @param dataSource la datasource
-     * @param messageSource Messages internationalisés
      */
     @Autowired
-    private CompanyDAO(DataSource dataSource, MessageSource messageSource) {
+    private CompanyDAO(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.messageSource = messageSource;
     }
 
     @PostConstruct
@@ -115,7 +109,7 @@ public class CompanyDAO implements DAO<Company> {
             companies.setCurrentPage(page);
             companies.setMaxPage(count());
         } catch (BadSqlGrammarException e) {
-            String message = messageSource.getMessage(ExceptionMessage.BAD_ACCESS.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.BAD_ACCESS.getMessage();
             throw new InvalidCompanyException(message);
         }
         return companies;
@@ -133,7 +127,7 @@ public class CompanyDAO implements DAO<Company> {
             return Optional.ofNullable(
                     jdbcTemplate.queryForObject(COMPANY_BY_ID, new Object[] {id }, new CompanyRowMapper()));
         } catch (EmptyResultDataAccessException e) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_RESULT.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_RESULT.getMessage();
             throw new NoObjectException(message);
         }
     }
@@ -176,7 +170,7 @@ public class CompanyDAO implements DAO<Company> {
         try {
             result = jdbcTemplate.queryForObject(COMPANY_EXIST, new Object[] {id }, Integer.class) > 0;
         } catch (EmptyResultDataAccessException e) {
-            String message = messageSource.getMessage(ExceptionMessage.NO_RESULT.getMessage(), null, LocaleContextHolder.getLocale());
+            String message = ExceptionMessage.NO_RESULT.getMessage();
             throw new NoObjectException(message);
         }
         return result;
