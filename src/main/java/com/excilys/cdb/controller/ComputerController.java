@@ -51,13 +51,59 @@ public class ComputerController {
      */
     private CompanyService companyService;
 
+    /**
+     * Valeur par défaut.
+     */
     private static final String RESULTS_PER_PAGE = "10";
     private static final String CURRENT_PAGE = "1";
     private static final String SEARCH = "";
+
+    /**
+     * redirection jsp.
+     */
     private static final String DASHBOARD_JSP = "dashboard";
     private static final String ADDCOMPUTER_JSP = "addComputer";
     private static final String EDITCOMPUTER_JSP = "editComputer";
     private static final String ERROR_404_JSP = "404";
+    private static final String REDIRECT_DASHBOARD = "redirect:/computer";
+
+    /**
+     * Attributs des jsp.
+     */
+    private static final String ATTRIBUT_ERREUR = "erreur";
+    private static final String ATTRIBUT_MESSAGE = "message";
+    private static final String ATTRIBUT_NBCOMPUTERS = "nbComputers";
+    private static final String ATTRIBUT_RESULT_PER_PAGE = "resultPerPage";
+    private static final String ATTRIBUT_CURRENT_PAGE = "currentPage";
+    private static final String ATTRIBUT_PAGE_COMPUTERS = "page";
+    private static final String ATTRIBUT_INFO_COMPUTER = "computer";
+    private static final String ATTRIBUT_LIST_COMPANIES = "companies";
+    private static final String ATTRIBUT_SEARCH = "searchParam";
+
+    /**
+     * Paramètres.
+     */
+    private static final String PARAM_SEARCH = "search";
+    private static final String PARAM_RESULT_PER_PAGE = "resultPerPage";
+    private static final String PARAM_PAGE = "page";
+    private static final String PARAM_SELECTION = "selection";
+    private static final String PARAM_COMPUTER = "computer";
+    private static final String PARAM_ID = "id";
+
+    /**
+     * Mapping.
+     */
+    private static final String MAPPING_ADD = "/add";
+    private static final String MAPPING_DELETE = "/delete";
+    private static final String MAPPING_EDIT = "/{" + PARAM_ID + "}";
+
+
+    /**
+     * Textes internationalisés.
+     */
+    private static final String TEXT_ERROR_DATE = "java.text.error.date";
+    private static final String TEXT_CREATED = "java.text.created";
+    private static final String TEXT_UPDATED = "java.text.updated";
 
     /**
      * LOGGER.
@@ -70,7 +116,8 @@ public class ComputerController {
      *            Le service à injecter
      * @param companyService
      *            Le service à injecter
-     * @param messageSource les messages internationalisés
+     * @param messageSource
+     *            les messages internationalisés
      */
     @Autowired
     public ComputerController(ComputerService computerService, CompanyService companyService,
@@ -93,9 +140,9 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @GetMapping("")
-    public String computerPage(@RequestParam(value = "search", required = false, defaultValue = SEARCH) String search,
-            @RequestParam(value = "page", required = false, defaultValue = CURRENT_PAGE) int nbPage,
-            @RequestParam(value = "resultPerPage", required = false, defaultValue = RESULTS_PER_PAGE) int resultPerPage,
+    public String computerPage(@RequestParam(value = PARAM_SEARCH, required = false, defaultValue = SEARCH) String search,
+            @RequestParam(value = PARAM_PAGE, required = false, defaultValue = CURRENT_PAGE) int nbPage,
+            @RequestParam(value = PARAM_RESULT_PER_PAGE, required = false, defaultValue = RESULTS_PER_PAGE) int resultPerPage,
             ModelMap model) {
         List<Computer> page = null;
         List<ComputerDTO> pageDTO = null;
@@ -115,11 +162,11 @@ public class ComputerController {
             LOGGER.debug(e.getMessage());
         }
         pageDTO = page.stream().map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
-        model.addAttribute("page", pageDTO);
-        model.addAttribute("searchParam", search);
-        model.addAttribute("currentPage", nbPage);
-        model.addAttribute("resultPerPage", resultPerPage);
-        model.addAttribute("nbComputers", count);
+        model.addAttribute(ATTRIBUT_PAGE_COMPUTERS, pageDTO);
+        model.addAttribute(ATTRIBUT_SEARCH, search);
+        model.addAttribute(ATTRIBUT_CURRENT_PAGE, nbPage);
+        model.addAttribute(ATTRIBUT_RESULT_PER_PAGE, resultPerPage);
+        model.addAttribute(ATTRIBUT_NBCOMPUTERS, count);
         return DASHBOARD_JSP;
     }
 
@@ -131,14 +178,15 @@ public class ComputerController {
      *            le modèle
      * @return la jsp affichée
      */
-    @PostMapping(value = "/delete")
-    public String deleteComputers(@RequestParam(value = "selection", required = true) Set<Long> selection, ModelMap model) {
+    @PostMapping(value = MAPPING_DELETE)
+    public String deleteComputers(@RequestParam(value = PARAM_SELECTION, required = true) Set<Long> selection,
+            ModelMap model) {
         try {
             computerService.deleteComputerList(ComputerMapper.convertListId(selection));
         } catch (InvalidIdException e) {
             LOGGER.debug(e.getMessage());
         }
-        return "redirect:/computer";
+        return REDIRECT_DASHBOARD;
     }
 
     /**
@@ -147,11 +195,11 @@ public class ComputerController {
      *            le modèle
      * @return la jsp affichée
      */
-    @GetMapping(value = "/add")
+    @GetMapping(value = MAPPING_ADD)
     public String addComputerPage(ModelMap model) {
         List<Company> companies = companyService.getCompanies();
-        model.addAttribute("companies", companies);
-        model.addAttribute("computer", new ComputerDTO());
+        model.addAttribute(ATTRIBUT_LIST_COMPANIES, companies);
+        model.addAttribute(ATTRIBUT_INFO_COMPUTER, new ComputerDTO());
         return ADDCOMPUTER_JSP;
     }
 
@@ -167,25 +215,25 @@ public class ComputerController {
      *            le language local
      * @return la jsp affichée
      */
-    @PostMapping(value = "/add")
-    public String createComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO,
+    @PostMapping(value = MAPPING_ADD)
+    public String createComputer(@ModelAttribute(PARAM_COMPUTER) @Valid ComputerDTO computerDTO,
             BindingResult bindingResult, ModelMap model, Locale locale) {
         String erreur = "", message = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 long id = computerService.createComputer(computer);
-                message = messageSource.getMessage("java.text.created", new Object[] {id }, locale);
-                model.addAttribute("message", message);
+                message = messageSource.getMessage(TEXT_CREATED, new Object[] {id }, locale);
+                model.addAttribute(ATTRIBUT_MESSAGE, message);
             } catch (InvalidComputerException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
-                message = messageSource.getMessage("java.text.error.date", null, locale);
+                message = messageSource.getMessage(TEXT_ERROR_DATE, null, locale);
                 erreur = message;
             }
             List<Company> companies = companyService.getCompanies();
-            model.addAttribute("companies", companies);
-            model.addAttribute("erreur", erreur);
+            model.addAttribute(ATTRIBUT_LIST_COMPANIES, companies);
+            model.addAttribute(ATTRIBUT_ERREUR, erreur);
         }
         return ADDCOMPUTER_JSP;
     }
@@ -198,14 +246,14 @@ public class ComputerController {
      *            le modèle
      * @return la jsp affichée
      */
-    @GetMapping(value = "/{id}")
-    public String editComputerPage(@PathVariable("id") Long id, ModelMap model) {
+    @GetMapping(value = MAPPING_EDIT)
+    public String editComputerPage(@PathVariable(PARAM_ID) Long id, ModelMap model) {
         String jsp = EDITCOMPUTER_JSP;
         List<Company> companies = companyService.getCompanies();
-        model.addAttribute("companies", companies);
+        model.addAttribute(ATTRIBUT_LIST_COMPANIES, companies);
         try {
             ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
-            model.addAttribute("computer", computerDTO);
+            model.addAttribute(ATTRIBUT_INFO_COMPUTER, computerDTO);
         } catch (NoObjectException | InvalidComputerException e) {
             LOGGER.debug(e.getMessage());
             jsp = ERROR_404_JSP;
@@ -225,24 +273,24 @@ public class ComputerController {
      *            le language local
      * @return la jsp affichée
      */
-    @PostMapping(value = "/{id}")
-    public String editComputer(@ModelAttribute("computer") @Valid ComputerDTO computerDTO, BindingResult bindingResult,
+    @PostMapping(value = MAPPING_EDIT)
+    public String editComputer(@ModelAttribute(PARAM_COMPUTER) @Valid ComputerDTO computerDTO, BindingResult bindingResult,
             ModelMap model, Locale locale) {
         String erreur = "", message = "";
         if (!bindingResult.hasErrors()) {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
-                message = messageSource.getMessage("java.text.updated", null, locale);
-                model.addAttribute("message", message);
+                message = messageSource.getMessage(TEXT_UPDATED, null, locale);
+                model.addAttribute(ATTRIBUT_MESSAGE, message);
             } catch (InvalidComputerException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
-                message = messageSource.getMessage("java.text.error.date", null, locale);
+                message = messageSource.getMessage(TEXT_ERROR_DATE, null, locale);
                 erreur = message;
             }
         }
-        model.addAttribute("erreur", erreur);
+        model.addAttribute(ATTRIBUT_ERREUR, erreur);
         return editComputerPage(computerDTO.getId(), model);
     }
 
