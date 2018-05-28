@@ -3,10 +3,13 @@ package com.excilys.cdb.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
+import com.excilys.cdb.enums.ExceptionMessage;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
@@ -27,6 +30,8 @@ public class ComputerService {
      */
     private ComputerDAO computerDAO;
 
+    private MessageSource messageSource;
+
     /**
      * LOGGER.
      */
@@ -36,11 +41,14 @@ public class ComputerService {
      * Constructeur privé et injecte les DAO.
      * @param companyDAO la dao des companies
      * @param computerDAO la dao des computers
+     * @param messageSource
+     *            Message Internationaliser
      */
     @Autowired
-    private ComputerService(CompanyDAO companyDAO, ComputerDAO computerDAO) {
+    private ComputerService(CompanyDAO companyDAO, ComputerDAO computerDAO, MessageSource messageSource) {
         this.companyDAO = companyDAO;
         this.computerDAO = computerDAO;
+        this.messageSource = messageSource;
     }
 
     /**
@@ -99,7 +107,7 @@ public class ComputerService {
      */
     public Computer getComputerDetails(long id) throws InvalidComputerException, NoObjectException {
         ComputerValidator.isValidId(id);
-        return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException("L'id n'est pas valide."));
+        return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException(messageSource.getMessage(ExceptionMessage.INVALID_ID.getMessage(), null, LocaleContextHolder.getLocale())));
     }
 
     /**
@@ -119,13 +127,13 @@ public class ComputerService {
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
                     LOGGER.info("INVALID COMPANY FOR UPDATE COMPUTER");
-                    throw new InvalidCompanyException("La company n'existe pas.");
+                    throw new InvalidCompanyException(messageSource.getMessage(ExceptionMessage.NO_COMPANY.getMessage(), null, LocaleContextHolder.getLocale()));
                 }
             }
             result = computerDAO.add(computer);
         } catch (NoObjectException e) {
             LOGGER.debug("CREATE COMPUTER WITH NULL OBJECT" + e.getMessage());
-            throw new InvalidComputerException("Les informations sont incompletes.");
+            throw new InvalidComputerException(messageSource.getMessage(ExceptionMessage.UNCOMPLETE_INFO.getMessage(), null, LocaleContextHolder.getLocale()));
         }
         return result;
     }
@@ -145,20 +153,20 @@ public class ComputerService {
             ComputerValidator.isValidComputer(computer);
             if (!computerDAO.isExist(computer.getId())) {
                 LOGGER.info("INVALID COMPUTER FOR UPDATE");
-                throw new InvalidComputerException("Le computer n'existe pas.");
+                throw new InvalidComputerException(messageSource.getMessage(ExceptionMessage.NO_COMPUTER.getMessage(), null, LocaleContextHolder.getLocale()));
             }
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {
                     LOGGER.info("INVALID COMPANY FOR UPDATE COMPUTER");
-                    throw new InvalidCompanyException("La company n'existe pas.");
+                    throw new InvalidCompanyException(messageSource.getMessage(ExceptionMessage.NO_COMPANY.getMessage(), null, LocaleContextHolder.getLocale()));
                 }
             }
             return computerDAO.update(computer)
-                    .orElseThrow(() -> new InvalidComputerException("Les infos du computer ne sont pas valides."));
+                    .orElseThrow(() -> new InvalidComputerException(messageSource.getMessage(ExceptionMessage.INVALID_INFO.getMessage(), null, LocaleContextHolder.getLocale())));
         } catch (NoObjectException e) {
             LOGGER.debug("UPDATE COMPUTER NULL " + e.getMessage());
         }
-        throw new InvalidComputerException("Une erreur s'est produite.");
+        throw new InvalidComputerException(messageSource.getMessage(ExceptionMessage.ERROR.getMessage(), null, LocaleContextHolder.getLocale()));
     }
 
     /**

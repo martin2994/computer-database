@@ -7,10 +7,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
+import com.excilys.cdb.enums.ExceptionMessage;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.model.Company;
@@ -29,14 +32,18 @@ public class CompanyService {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 
+    private MessageSource messageSource;
+
     /**
      * Constructeur privé et injecte la dao.
      * @param companyDAO la dao des companies
+     * @param messageSource
+     *            Message Internationaliser
      */
     @Autowired
-    private CompanyService(CompanyDAO companyDAO) {
+    private CompanyService(CompanyDAO companyDAO, MessageSource messageSource) {
         this.companyDAO = companyDAO;
-
+        this.messageSource = messageSource;
     }
 
     /**
@@ -81,7 +88,7 @@ public class CompanyService {
      */
     public Company getCompany(long id) throws InvalidCompanyException, NoObjectException {
         CompanyValidator.isValidId(id);
-        return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException("L'id n'est pas valide."));
+        return companyDAO.findById(id).orElseThrow(() -> new InvalidCompanyException(messageSource.getMessage(ExceptionMessage.INVALID_ID.getMessage(), null, LocaleContextHolder.getLocale())));
     }
 
     /**
