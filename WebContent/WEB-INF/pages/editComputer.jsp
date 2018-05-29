@@ -40,13 +40,14 @@
 					<form:input type="hidden" path="id" value="${computer.id}" id="idComputer"
 						name="idComputer" />
 					<fieldset>
-						<div class="form-group">
-							<form:label path="name" for="computerName"><spring:message code="label.text.computerName"/></form:label> <form:input
-								type="text" path="name" class="form-control" id="computerName" id="name"
-								name="computerName" placeholder="Computer name"
-								value="${computer.name}" required="true"/>
-								<label hidden=true id="nameProblem" class="error text-danger"><spring:message code="text.javascript.required"/></label>
-						</div>
+							<div class="form-group">
+								<form:label path="name" for="computerName">
+									<spring:message code="label.text.computerName" />
+								</form:label>
+								<form:input type="text" class="form-control" path="name"
+									name="computerName" id="name" placeholder="Computer name" />
+									<label hidden=true id="nameProblem" class="error text-danger" required=true><spring:message code="text.javascript.required"/></label>
+							</div>
 						<div class="form-group">
 							<form:label path="introduced" for="introduced"><spring:message code="label.text.introduced"/></form:label> <form:input
 								type="date" class="form-control" path="introduced" id="introduced"

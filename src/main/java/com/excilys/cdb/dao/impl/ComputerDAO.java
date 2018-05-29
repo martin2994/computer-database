@@ -4,24 +4,17 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.dao.DAO;
-import com.excilys.cdb.dao.mapper.ComputerRowMapper;
 import com.excilys.cdb.enums.ExceptionMessage;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
-import com.excilys.cdb.mapper.DateMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
@@ -34,70 +27,46 @@ public class ComputerDAO implements DAO<Computer> {
     /**
      * Requete pour le findAll.
      */
-    private final String ALL_COMPUTERS = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id";
-
-    /**
-     * Requete pour le findPerPage.
-     */
-    private final String ALL_COMPUTERS_PER_PAGE = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id LIMIT ?,?";
+    private final String ALL_COMPUTERS = "FROM Computer";
 
     /**
      * Requete pour le findByNamePerPage.
      */
-    private final String COMPUTERS_BY_NAME = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id = company.id WHERE computer.name LIKE ? OR company.name LIKE ? ORDER BY computer.name LIMIT ?,?";
-
-    /**
-     * Requete pour le findById.
-     */
-    private final String COMPUTER_BY_ID = "SELECT computer.id,computer.name, computer.introduced,computer.discontinued, company.id, company.name FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id  WHERE computer.id=?";
-
-    /**
-     * Requete pour voir l'existance d'un computer.
-     */
-    private final String COMPUTER_EXIST = "SELECT computer.id FROM computer WHERE computer.id = ?";
+    private final String COMPUTERS_BY_NAME = "FROM Computer as computer WHERE name LIKE :search OR manufacturer.name LIKE :search ORDER BY name";
 
     /**
      * Requete pour l'update.
      */
-    private final String UPDATE_COMPUTER = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?";
+    private final String UPDATE_COMPUTER = "UPDATE Computer SET name=:name, introduced=:introduced, discontinued=:discontinued, manufacturer=:company WHERE id=:id";
 
     /**
      * Requete pour le delete.
      */
-    private final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
+    private final String DELETE_COMPUTER = "DELETE FROM Computer WHERE id = :id";
 
     /**
      * Requete pour le delete d'une liste d'id.
      */
-    private final String DELETE_COMPUTER_LIST = "DELETE FROM computer WHERE id IN %s";
+    private final String DELETE_COMPUTER_LIST = "DELETE FROM Computer WHERE id IN %s";
 
     /**
      * Requete pour le nombre de page.
      */
-    private final String MAX_PAGE = "SELECT COUNT(id) FROM computer";
+    private final String MAX_PAGE = "SELECT COUNT(id) FROM Computer";
 
     /**
      * Requete pour le nombre de page d'une recherche.
      */
-    private final String MAX_PAGE_BY_NAME = "SELECT COUNT(computer.id) FROM computer LEFT OUTER JOIN company ON computer.company_id=company.id WHERE computer.name LIKE ? or company.name LIKE ? ";
+    private final String MAX_PAGE_BY_NAME = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search or manufacturer.name LIKE :search ";
 
-    private DataSource dataSource;
 
-    private JdbcTemplate jdbcTemplate;
-
+    private SessionFactory sessionFactory;
     /**
      * Constructeur privé qui injecte la dataSource.
-     * @param dataSource
-     *            la dataSource
+     * @param sessionFactory la sessionFactory
      */
-    @Autowired
-    private ComputerDAO(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    @PostConstruct
-    private void initJdbc() {
-        jdbcTemplate = new JdbcTemplate(dataSource);
+    private ComputerDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     /**
@@ -106,7 +75,10 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public List<Computer> findAll() {
-        return jdbcTemplate.query(ALL_COMPUTERS, new ComputerRowMapper());
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return session.createQuery(ALL_COMPUTERS, Computer.class).getResultList();
+        }
     }
 
     /**
@@ -120,15 +92,15 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public Page<Computer> findPerPage(int page, int resultPerPage) throws InvalidComputerException {
         Page<Computer> computers = new Page<>();
-        try {
-            computers.setResults(jdbcTemplate.query(ALL_COMPUTERS_PER_PAGE,
-                    new Object[] {page * resultPerPage, resultPerPage }, new ComputerRowMapper()));
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> typedQuery = session.createQuery(ALL_COMPUTERS, Computer.class).setFirstResult(page * resultPerPage).setMaxResults(resultPerPage);
+            computers.setResults(typedQuery.getResultList());
             computers.setCurrentPage(page);
-            computers.setMaxPage(count());
-        } catch (BadSqlGrammarException e) {
-            String message = ExceptionMessage.BAD_ACCESS.getMessage();
-            throw new InvalidComputerException(message);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidComputerException(ExceptionMessage.BAD_ACCESS.getMessage());
         }
+        computers.setMaxPage(count());
         return computers;
     }
 
@@ -148,16 +120,16 @@ public class ComputerDAO implements DAO<Computer> {
             throws InvalidComputerException {
         Page<Computer> computers = new Page<>();
         String allSearch = "%" + search + "%";
-        try {
-            computers.setResults(jdbcTemplate.query(COMPUTERS_BY_NAME,
-                    new Object[] {allSearch, allSearch, page * resultPerPage, resultPerPage },
-                    new ComputerRowMapper()));
-            computers.setMaxPage(countByName(search));
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> typeQuery = session.createQuery(COMPUTERS_BY_NAME, Computer.class).setFirstResult(page * resultPerPage).setMaxResults(resultPerPage);
+            typeQuery.setParameter("search", allSearch);
+            computers.setResults(typeQuery.getResultList());
             computers.setCurrentPage(page);
-        } catch (BadSqlGrammarException e) {
-            String message = ExceptionMessage.BAD_ACCESS.getMessage();
-            throw new InvalidComputerException(message);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidComputerException(ExceptionMessage.BAD_ACCESS.getMessage());
         }
+        computers.setMaxPage(countByName(search));
         return computers;
     }
 
@@ -171,12 +143,9 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public Optional<Computer> findById(long id) throws NoObjectException {
-        try {
-            return Optional.ofNullable(
-                    jdbcTemplate.queryForObject(COMPUTER_BY_ID, new Object[] {id }, new ComputerRowMapper()));
-        } catch (EmptyResultDataAccessException e) {
-            String message = ExceptionMessage.NO_RESULT.getMessage();
-            throw new NoObjectException(message);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return Optional.ofNullable(session.get(Computer.class, id));
         }
     }
 
@@ -194,13 +163,10 @@ public class ComputerDAO implements DAO<Computer> {
             String message = ExceptionMessage.NO_COMPUTER_TO_CREATE.getMessage();
             throw new NoObjectException(message);
         }
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource);
-        jdbcInsert.withTableName("computer").usingGeneratedKeyColumns("id");
-        SqlParameterSource source = new MapSqlParameterSource().addValue("name", computer.getName())
-                .addValue("introduced", DateMapper.localDateToTimeStamp(computer.getIntroduced()))
-                .addValue("discontinued", DateMapper.localDateToTimeStamp(computer.getDiscontinued()))
-                .addValue("company_id", computer.getManufacturer() != null ? computer.getManufacturer().getId() : null);
-        return jdbcInsert.executeAndReturnKey(source).longValue();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return (long) session.save(computer);
+        }
     }
 
     /**
@@ -213,14 +179,10 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public boolean isExist(long id) throws NoObjectException {
-        boolean result = false;
-        try {
-            result = jdbcTemplate.queryForObject(COMPUTER_EXIST, new Object[] {id }, Integer.class) > 0;
-        } catch (EmptyResultDataAccessException e) {
-            String message = ExceptionMessage.NO_RESULT.getMessage();
-            throw new NoObjectException(message);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return session.get(Computer.class, id) != null;
         }
-        return result;
     }
 
     /**
@@ -231,7 +193,12 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public boolean delete(long id) {
-        return jdbcTemplate.update(DELETE_COMPUTER, new Object[] {id }) == 1;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(DELETE_COMPUTER);
+            query.setParameter("id", id);
+            return query.executeUpdate() == 1;
+        }
     }
 
     /**
@@ -241,7 +208,11 @@ public class ComputerDAO implements DAO<Computer> {
      * @return un boolean pour savoir si la suppression a eu lieu ou non
      */
     public boolean deleteList(String idList) {
-        return jdbcTemplate.update(String.format(DELETE_COMPUTER_LIST, idList)) > 0;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(String.format(DELETE_COMPUTER_LIST, idList));
+            return query.executeUpdate() > 0;
+        }
     }
 
     /**
@@ -256,17 +227,23 @@ public class ComputerDAO implements DAO<Computer> {
     @Override
     public Optional<Computer> update(Computer computer) throws NoObjectException {
         Optional<Computer> computerOpt = Optional.empty();
+        int result = 0;
         if (computer == null) {
             String message = ExceptionMessage.NO_COMPUTER_TO_UPDATE.getMessage();
             throw new NoObjectException(message);
         }
-        int result = jdbcTemplate.update(UPDATE_COMPUTER,
-                new Object[] {computer.getName(), DateMapper.localDateToTimeStamp(computer.getIntroduced()),
-                        DateMapper.localDateToTimeStamp(computer.getDiscontinued()),
-                        computer.getManufacturer() != null ? computer.getManufacturer().getId() : null,
-                                computer.getId() });
-        if (result > 0) {
-            computerOpt = Optional.ofNullable(computer);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(UPDATE_COMPUTER);
+            query.setParameter("id", computer.getId());
+            query.setParameter("name", computer.getName());
+            query.setParameter("introduced", computer.getIntroduced());
+            query.setParameter("discontinued", computer.getDiscontinued());
+            query.setParameter("company", computer.getManufacturer());
+            result = query.executeUpdate();
+            if (result > 0) {
+                computerOpt = Optional.ofNullable(computer);
+            }
         }
         return computerOpt;
     }
@@ -276,7 +253,10 @@ public class ComputerDAO implements DAO<Computer> {
      */
     @Override
     public int count() {
-        return jdbcTemplate.queryForObject(MAX_PAGE, Integer.class);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return (int) (long) session.createQuery(MAX_PAGE).getResultList().get(0);
+        }
     }
 
     /**
@@ -287,7 +267,11 @@ public class ComputerDAO implements DAO<Computer> {
      */
     public int countByName(String search) {
         String allSearch = "%" + search + "%";
-        return jdbcTemplate.queryForObject(MAX_PAGE_BY_NAME, new Object[] {allSearch, allSearch }, Integer.class);
-
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(MAX_PAGE_BY_NAME);
+            query.setParameter("search", allSearch);
+            return (int) (long) query.getResultList().get(0);
+        }
     }
 }

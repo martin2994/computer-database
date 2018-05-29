@@ -2,7 +2,6 @@ package com.excilys.cdb.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
@@ -39,7 +38,6 @@ public class ComputerService {
      * @param computerDAO
      *            la dao des computers
      */
-    @Autowired
     private ComputerService(CompanyDAO companyDAO, ComputerDAO computerDAO) {
         this.companyDAO = companyDAO;
         this.computerDAO = computerDAO;

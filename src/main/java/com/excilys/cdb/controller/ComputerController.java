@@ -1,6 +1,7 @@
 package com.excilys.cdb.controller;
 
 import java.time.DateTimeException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -11,7 +12,6 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -97,7 +97,6 @@ public class ComputerController {
     private static final String MAPPING_DELETE = "/delete";
     private static final String MAPPING_EDIT = "/{" + PARAM_ID + "}";
 
-
     /**
      * Textes internationalisés.
      */
@@ -119,7 +118,6 @@ public class ComputerController {
      * @param messageSource
      *            les messages internationalisés
      */
-    @Autowired
     public ComputerController(ComputerService computerService, CompanyService companyService,
             MessageSource messageSource) {
         this.computerService = computerService;
@@ -140,12 +138,13 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @GetMapping("")
-    public String computerPage(@RequestParam(value = PARAM_SEARCH, required = false, defaultValue = SEARCH) String search,
+    public String computerPage(
+            @RequestParam(value = PARAM_SEARCH, required = false, defaultValue = SEARCH) String search,
             @RequestParam(value = PARAM_PAGE, required = false, defaultValue = CURRENT_PAGE) int nbPage,
             @RequestParam(value = PARAM_RESULT_PER_PAGE, required = false, defaultValue = RESULTS_PER_PAGE) int resultPerPage,
             ModelMap model) {
-        List<Computer> page = null;
-        List<ComputerDTO> pageDTO = null;
+        List<Computer> page = new ArrayList<>();
+        List<ComputerDTO> pageDTO = new ArrayList<>();
         int count = 0;
         try {
             int currentPage = nbPage;
@@ -219,7 +218,10 @@ public class ComputerController {
     public String createComputer(@ModelAttribute(PARAM_COMPUTER) @Valid ComputerDTO computerDTO,
             BindingResult bindingResult, ModelMap model, Locale locale) {
         String erreur = "", message = "";
-        if (!bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            erreur = bindingResult.getAllErrors().toString();
+            return ADDCOMPUTER_JSP;
+        } else {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 long id = computerService.createComputer(computer);
@@ -231,10 +233,10 @@ public class ComputerController {
                 message = messageSource.getMessage(TEXT_ERROR_DATE, null, locale);
                 erreur = message;
             }
-            List<Company> companies = companyService.getCompanies();
-            model.addAttribute(ATTRIBUT_LIST_COMPANIES, companies);
-            model.addAttribute(ATTRIBUT_ERREUR, erreur);
         }
+        List<Company> companies = companyService.getCompanies();
+        model.addAttribute(ATTRIBUT_LIST_COMPANIES, companies);
+        model.addAttribute(ATTRIBUT_ERREUR, erreur);
         return ADDCOMPUTER_JSP;
     }
 
@@ -274,10 +276,12 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @PostMapping(value = MAPPING_EDIT)
-    public String editComputer(@ModelAttribute(PARAM_COMPUTER) @Valid ComputerDTO computerDTO, BindingResult bindingResult,
-            ModelMap model, Locale locale) {
+    public String editComputer(@ModelAttribute(PARAM_COMPUTER) @Valid ComputerDTO computerDTO,
+            BindingResult bindingResult, ModelMap model, Locale locale) {
         String erreur = "", message = "";
-        if (!bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            erreur = bindingResult.getAllErrors().toString();
+        } else {
             try {
                 Computer computer = DTOMapper.toComputer(computerDTO);
                 computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));

@@ -3,17 +3,13 @@ package com.excilys.cdb.dao.impl;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
+import javax.persistence.Query;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.dao.DAO;
-import com.excilys.cdb.dao.mapper.CompanyRowMapper;
 import com.excilys.cdb.enums.ExceptionMessage;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
@@ -30,54 +26,37 @@ public class CompanyDAO implements DAO<Company> {
     /**
      * Requete pour le findAll.
      */
-    private final String ALL_COMPANIES = "SELECT id,name FROM company";
-
-    /**
-     * Requete pour le findPerPage.
-     */
-    private final String ALL_COMPANIES_PER_PAGE = "SELECT id,name FROM company LIMIT ?,?";
-
-    /**
-     * Requete pour le findById.
-     */
-    private final String COMPANY_BY_ID = "SELECT id,name FROM company WHERE id=?";
+    private final String ALL_COMPANIES = "FROM Company";
 
     /**
      * Requete pour le nombre de page.
      */
-    private final String MAX_PAGE = "SELECT COUNT(id) FROM company";
-
-    /**
-     * Requete pour voir l'existance d'une company.
-     */
-    private final String COMPANY_EXIST = "SELECT company.id FROM company WHERE company.id = ?";
+    private final String MAX_PAGE = "SELECT COUNT(id) FROM Company";
 
     /**
      * Requete pour le delete.
      */
-    private final String DELETE_COMPANY = "DELETE FROM company WHERE company.id = ?";
+    private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
 
     /**
      * Requete pour le delete les computers liés.
      */
-    private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM computer WHERE computer.company_id = ?";
+    private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM Computer WHERE manufacturer.id = :id";
 
-    private DataSource dataSource;
+    /**
+     * Requete pour l'update.
+     */
+    private final String UPDATE_COMPANY = "UPDATE Company SET name=:name WHERE id=:id";
 
-    private JdbcTemplate jdbcTemplate;
+    private SessionFactory sessionFactory;
 
     /**
      * Constructeur privé qui injecte la dataSource.
-     * @param dataSource la datasource
+     * @param sessionFactory
+     *            la sessionFactory
      */
-    @Autowired
-    private CompanyDAO(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    @PostConstruct
-    private void initJdbc() {
-        jdbcTemplate = new JdbcTemplate(dataSource);
+    private CompanyDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     /**
@@ -87,7 +66,10 @@ public class CompanyDAO implements DAO<Company> {
 
     @Override
     public List<Company> findAll() {
-        return jdbcTemplate.query(ALL_COMPANIES, new CompanyRowMapper());
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return session.createQuery(ALL_COMPANIES, Company.class).getResultList();
+        }
     }
 
     /**
@@ -98,20 +80,20 @@ public class CompanyDAO implements DAO<Company> {
      *            nombre de computer par page
      * @return La liste des Company
      * @throws InvalidCompanyException
-     *              Exception lancée quand la requete echoue
+     *             Exception lancée quand la requete echoue
      */
     @Override
     public Page<Company> findPerPage(int page, int resultPerPage) throws InvalidCompanyException {
         Page<Company> companies = new Page<>();
-        try {
-            companies.setResults(jdbcTemplate.query(ALL_COMPANIES_PER_PAGE,
-                    new Object[] {page * resultPerPage, resultPerPage }, new CompanyRowMapper()));
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            companies.setResults(session.createQuery(ALL_COMPANIES, Company.class).setFirstResult(page * resultPerPage)
+                    .setMaxResults(resultPerPage).getResultList());
             companies.setCurrentPage(page);
-            companies.setMaxPage(count());
-        } catch (BadSqlGrammarException e) {
-            String message = ExceptionMessage.BAD_ACCESS.getMessage();
-            throw new InvalidCompanyException(message);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidCompanyException(ExceptionMessage.BAD_ACCESS.getMessage());
         }
+        companies.setMaxPage(count());
         return companies;
     }
 
@@ -123,12 +105,9 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public Optional<Company> findById(long id) throws NoObjectException {
-        try {
-            return Optional.ofNullable(
-                    jdbcTemplate.queryForObject(COMPANY_BY_ID, new Object[] {id }, new CompanyRowMapper()));
-        } catch (EmptyResultDataAccessException e) {
-            String message = ExceptionMessage.NO_RESULT.getMessage();
-            throw new NoObjectException(message);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return Optional.ofNullable(session.get(Company.class, id));
         }
     }
 
@@ -137,23 +116,61 @@ public class CompanyDAO implements DAO<Company> {
      */
     @Override
     public int count() {
-        return jdbcTemplate.queryForObject(MAX_PAGE, Integer.class);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return (int) (long) session.createQuery(MAX_PAGE).getResultList().get(0);
+        }
     }
 
     @Override
-    public long add(Company t) {
-        return 0;
+    public long add(Company company) throws NoObjectException {
+        if (company == null) {
+            String message = ExceptionMessage.NO_COMPANY_TO_CREATE.getMessage();
+            throw new NoObjectException(message);
+        }
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return (long) session.save(company);
+        }
     }
 
     @Override
     public boolean delete(long id) {
-        jdbcTemplate.update(DELETE_COMPANY_COMPUTERS, new Object[] {id });
-        return jdbcTemplate.update(DELETE_COMPANY, new Object[] {id }) == 1;
+        boolean result = false;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(DELETE_COMPANY_COMPUTERS);
+            query.setParameter("id", id);
+            query.executeUpdate();
+            query = session.createQuery(DELETE_COMPANY);
+            query.setParameter("id", id);
+            result = query.executeUpdate() == 1;
+            sessionFactory.getCurrentSession().getTransaction().commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            sessionFactory.getCurrentSession().getTransaction().rollback();
+        }
+        return result;
     }
 
     @Override
-    public Optional<Company> update(Company t) {
-        return null;
+    public Optional<Company> update(Company company) throws NoObjectException {
+        Optional<Company> companyOpt = Optional.empty();
+        int result = 0;
+        if (company == null) {
+            String message = ExceptionMessage.NO_COMPANY_TO_UPDATE.getMessage();
+            throw new NoObjectException(message);
+        }
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(UPDATE_COMPANY);
+            query.setParameter("id", company.getId());
+            result = query.executeUpdate();
+            if (result > 0) {
+                companyOpt = Optional.ofNullable(company);
+            }
+        }
+        return companyOpt;
     }
 
     /**
@@ -162,18 +179,13 @@ public class CompanyDAO implements DAO<Company> {
      *            la company à verifier
      * @return un booleen avec la réponse
      * @throws NoObjectException
-     *          Exception lancée quand il n'y a pas de resultat
+     *             Exception lancée quand il n'y a pas de resultat
      */
     @Override
     public boolean isExist(long id) throws NoObjectException {
-        boolean result = false;
-        try {
-            result = jdbcTemplate.queryForObject(COMPANY_EXIST, new Object[] {id }, Integer.class) > 0;
-        } catch (EmptyResultDataAccessException e) {
-            String message = ExceptionMessage.NO_RESULT.getMessage();
-            throw new NoObjectException(message);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            return session.get(Company.class, id) != null;
         }
-        return result;
     }
-
 }
