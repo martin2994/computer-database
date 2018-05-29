@@ -42,9 +42,10 @@
 					<fieldset>
 						<div class="form-group">
 							<form:label path="name" for="computerName"><spring:message code="label.text.computerName"/></form:label> <form:input
-								type="text" path="name" class="form-control" id="computerName"
+								type="text" path="name" class="form-control" id="computerName" id="name"
 								name="computerName" placeholder="Computer name"
 								value="${computer.name}" required="true"/>
+								<label hidden=true id="nameProblem" class="error text-danger"><spring:message code="text.javascript.required"/></label>
 						</div>
 						<div class="form-group">
 							<form:label path="introduced" for="introduced"><spring:message code="label.text.introduced"/></form:label> <form:input
@@ -88,8 +89,6 @@
 	</div>
 	</section>
 	<script src="${currentPath}/js/jquery.min.js"></script>
-	<script
-		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 	<script src="${currentPath}/js/bootstrap.min.js"></script>
 	<script src="${currentPath}/js/validation.js"></script>
 </body>

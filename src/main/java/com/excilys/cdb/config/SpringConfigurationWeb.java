@@ -28,7 +28,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "com.excilys.cdb.utils", "com.excilys.cdb.controller", "com.excilys.cdb.dao.impl", "com.excilys.cdb.services" })
+@ComponentScan(basePackages = { "com.excilys.cdb.controller", "com.excilys.cdb.dao.impl", "com.excilys.cdb.services" })
 public class SpringConfigurationWeb implements WebMvcConfigurer {
 
     /**

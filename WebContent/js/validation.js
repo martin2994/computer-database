@@ -1,17 +1,9 @@
 $(function() {
-	$("#computerForm").validate({
-		rules : {
-			computerName : "required"
-		},
-		messages : {
-			computerName : "Please enter a name"
-		},
-		onfocusout : function(element) {
-			this.element(element);
-		},
-		submitHandler : function(form) {
-			form.submit();
-		}
+	$('#computerForm').submit(function (e) {
+		validateForm(e,'#name',"#nameProblem");
+	});
+	$('#computerForm').focusout(function (e) {
+		validateForm(e,'#name',"#nameProblem");
 	});
 	var introducedDate = $("#introduced").val();
 	if (introduced != null) {
@@ -21,3 +13,11 @@ $(function() {
 		$("#discontinued").attr("min", $(this).val());
 	});
 });
+
+function validateForm(form, labelVerify, idLabel){
+	var name = $.trim($(labelVerify).val());
+    if(name === '') {
+        $(idLabel).show();
+        form.preventDefault(form);
+    }
+}

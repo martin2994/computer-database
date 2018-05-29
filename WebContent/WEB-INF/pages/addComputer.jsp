@@ -48,7 +48,8 @@
 									<spring:message code="label.text.computerName" />
 								</form:label>
 								<form:input type="text" class="form-control" path="name"
-									name="computerName" placeholder="Computer name" required="true" />
+									name="computerName" id="name" placeholder="Computer name" />
+									<label hidden=true id="nameProblem" class="error text-danger" required=true><spring:message code="text.javascript.required"/></label>
 							</div>
 							<div class="form-group">
 								<form:label path="introduced" for="introduced">
@@ -93,8 +94,6 @@
 		</div>
 	</section>
 	<script src="${currentPath}/js/jquery.min.js"></script>
-	<script
-		src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 	<script src="${currentPath}/js/bootstrap.min.js"></script>
 	<script src="${currentPath}/js/validation.js"></script>
 </body>
