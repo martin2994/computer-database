@@ -157,8 +157,8 @@ public class ComputerService {
                     ExceptionMessage.INVALID_INFO.getMessage()));
         } catch (NoObjectException e) {
             LOGGER.debug("UPDATE COMPUTER NULL " + e.getMessage());
+            throw new InvalidComputerException(ExceptionMessage.ERROR.getMessage());
         }
-        throw new InvalidComputerException(ExceptionMessage.ERROR.getMessage());
     }
 
     /**
@@ -197,9 +197,7 @@ public class ComputerService {
      * @return le nombre de computers
      */
     public int getCountComputers() {
-        int result = 0;
-        result = computerDAO.count();
-        return result;
+        return computerDAO.count();
     }
 
     /**
@@ -209,9 +207,7 @@ public class ComputerService {
      * @return le nombre de computers
      */
     public int getCountComputersByName(String search) {
-        int result = 0;
-        result = computerDAO.countByName(search);
-        return result;
+        return computerDAO.countByName(search);
     }
 
 }

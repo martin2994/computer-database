@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.utils.Page;
 
@@ -39,12 +37,8 @@ public interface DAO<T> {
      * @param id
      *            l'id de l'objet voulu
      * @return l'objet voulu
-     * @throws EmptyResultDataAccessException
-     *             Exception lancée quand il n'y a pas de résultat
-     * @throws NoObjectException
-     *              Exception lancée quand la requete échoue
      */
-    Optional<T> findById(long id) throws EmptyResultDataAccessException, NoObjectException;
+    Optional<T> findById(long id);
 
     /**
      * Ajoute une objet dans la base.
@@ -74,7 +68,7 @@ public interface DAO<T> {
      * @throws NoObjectException
      *             Exception lancée quand un objet est null ou inexistant
      */
-    Optional<T> update(T t) throws SQLException, NoObjectException;
+    Optional<T> update(T t) throws NoObjectException;
 
     /**
      * Récupère le nombre de page maximum d'un table d'objet.
@@ -87,8 +81,6 @@ public interface DAO<T> {
      * @param id
      *            l'objet à verifier
      * @return un booleen avec la réponse
-     * @throws Exception
-     *          Exception lancée en cas d'erreur
      */
-    boolean isExist(long id) throws Exception;
+    boolean isExist(long id);
 }

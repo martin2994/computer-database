@@ -23,29 +23,15 @@ import com.excilys.cdb.utils.Page;
 @Repository
 public class CompanyDAO implements DAO<Company> {
 
-    /**
-     * Requete pour le findAll.
-     */
+
     private final String ALL_COMPANIES = "FROM Company";
 
-    /**
-     * Requete pour le nombre de page.
-     */
     private final String MAX_PAGE = "SELECT COUNT(id) FROM Company";
 
-    /**
-     * Requete pour le delete.
-     */
     private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
 
-    /**
-     * Requete pour le delete les computers liés.
-     */
     private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM Computer WHERE manufacturer.id = :id";
 
-    /**
-     * Requete pour l'update.
-     */
     private final String UPDATE_COMPANY = "UPDATE Company SET name=:name WHERE id=:id";
 
     private SessionFactory sessionFactory;
@@ -104,7 +90,7 @@ public class CompanyDAO implements DAO<Company> {
      * @return La company correspondante
      */
     @Override
-    public Optional<Company> findById(long id) throws NoObjectException {
+    public Optional<Company> findById(long id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             return Optional.ofNullable(session.get(Company.class, id));
@@ -165,6 +151,7 @@ public class CompanyDAO implements DAO<Company> {
             session.beginTransaction();
             Query query = session.createQuery(UPDATE_COMPANY);
             query.setParameter("id", company.getId());
+            query.setParameter("name", company.getName());
             result = query.executeUpdate();
             if (result > 0) {
                 companyOpt = Optional.ofNullable(company);
@@ -178,11 +165,9 @@ public class CompanyDAO implements DAO<Company> {
      * @param id
      *            la company à verifier
      * @return un booleen avec la réponse
-     * @throws NoObjectException
-     *             Exception lancée quand il n'y a pas de resultat
      */
     @Override
-    public boolean isExist(long id) throws NoObjectException {
+    public boolean isExist(long id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             return session.get(Company.class, id) != null;

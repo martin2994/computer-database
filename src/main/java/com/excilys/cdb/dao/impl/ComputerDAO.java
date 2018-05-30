@@ -24,39 +24,19 @@ import com.excilys.cdb.utils.Page;
 @Repository
 public class ComputerDAO implements DAO<Computer> {
 
-    /**
-     * Requete pour le findAll.
-     */
+
     private final String ALL_COMPUTERS = "FROM Computer";
 
-    /**
-     * Requete pour le findByNamePerPage.
-     */
     private final String COMPUTERS_BY_NAME = "FROM Computer as computer WHERE name LIKE :search OR manufacturer.name LIKE :search ORDER BY name";
 
-    /**
-     * Requete pour l'update.
-     */
     private final String UPDATE_COMPUTER = "UPDATE Computer SET name=:name, introduced=:introduced, discontinued=:discontinued, manufacturer=:company WHERE id=:id";
 
-    /**
-     * Requete pour le delete.
-     */
     private final String DELETE_COMPUTER = "DELETE FROM Computer WHERE id = :id";
 
-    /**
-     * Requete pour le delete d'une liste d'id.
-     */
     private final String DELETE_COMPUTER_LIST = "DELETE FROM Computer WHERE id IN %s";
 
-    /**
-     * Requete pour le nombre de page.
-     */
     private final String MAX_PAGE = "SELECT COUNT(id) FROM Computer";
 
-    /**
-     * Requete pour le nombre de page d'une recherche.
-     */
     private final String MAX_PAGE_BY_NAME = "SELECT COUNT(id) FROM Computer WHERE name LIKE :search or manufacturer.name LIKE :search ";
 
 
@@ -142,7 +122,7 @@ public class ComputerDAO implements DAO<Computer> {
      *             Excpetion lancée si la requete échoue
      */
     @Override
-    public Optional<Computer> findById(long id) throws NoObjectException {
+    public Optional<Computer> findById(long id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             return Optional.ofNullable(session.get(Computer.class, id));
@@ -178,7 +158,7 @@ public class ComputerDAO implements DAO<Computer> {
      *             Exception lancée quand la requete echoue (pas de resultat)
      */
     @Override
-    public boolean isExist(long id) throws NoObjectException {
+    public boolean isExist(long id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             return session.get(Computer.class, id) != null;

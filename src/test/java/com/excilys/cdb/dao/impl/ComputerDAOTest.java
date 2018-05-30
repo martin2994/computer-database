@@ -1,5 +1,6 @@
 package com.excilys.cdb.dao.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
@@ -92,7 +94,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testFindByIdBadId()  {
-        assertThrows(NoObjectException.class, () -> computerDAO.findById(-1L).get());
+        assertEquals(Optional.empty(), computerDAO.findById(-1L));
     }
 
     /**
@@ -262,6 +264,18 @@ public class ComputerDAOTest {
     }
 
     /**
+     * Teste la fonction Update sur unr computer avec un id zero.
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateWithIdZero() throws NoObjectException {
+        Computer computer = computerTest;
+        computer.setId(0L);
+        assertEquals(Optional.empty(), computerDAO.update(computer));
+    }
+
+    /**
      * Teste la fonction update quand on change avec une company inexistante.
      * @throws NoObjectException
      *             Exception lancée quand un objet est null
@@ -314,7 +328,7 @@ public class ComputerDAOTest {
     @Test
     public void testDelete()  {
         assertTrue(computerDAO.delete(3L));
-        assertThrows(NoObjectException.class, () -> computerDAO.findById(3L).get());
+        assertEquals(Optional.empty(), computerDAO.findById(3L));
     }
 
     /**
@@ -331,7 +345,7 @@ public class ComputerDAOTest {
     @Test
     public void testDeleteList()  {
         assertTrue(computerDAO.deleteList("(8,9)"));
-        assertThrows(NoObjectException.class, () -> computerDAO.findById(8L).get());
+        assertEquals(Optional.empty(), computerDAO.findById(8L));
     }
 
     /**
@@ -377,7 +391,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testIsExistWithBadId()  {
-        assertThrows(NoObjectException.class, () -> computerDAO.isExist(100L));
+        assertFalse(computerDAO.isExist(100L));
     }
 
     /**
@@ -385,7 +399,7 @@ public class ComputerDAOTest {
      */
     @Test
     public void testIsExistBadArgument() {
-        assertThrows(NoObjectException.class, () -> computerDAO.isExist(-1L));
+        assertFalse(computerDAO.isExist(-1L));
     }
 
 }

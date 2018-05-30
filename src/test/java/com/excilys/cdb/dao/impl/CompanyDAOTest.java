@@ -1,11 +1,16 @@
 package com.excilys.cdb.dao.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +35,8 @@ public class CompanyDAOTest {
     @Autowired
     private ComputerDAO computerDAO;
 
+    private Company company;
+
     // @Rule
     // public final ExpectedException exception = ExpectedException.none();
 
@@ -37,6 +44,25 @@ public class CompanyDAOTest {
      * LOGGER.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyDAOTest.class);
+
+    /**
+     * Crée une company.
+     */
+    @BeforeEach
+    public void setUp() {
+        company = new Company();
+        company.setName("testCompany");
+    }
+
+    /**
+     * Met à null la company.
+     */
+    @AfterEach
+    public void tearDown() {
+        company = null;
+    }
+
+
 
     /**
      * Teste le cas normal de la fonction findById.
@@ -55,7 +81,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void testFindByIdBadId() {
-        assertThrows(NoObjectException.class, () -> companyDAO.findById(-1L).get());
+        assertEquals(Optional.empty(), companyDAO.findById(-1L));
     }
 
     /**
@@ -64,7 +90,7 @@ public class CompanyDAOTest {
     @Test
     public void testFindAll() {
         List<Company> list = companyDAO.findAll();
-        assertTrue(list.size() == 2);
+        assertTrue(list.size() == 3);
     }
 
     /**
@@ -76,7 +102,7 @@ public class CompanyDAOTest {
     public void testFindPerPage() throws InvalidCompanyException {
         Page<Company> page = companyDAO.findPerPage(0, 10);
         assertTrue(page.getMaxPage() == 1);
-        assertTrue(page.getResults().size() == 2);
+        assertTrue(page.getResults().size() == 3);
     }
 
     /**
@@ -114,8 +140,8 @@ public class CompanyDAOTest {
     @Test
     public void testDelete() throws NoObjectException {
         assertTrue(companyDAO.delete(2L));
-        assertThrows(NoObjectException.class, () -> computerDAO.findById(2L));
-        assertThrows(NoObjectException.class, () -> companyDAO.findById(2L));
+        assertEquals(Optional.empty(), computerDAO.findById(2L));
+        assertEquals(Optional.empty(), companyDAO.findById(2L));
     }
 
     /**
@@ -127,12 +153,21 @@ public class CompanyDAOTest {
     }
 
     /**
+     * Teste la fonction Delete quand l'id est negatif.
+     */
+    @Test
+    public void testDeleteNegativeId() {
+        assertFalse(companyDAO.delete(-1L));
+    }
+
+
+    /**
      * Teste la fonction Count.
      */
     @Test
     public void testCount() {
         int maxPage = companyDAO.count();
-        assertTrue(maxPage == 2);
+        assertTrue(maxPage == 3);
     }
 
     /**
@@ -151,7 +186,7 @@ public class CompanyDAOTest {
      */
     @Test
     public void testIsExistWithBadId() {
-        assertThrows(NoObjectException.class, () ->  companyDAO.isExist(100L));
+        assertFalse(companyDAO.isExist(100L));
     }
 
     /**
@@ -159,6 +194,86 @@ public class CompanyDAOTest {
      */
     @Test
     public void testIsExistBadArgument() {
-        assertThrows(NoObjectException.class, () ->  companyDAO.isExist(-1L));
+        assertFalse(companyDAO.isExist(-1L));
     }
+
+    /**
+     * Teste le cas normal de la fonction Add.
+     * @throws NoObjectException
+     *             Exception lancée quand un objet est null ou inexistant
+     */
+    @Test
+    public void testAdd() throws NoObjectException {
+        long id = companyDAO.add(company);
+        assertTrue(id == 3);
+    }
+
+    /**
+     * Teste la fonction Add avec un argument null.
+     * @throws NoObjectException
+     *             Exception lancée quand un objet null
+     */
+    @Test
+    public void testAddNull() throws NoObjectException {
+        assertThrows(NoObjectException.class, () -> companyDAO.add(null));
+
+    }
+
+    /**
+     * Teste la fonction Add avec un argument possédent un id.
+     * @throws NoObjectException
+     *             Exception lancée quand un objet est null ou inexistant
+     */
+    @Test
+    public void testAddWithId() throws NoObjectException {
+        company.setId(1L);
+        long id = companyDAO.add(company);
+        assertTrue(id == 4);
+    }
+
+    /**
+     * Teste la cas normal de la fonction Update.
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdate() throws NoObjectException {
+        company.setId(3L);
+        company.setName("testUpdate");
+        Company company2 = companyDAO.update(company).get();
+        assertTrue(company2.equals(company));
+    }
+
+    /**
+     * Teste la fonction Update sur une company avec un id inexistant.
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateWithInexistantId() throws NoObjectException {
+        company.setId(700L);
+        assertThrows(NoSuchElementException.class, () -> companyDAO.update(company).get());
+    }
+
+    /**
+     * Teste la fonction Update sur une company avec un id zero.
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateWithIdZero() throws NoObjectException {
+        company.setId(0L);
+        assertEquals(Optional.empty(), companyDAO.update(company));
+    }
+
+    /**
+     * Teste la fonction Update quand la company est null.
+     * @throws NoObjectException
+     *             Exception lancé quand un objet est null ou inexistant
+     */
+    @Test
+    public void testUpdateNull()  {
+        assertThrows(NoObjectException.class, () -> companyDAO.update(null));
+    }
+
 }
