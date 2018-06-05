@@ -1,5 +1,7 @@
 package com.excilys.cdb.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+
 import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +9,17 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -64,6 +71,7 @@ public class ComputerController {
     private static final String EDITCOMPUTER_JSP = "editComputer";
     private static final String ERROR_404_JSP = "404";
     private static final String REDIRECT_DASHBOARD = "redirect:/computer";
+    private static final String LOGIN_JSP = "login";
 
     /**
      * Attributs des jsp.
@@ -94,6 +102,7 @@ public class ComputerController {
     private static final String MAPPING_ADD = "/add";
     private static final String MAPPING_DELETE = "/delete";
     private static final String MAPPING_EDIT = "/{" + PARAM_ID + "}";
+    private static final String MAPPING_LOGOUT = "/logout";
 
     /**
      * Textes internationalisés.
@@ -122,7 +131,17 @@ public class ComputerController {
         this.companyService = companyService;
         this.messageSource = messageSource;
     }
+    
+    @PostMapping("")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	if(authentication != null) {
+    		new SecurityContextLogoutHandler().logout(request, response, authentication);
+    	}
+    	return LOGIN_JSP;
+    }
 
+    
     /**
      * Permet d'afficher la page voulue avec la liste des computers recherchés.
      * @param search

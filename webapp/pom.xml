@@ -21,6 +21,7 @@
 		<servlet.version>3.1.0</servlet.version>
 		<jstl.version>1.2</jstl.version>
 		<jsp.version>2.3.1</jsp.version>
+		<spring-security.version>5.0.5.RELEASE</spring-security.version>
 	</properties>
 
 	<dependencies>
@@ -49,6 +50,12 @@
 			<artifactId>javax.servlet.jsp-api</artifactId>
 			<version>${jsp.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring-security.version}</version>
 		</dependency>
 
 	</dependencies>

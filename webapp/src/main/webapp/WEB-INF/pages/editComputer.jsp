@@ -12,15 +12,18 @@
 <c:set var="currentPath" value="${pageContext.request.contextPath}"></c:set>
 
 <!-- Bootstrap -->
-<link href="${currentPath}/css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="${currentPath}/css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="${currentPath}/css/main.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="/cdb/computer"><spring:message code="application.title" /> </a>
+		<a class="navbar-brand" href="${currentPath}/computer"><spring:message code="application.title" /> </a>
 	</div>
+	<form action="${currentPath}/logout" method="post">
+		<input value="Logout" type="submit">
+	</form>
 	</header>
 	<section id="main">
 	<div class="container">
@@ -89,8 +92,8 @@
 		</div>
 	</div>
 	</section>
-	<script src="${currentPath}/js/jquery.min.js"></script>
-	<script src="${currentPath}/js/bootstrap.min.js"></script>
-	<script src="${currentPath}/js/validation.js"></script>
+	<script src="${currentPath}/resources/js/jquery.min.js"></script>
+	<script src="${currentPath}/resources/js/bootstrap.min.js"></script>
+	<script src="${currentPath}/resources/js/validation.js"></script>
 </body>
 </html>

@@ -14,21 +14,30 @@
 <c:set var="currentPath" value="${pageContext.request.contextPath}"></c:set>
 
 <!-- Bootstrap -->
-<link href="${currentPath}/css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="${currentPath}/css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="${currentPath}/css/main.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/bootstrap.min.css"
+	rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/font-awesome.css"
+	rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/main.css" rel="stylesheet"
+	media="screen">
 </head>
 <body>
 	<!-- <p>${fn:length(page)}</p> -->
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="${currentPath}/computer"> <spring:message code="application.title" /></a>
+		<a class="navbar-brand" href="${currentPath}/computer"> <spring:message
+				code="application.title" /></a>
+		<form action="logout" method="post">
+		<input class="btn btn-link navbar-brand navbar-right" value="Logout" type="submit">
+	</form>
 	</div>
 	</header>
 
 	<section id="main">
 	<div class="container">
-		<h1 id="homeTitle">${nbComputers}&nbsp<spring:message code="dashboard.text.found"/></h1>
+		<h1 id="homeTitle">${nbComputers}&nbsp<spring:message
+				code="dashboard.text.found" />
+		</h1>
 		<div id="actions" class="form-horizontal">
 			<div class="pull-left">
 				<form id="searchForm" action="computer" method="GET"
@@ -41,14 +50,18 @@
 				</form>
 			</div>
 			<div class="pull-right">
-				<a class="btn btn-success" id="addComputer" href="${currentPath}/computer/add"><spring:message code="dashboard.button.add"/></a> <a class="btn btn-default" id="editComputer" href="#"
-					onclick="$.fn.toggleEditMode();"><spring:message code="dashboard.button.edit"/></a>
+				<a class="btn btn-success" id="addComputer"
+					href="${currentPath}/computer/add"><spring:message
+						code="dashboard.button.add" /></a> <a class="btn btn-default"
+					id="editComputer" href="#" onclick="$.fn.toggleEditMode();"><spring:message
+						code="dashboard.button.edit" /></a>
 			</div>
 		</div>
 	</div>
 
-	<form id="deleteForm" action="${currentPath}/computer/delete" method="POST">
-		<input type="hidden" name="selection" id="selection" value=""/>
+	<form id="deleteForm" action="${currentPath}/computer/delete"
+		method="POST">
+		<input type="hidden" name="selection" id="selection" value="" />
 	</form>
 
 	<div class="container" style="margin-top: 10px;">
@@ -65,12 +78,12 @@
 								class="fa fa-trash-o fa-lg" id="trash"></i>
 						</a>
 					</span></th>
-					<th><spring:message code="label.text.computerName"/></th>
-					<th><spring:message code="label.text.introduced"/></th>
+					<th><spring:message code="label.text.computerName" /></th>
+					<th><spring:message code="label.text.introduced" /></th>
 					<!-- Table header for Discontinued Date -->
-					<th><spring:message code="label.text.discontinued"/></th>
+					<th><spring:message code="label.text.discontinued" /></th>
 					<!-- Table header for Company -->
-					<th><spring:message code="label.text.company"/></th>
+					<th><spring:message code="label.text.company" /></th>
 
 				</tr>
 			</thead>
@@ -78,8 +91,8 @@
 			<tbody id="results">
 				<c:forEach items="${page}" var="computer">
 					<tr>
-						<td class="editMode"><input type="checkbox" name="cb" id="name"
-							class="cb" value="${computer.id}"></td>
+						<td class="editMode"><input type="checkbox" name="cb"
+							id="name" class="cb" value="${computer.id}"></td>
 						<td><a href="computer/${computer.id}" onclick="">${computer.name}</a></td>
 						<td>${computer.introduced}</td>
 						<td>${computer.discontinued}</td>
@@ -107,8 +120,8 @@
 		</div>
 	</div>
 	</footer>
-	<script src="${currentPath}/js/jquery.min.js"></script>
-	<script src="${currentPath}/js/bootstrap.min.js"></script>
-	<script src="${currentPath}/js/dashboard.js"></script>
+	<script src="${currentPath}/resources/js/jquery.min.js"></script>
+	<script src="${currentPath}/resources/js/bootstrap.min.js"></script>
+	<script src="${currentPath}/resources/js/dashboard.js"></script>
 </body>
 </html>

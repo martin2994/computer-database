@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
@@ -21,24 +22,13 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "com.excilys.cdb.controller", "com.excilys.cdb.services", "com.excilys.cdb.dao.impl"  })
+@ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controller", "com.excilys.cdb.services" })
 public class SpringConfigurationWeb implements WebMvcConfigurer {
 
     /**
      * LOGGER.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigurationWeb.class);
-    
-    /**
-     * Permet d'injecter la sessionFacotry pour les DAO.
-     * @return la sessionFactory
-     */
-    @Bean
-    public SessionFactory sessionFactory() {
-        SessionFactory sessionFactory = new org.hibernate.cfg.Configuration().configure().buildSessionFactory();
-        LOGGER.debug(sessionFactory.getProperties().toString());
-        return sessionFactory;
-    }
     
     /**
      * Initialise le matching des vues.
@@ -53,10 +43,15 @@ public class SpringConfigurationWeb implements WebMvcConfigurer {
 
         return viewResolver;
     }
-
+    
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**").addResourceLocations("/");
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+      registry.addViewController("/login").setViewName("login");
     }
 
     /**
