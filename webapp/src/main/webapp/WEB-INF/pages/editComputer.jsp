@@ -19,11 +19,12 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="${currentPath}/computer"><spring:message code="application.title" /> </a>
-	</div>
-	<form action="${currentPath}/logout" method="post">
-		<input value="Logout" type="submit">
+		<a class="navbar-brand" href="${currentPath}/computer"> <spring:message
+				code="application.title" /></a>
+		<form action="${currentPath}/logout" method="post">
+		<input class="btn btn-link navbar-brand navbar-right" value="Logout" type="submit">
 	</form>
+	</div>
 	</header>
 	<section id="main">
 	<div class="container">

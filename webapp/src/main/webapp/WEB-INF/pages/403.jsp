@@ -8,11 +8,11 @@
 <c:set var="currentPath" value="${pageContext.request.contextPath}"></c:set>
 
 <!-- Bootstrap -->
-<link href="${currentPath}/css/bootstrap.min.css" rel="stylesheet"
+<link href="${currentPath}/resources/css/bootstrap.min.css" rel="stylesheet"
 	media="screen">
-<link href="${currentPath}/css/font-awesome.css" rel="stylesheet"
+<link href="${currentPath}/resources/css/font-awesome.css" rel="stylesheet"
 	media="screen">
-<link href="${currentPath}/css/main.css" rel="stylesheet" media="screen">
+<link href="${currentPath}/resources/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -32,9 +32,9 @@
 		</div>
 	</section>
 
-	<script src="${currentPath}/js/jquery.min.js"></script>
-	<script src="${currentPath}/js/bootstrap.min.js"></script>
-	<script src="${currentPath}/js/dashboard.js"></script>
+	<script src="${currentPath}/resources/js/jquery.min.js"></script>
+	<script src="${currentPath}/resources/js/bootstrap.min.js"></script>
+	<script src="${currentPath}/resources/js/dashboard.js"></script>
 
 </body>
 </html>
