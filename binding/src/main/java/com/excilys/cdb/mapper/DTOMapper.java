@@ -36,15 +36,15 @@ public class DTOMapper {
             id = computerDTO.getId();
         }
         LocalDate introducedDate = null;
-        if (!computerDTO.getIntroduced().isEmpty()) {
+        if (computerDTO.getIntroduced() != null && !computerDTO.getIntroduced().isEmpty()) {
             introducedDate = LocalDate.parse(computerDTO.getIntroduced());
         }
         LocalDate discontinuedDate = null;
-        if (!computerDTO.getDiscontinued().isEmpty()) {
+        if (computerDTO.getDiscontinued() != null && !computerDTO.getDiscontinued().isEmpty()) {
             discontinuedDate = LocalDate.parse(computerDTO.getDiscontinued());
         }
         Company company = null;
-        if (computerDTO.getManufacturerId() != 0) {
+        if (computerDTO.getManufacturer() != null && computerDTO.getManufacturerId() != 0) {
             company = new Company();
             company.setId(computerDTO.getManufacturerId());
         }

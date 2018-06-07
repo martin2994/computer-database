@@ -34,7 +34,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.formLogin().defaultSuccessUrl("/computer", true).and().authorizeRequests().antMatchers("/resources/css/**")
-				.permitAll().and().authorizeRequests().anyRequest().hasAnyRole("ADMIN", "USER").and()
+				.permitAll().and()
+				.authorizeRequests().antMatchers("/computer/").access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')").and()
 				.authorizeRequests().antMatchers("/login**").permitAll().and().formLogin().loginPage("/login")
 				.loginProcessingUrl("/loginAction").permitAll().and().logout().logoutSuccessUrl("/login").permitAll()
 				.and().csrf().disable().sessionManagement().maximumSessions(1).expiredUrl("/login");

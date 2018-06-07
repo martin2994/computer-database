@@ -13,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -34,6 +36,8 @@ import com.excilys.cdb.services.CompanyService;
 import com.excilys.cdb.services.ComputerService;
 
 @Controller
+@Secured("ADMIN")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/computer")
 public class ComputerController {
 
@@ -136,6 +140,7 @@ public class ComputerController {
      * @return la jsp affichée
      */
     @GetMapping
+    @Secured("USER")
     public String computerPage(
             @RequestParam(value = PARAM_SEARCH, required = false, defaultValue = SEARCH) String search,
             @RequestParam(value = PARAM_PAGE, required = false, defaultValue = CURRENT_PAGE) int nbPage,

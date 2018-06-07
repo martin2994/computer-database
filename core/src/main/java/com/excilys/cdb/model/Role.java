@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "role")
@@ -16,7 +17,7 @@ public class Role {
 	private String authority;
 
 	@ManyToOne
-	@JoinColumn(name = "username")
+	@JoinColumn(name="username")
 	private User user;
 
 	public String getAuthority() {

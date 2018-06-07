@@ -1,11 +1,13 @@
 package com.excilys.cdb.services;
 
 import org.springframework.security.core.userdetails.User.UserBuilder;
+
+import java.util.Arrays;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.cdb.dao.impl.UserDAO;
 import com.excilys.cdb.model.User;
@@ -28,7 +30,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 			builder.disabled(!user.isEnabled());
 			builder.password(user.getPassword());
 			String[] authorities = user.getAuthorities().stream().map(a -> a.getAuthority()).toArray(String[]::new);
-
+			System.out.println(Arrays.toString(authorities));
 			builder.authorities(authorities);
 		} else {
 			throw new UsernameNotFoundException("User not found.");
