@@ -86,5 +86,10 @@ public class CompanyController {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
 		}
 	}
+	
+	@GetMapping("/count")
+	public ResponseEntity<Integer> countCompanies(){
+		return new ResponseEntity<>(companyService.getCountCompanies(), HttpStatus.OK);
+	}
 
 }

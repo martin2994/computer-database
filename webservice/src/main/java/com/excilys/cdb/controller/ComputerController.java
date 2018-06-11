@@ -57,7 +57,7 @@ public class ComputerController {
 		}
 	}
 	
-	@GetMapping("{search}")
+	@GetMapping(params = "search")
 	public ResponseEntity<Collection<ComputerDTO>> getListComputer(
 			@RequestParam(name = "search", defaultValue = "") String search,
 			@RequestParam(name = "page", defaultValue = "0") int page,

@@ -150,4 +150,12 @@ public class ComputerDTO {
         return true;
     }
 
+	@Override
+	public String toString() {
+		return "ComputerDTO [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued="
+				+ discontinued + ", manufacturer=" + manufacturer + "]";
+	}
+    
+    
+
 }

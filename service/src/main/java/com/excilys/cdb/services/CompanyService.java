@@ -96,5 +96,13 @@ public class CompanyService {
         }
         return result;
     }
+    
+    /**
+     * Permet d'avoir le nombre de companies.
+     * @return le nombre de companies
+     */
+    public int getCountCompanies() {
+        return companyDAO.count();
+    }
 
 }
