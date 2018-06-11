@@ -1,6 +1,6 @@
-package com.excilys.cdb.exceptions.computer;
+package com.excilys.cdb.exceptions;
 
-public class InvalidIdException extends InvalidComputerException {
+public class InvalidIdException extends Exception {
 
     /**
      * ID.

@@ -16,10 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.ExceptionMessage;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
 
 @RestController
@@ -34,15 +41,11 @@ public class CompanyController {
 		this.companyService = companyService;
 	}
 
-	@GetMapping(params= {"page", "resultPerPage"})
+	@GetMapping(params = { "page", "resultPerPage" })
 	public ResponseEntity<Collection<Company>> getCompanieSPage(@RequestParam(name = "page", required = true) int page,
-			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) {
-		try {
-			List<Company> companies = companyService.getCompanies(page, resultPerPage).getResults();
-			return new ResponseEntity<>(companies, HttpStatus.OK);
-		} catch (InvalidCompanyException e) {
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-		}
+			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidCompanyException {
+		List<Company> companies = companyService.getCompanies(page, resultPerPage).getResults();
+		return new ResponseEntity<>(companies, HttpStatus.OK);
 	}
 
 	@GetMapping
@@ -52,43 +55,47 @@ public class CompanyController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Company> getCompany(@PathVariable("id") Long id) {
+	public ResponseEntity<Company> getCompany(@PathVariable("id") Long id)
+			throws InvalidCompanyException, NoObjectException, InvalidIdException {
 		Company company;
-		try {
-			company = companyService.getCompany(id);
-			LOGGER.debug(company.toString());
-			return new ResponseEntity<>(company, HttpStatus.OK);
-		} catch (InvalidCompanyException | NoObjectException e) {
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-		}
+		company = companyService.getCompany(id);
+		LOGGER.debug(company.toString());
+		return new ResponseEntity<>(company, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<Void> addCompany(@RequestBody Company company) {
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<Void> addCompany(@RequestBody Company company, UriComponentsBuilder ucb)
+			throws InvalidCompanyException, NoObjectException {
+		long idNewCompany = companyService.createCompany(company);
+		if (idNewCompany > 0) {
+			UriComponents uriComponents = ucb.path("/{id}").buildAndExpand(idNewCompany);
+			return ResponseEntity.created(uriComponents.toUri()).build();
+		}
+		return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Company> updateCompany(@PathVariable("id") Long id, @RequestBody Company company) {
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<Company> updateCompany(@PathVariable("id") Long id, @RequestBody Company company)
+			throws InvalidCompanyException, NoObjectException, InvalidIdException {
+		if(id != company.getId()) {
+			throw new InvalidIdException(ExceptionMessage.INVALID_ID.getMessage());
+		}
+		Company companyUpdate = companyService.updateCompany(company);
+		return new ResponseEntity<>(companyUpdate, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteCompany(@PathVariable("id") Long id) {
-		try {
-			if (companyService.deleteCompany(id)) {
-				return new ResponseEntity<>(HttpStatus.OK);
-			} else {
-				return ResponseEntity.notFound().build();
-			}
-		} catch (InvalidCompanyException e) {
-			LOGGER.debug(e.toString());
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+	public ResponseEntity<Void> deleteCompany(@PathVariable("id") Long id) throws InvalidCompanyException {
+		if (companyService.deleteCompany(id)) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+			return ResponseEntity.noContent().build();
 		}
 	}
-	
+
 	@GetMapping("/count")
-	public ResponseEntity<Integer> countCompanies(){
+	public ResponseEntity<Integer> countCompanies() {
 		return new ResponseEntity<>(companyService.getCountCompanies(), HttpStatus.OK);
 	}
 

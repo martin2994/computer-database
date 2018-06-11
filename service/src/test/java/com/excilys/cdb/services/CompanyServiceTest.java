@@ -27,9 +27,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.excilys.cdb.SpringTestConfigurationService;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
-import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.utils.Page;
 
@@ -131,9 +131,10 @@ public class CompanyServiceTest {
      *             Exception lancée quand la company n'est pas valide
      * @throws NoObjectException
      *              Exception lancée quand la requete echoue (pas de resultat)
+     * @throws InvalidIdException 
      */
     @Test
-    public void testGetCompany() throws InvalidCompanyException, NoObjectException {
+    public void testGetCompany() throws InvalidCompanyException, NoObjectException, InvalidIdException {
         Mockito.when(companyDAO.findById(1L)).thenReturn(Optional.ofNullable(company));
         assertTrue("test".equals(companyService.getCompany(1L).getName()));
         Mockito.verify(companyDAO).findById(1L);
@@ -144,9 +145,10 @@ public class CompanyServiceTest {
      * @throws NoObjectException 
      * @throws InvalidCompanyException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testGetCompanyWithBadId() throws InvalidCompanyException, NoObjectException {
+    public void testGetCompanyWithBadId() throws InvalidCompanyException, NoObjectException, InvalidIdException {
     	exception.expect(InvalidCompanyException.class);
         companyServiceBean.getCompany(-1L);
     }

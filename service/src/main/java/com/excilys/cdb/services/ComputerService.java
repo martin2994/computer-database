@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
 import com.excilys.cdb.exceptions.ExceptionMessage;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
-import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.ComputerValidator;
@@ -98,10 +98,11 @@ public class ComputerService {
      *             Exception sur les computers
      * @throws NoObjectException
      *             Exception lancée quand la requete echoue ( pas de resultat)
+     * @throws InvalidIdException 
      */
-    public Computer getComputerDetails(long id) throws InvalidComputerException, NoObjectException {
+    public Computer getComputerDetails(long id) throws NoObjectException, InvalidIdException {
         ComputerValidator.isValidId(id);
-        return computerDAO.findById(id).orElseThrow(() -> new InvalidComputerException(ExceptionMessage.INVALID_ID.getMessage()));
+        return computerDAO.findById(id).orElseThrow(() -> new InvalidIdException(ExceptionMessage.INVALID_ID.getMessage()));
     }
 
     /**
@@ -113,8 +114,9 @@ public class ComputerService {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidCompanyException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
-    public long createComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException {
+    public long createComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         long result = 0;
         try {
             ComputerValidator.isValidComputer(computer);
@@ -141,13 +143,14 @@ public class ComputerService {
      *             Exception sur les computers
      * @throws InvalidCompanyException
      *             Exception sur les companies
+     * @throws InvalidIdException 
      */
-    public Computer updateComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException {
+    public Computer updateComputer(Computer computer) throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         try {
             ComputerValidator.isValidComputer(computer);
             if (!computerDAO.isExist(computer.getId())) {
                 LOGGER.info("INVALID COMPUTER FOR UPDATE");
-                throw new InvalidComputerException(ExceptionMessage.NO_COMPUTER.getMessage());
+                throw new InvalidIdException(ExceptionMessage.NO_COMPUTER.getMessage());
             }
             if (computer.getManufacturer() != null) {
                 if (!companyDAO.isExist(computer.getManufacturer().getId())) {

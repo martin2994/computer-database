@@ -28,11 +28,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.excilys.cdb.SpringTestConfigurationService;
 import com.excilys.cdb.dao.impl.CompanyDAO;
 import com.excilys.cdb.dao.impl.ComputerDAO;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidDateException;
-import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
@@ -153,9 +153,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws NoObjectException
      *              Exception lancée quand la requete échoue
+     * @throws InvalidIdException 
      */
     @Test
-    public void testGetComputerDetails() throws InvalidComputerException, NoObjectException {
+    public void testGetComputerDetails() throws InvalidComputerException, NoObjectException, InvalidIdException {
         Mockito.when(computerDAO.findById(1L)).thenReturn(Optional.ofNullable(computer));
         assertTrue("test".equals(computerService.getComputerDetails(1L).getName()));
         Mockito.verify(computerDAO).findById(1L);
@@ -166,9 +167,10 @@ public class ComputerServiceTest {
      * @throws InvalidComputerException
      *             Exception lancée quand le computer n'est pas valide
      * @throws NoObjectException 
+     * @throws InvalidIdException 
      */
     @Test
-    public void testGetComputerWithBadId() throws InvalidComputerException, NoObjectException {
+    public void testGetComputerWithBadId() throws InvalidComputerException, NoObjectException, InvalidIdException {
     	exception.expect(InvalidIdException.class);
         computerServiceBean.getComputerDetails(-1L);
     }
@@ -181,9 +183,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand les infos du computer sont invalides
      * @throws InvalidCompanyException
      *             Exception lancée quand la company est invalide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testCreateComputer() throws NoObjectException, InvalidComputerException, InvalidCompanyException {
+    public void testCreateComputer() throws NoObjectException, InvalidComputerException, InvalidCompanyException, InvalidIdException {
         Mockito.when(computerDAO.add(computer)).thenReturn(1L);
         assertTrue(computerService.createComputer(computer) == 1L);
         Mockito.verify(computerDAO).add(computer);
@@ -195,9 +198,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand les infos du computer sont invalides
      * @throws InvalidCompanyException
      *             Exception lancée quand la company est invalide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testCreateComputerNull() throws InvalidComputerException, InvalidCompanyException {
+    public void testCreateComputerNull() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
     	exception.expect(InvalidComputerException.class);
         computerServiceBean.createComputer(null);
     }
@@ -208,9 +212,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand les infos du computer sont invalides
      * @throws InvalidCompanyException
      *             Exception lancée quand la company est invalide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testCreateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
+    public void testCreateComputerNameNull() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setName(null);
     	exception.expect(InvalidComputerException.class);
         computerServiceBean.createComputer(computer);
@@ -224,9 +229,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand la company est invalide
      * @throws NoObjectException
      *              Exception lancée quand la requete echoue (pas de resultat)
+     * @throws InvalidIdException 
      */
     @Test
-    public void testCreateComputerBadCompany() throws InvalidComputerException, InvalidCompanyException, NoObjectException {
+    public void testCreateComputerBadCompany() throws InvalidComputerException, InvalidCompanyException, NoObjectException, InvalidIdException {
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(companyDAO.isExist(60L)).thenReturn(false);
     	exception.expect(InvalidCompanyException.class);
@@ -240,9 +246,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand les infos du computer sont invalides
      * @throws InvalidCompanyException
      *             Exception lancée quand la company est invalide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testCreateComputerBadDates() throws InvalidComputerException, InvalidCompanyException {
+    public void testCreateComputerBadDates() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
     	exception.expect(InvalidDateException.class);
@@ -257,10 +264,11 @@ public class ComputerServiceTest {
      *             Exception lancée quand les infos du computer sont invalides
      * @throws InvalidCompanyException
      *             Exception lancée quand la company est invalide
+     * @throws InvalidIdException 
      */
     @Test
     public void testCreateComputerExceptionNoObject()
-            throws NoObjectException, InvalidComputerException, InvalidCompanyException {
+            throws NoObjectException, InvalidComputerException, InvalidCompanyException, InvalidIdException {
         Mockito.when(computerDAO.add(computer)).thenThrow(NoObjectException.class);
     	exception.expect(InvalidComputerException.class);
         computerService.createComputer(computer);
@@ -275,9 +283,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidComputerException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputer() throws NoObjectException, InvalidComputerException, InvalidCompanyException {
+    public void testUpdateComputer() throws NoObjectException, InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
         Mockito.when(computerDAO.update(computer)).thenReturn(Optional.ofNullable(computer));
@@ -292,9 +301,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidComputerException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputerNull() throws InvalidComputerException, InvalidCompanyException {
+    public void testUpdateComputerNull() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
     	exception.expect(InvalidComputerException.class);
         computerServiceBean.updateComputer(null);
     }
@@ -305,9 +315,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidComputerException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputerNameNull() throws InvalidComputerException, InvalidCompanyException {
+    public void testUpdateComputerNameNull() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setId(1L);
         computer.setName(null);
     	exception.expect(InvalidComputerException.class);
@@ -322,9 +333,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand la company n'est pas valide
      * @throws NoObjectException
      *              Exception lancée quand la requete echoue ( pas de resultat)
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputerBadCompany() throws InvalidComputerException, InvalidCompanyException, NoObjectException {
+    public void testUpdateComputerBadCompany() throws InvalidComputerException, InvalidCompanyException, NoObjectException, InvalidIdException {
         computer.setId(1L);
         computer.setManufacturer(new Company(60L, null));
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);
@@ -343,9 +355,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand la company n'est pas valide
      * @throws NoObjectException
      *              Exception lancée quand la requete echoue ( pas de resultat)
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputerBadId() throws InvalidComputerException, InvalidCompanyException, NoObjectException {
+    public void testUpdateComputerBadId() throws InvalidComputerException, InvalidCompanyException, NoObjectException, InvalidIdException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(false);
     	exception.expect(InvalidComputerException.class);
@@ -359,9 +372,10 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidComputerException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
-    public void testUpdateComputerBadDates() throws InvalidComputerException, InvalidCompanyException {
+    public void testUpdateComputerBadDates() throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setId(1L);
         computer.setIntroduced(LocalDate.of(2020, 1, 1));
         computer.setDiscontinued(LocalDate.of(2010, 1, 1));
@@ -377,10 +391,11 @@ public class ComputerServiceTest {
      *             Exception lancée quand le computer n'est pas valide
      * @throws InvalidComputerException
      *             Exception lancée quand la company n'est pas valide
+     * @throws InvalidIdException 
      */
     @Test
     public void testUpdateComputerExceptionNoObject()
-            throws NoObjectException, InvalidComputerException, InvalidCompanyException {
+            throws NoObjectException, InvalidComputerException, InvalidCompanyException, InvalidIdException {
         computer.setId(1L);
         Mockito.when(computerDAO.update(computer)).thenThrow(NoObjectException.class);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(true);

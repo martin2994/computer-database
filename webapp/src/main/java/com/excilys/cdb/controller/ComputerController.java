@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
@@ -226,7 +227,7 @@ public class ComputerController {
                 long id = computerService.createComputer(computer);
                 message = messageSource.getMessage(TEXT_CREATED, new Object[] {id }, locale);
                 model.addAttribute(ATTRIBUT_MESSAGE, message);
-            } catch (InvalidComputerException | InvalidCompanyException e) {
+            } catch (InvalidComputerException | InvalidIdException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
                 message = messageSource.getMessage(TEXT_ERROR_DATE, null, locale);
@@ -255,7 +256,7 @@ public class ComputerController {
         try {
             ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
             model.addAttribute(ATTRIBUT_INFO_COMPUTER, computerDTO);
-        } catch (NoObjectException | InvalidComputerException e) {
+        } catch (NoObjectException | InvalidIdException e) {
             LOGGER.debug(e.getMessage());
             jsp = ERROR_404_JSP;
         }
@@ -286,7 +287,7 @@ public class ComputerController {
                 computerDTO = DTOMapper.fromComputer(computerService.updateComputer(computer));
                 message = messageSource.getMessage(TEXT_UPDATED, null, locale);
                 model.addAttribute(ATTRIBUT_MESSAGE, message);
-            } catch (InvalidComputerException | InvalidCompanyException e) {
+            } catch (InvalidComputerException | InvalidIdException | InvalidCompanyException e) {
                 erreur = e.getMessage();
             } catch (DateTimeException e) {
                 message = messageSource.getMessage(TEXT_ERROR_DATE, null, locale);

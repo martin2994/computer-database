@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerNameException;
 import com.excilys.cdb.exceptions.computer.InvalidDateException;
-import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.model.Computer;
 
 public class ComputerValidator {
@@ -44,8 +44,10 @@ public class ComputerValidator {
      *            le computer à vérifier
      * @throws InvalidComputerException
      *             Exception sur les computers
+     * @throws InvalidIdException 
+     * 				Excpetion sur les ids
      */
-    public static void isValidComputer(Computer computer) throws InvalidComputerException {
+    public static void isValidComputer(Computer computer) throws InvalidComputerException, InvalidIdException {
         if (computer == null) {
             throw new InvalidComputerException("Il n'y a pas de computer.");
         }

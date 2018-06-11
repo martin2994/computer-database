@@ -22,10 +22,11 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.exceptions.ExceptionMessage;
+import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
-import com.excilys.cdb.exceptions.computer.InvalidIdException;
 import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.ComputerService;
@@ -46,104 +47,84 @@ public class ComputerController {
 	@GetMapping
 	public ResponseEntity<Collection<ComputerDTO>> getListComputer(
 			@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "resultPerPage", defaultValue = "10") int resultPerPage) {
-		try {
-			Page<Computer> pageComputer = computerService.getComputers(page, resultPerPage);
-			List<ComputerDTO> list_computers = pageComputer.getResults().stream()
-					.map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
-			return new ResponseEntity<>(list_computers, HttpStatus.OK);
-		} catch (InvalidComputerException e) {
-			return ResponseEntity.notFound().build();
-		}
+			@RequestParam(name = "resultPerPage", defaultValue = "10") int resultPerPage)
+			throws InvalidComputerException {
+		Page<Computer> pageComputer = computerService.getComputers(page, resultPerPage);
+		List<ComputerDTO> list_computers = pageComputer.getResults().stream()
+				.map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
+		return new ResponseEntity<>(list_computers, HttpStatus.OK);
 	}
-	
+
 	@GetMapping(params = "search")
 	public ResponseEntity<Collection<ComputerDTO>> getListComputer(
 			@RequestParam(name = "search", defaultValue = "") String search,
 			@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "resultPerPage", defaultValue = "10") int resultPerPage) {
-		try {
-			Page<Computer> pageComputer = computerService.getComputersByName(search, page, resultPerPage);
-			List<ComputerDTO> list_computers = pageComputer.getResults().stream()
-					.map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
-			return new ResponseEntity<>(list_computers, HttpStatus.OK);
-		} catch (InvalidComputerException e) {
-			return ResponseEntity.notFound().build();
-		}
+			@RequestParam(name = "resultPerPage", defaultValue = "10") int resultPerPage)
+			throws InvalidComputerException {
+		Page<Computer> pageComputer = computerService.getComputersByName(search, page, resultPerPage);
+		List<ComputerDTO> list_computers = pageComputer.getResults().stream()
+				.map(computers -> DTOMapper.fromComputer(computers)).collect(Collectors.toList());
+		return new ResponseEntity<>(list_computers, HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ComputerDTO> getComputer(@PathVariable("id") Long id) {
-		try {
-			ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
-			return new ResponseEntity<>(computerDTO, HttpStatus.OK);
-		} catch (InvalidComputerException | NoObjectException e) {
-			return ResponseEntity.notFound().build();
-		}
+	public ResponseEntity<ComputerDTO> getComputer(@PathVariable("id") Long id)
+			throws NoObjectException, InvalidIdException {
+		ComputerDTO computerDTO = DTOMapper.fromComputer(computerService.getComputerDetails(id));
+		return new ResponseEntity<>(computerDTO, HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<Void> addComputer(@RequestBody ComputerDTO computerDTO, UriComponentsBuilder ucb) {
+	public ResponseEntity<Void> addComputer(@RequestBody ComputerDTO computerDTO, UriComponentsBuilder ucb)
+			throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
 		Computer computer = DTOMapper.toComputer(computerDTO);
-		try {
-			long idNewComputer = computerService.createComputer(computer);
-			if (idNewComputer > 0) {
-				UriComponents uriComponents = ucb.path("/{id}").buildAndExpand(idNewComputer);
-				return ResponseEntity.created(uriComponents.toUri()).build();
-			}
-		} catch (InvalidComputerException | InvalidCompanyException e) {
-			LOGGER.debug(e.toString());
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+		long idNewComputer = computerService.createComputer(computer);
+		if (idNewComputer > 0) {
+			UriComponents uriComponents = ucb.path("/{id}").buildAndExpand(idNewComputer);
+			return ResponseEntity.created(uriComponents.toUri()).build();
 		}
 		return ResponseEntity.status(HttpStatus.CONFLICT).build();
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") Long id, @RequestBody ComputerDTO computerDTO) {
-		Computer computer = DTOMapper.toComputer(computerDTO);
-		try {
-			ComputerDTO computerUpdate = DTOMapper.fromComputer(computerService.updateComputer(computer));
-			return new ResponseEntity<>(computerUpdate,HttpStatus.OK);
-		} catch (InvalidComputerException | InvalidCompanyException e) {
-			LOGGER.debug(e.toString());
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+	public ResponseEntity<ComputerDTO> updateComputer(@PathVariable("id") Long id, @RequestBody ComputerDTO computerDTO)
+			throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
+		if (id != computerDTO.getId()) {
+			throw new InvalidIdException(ExceptionMessage.INVALID_ID.getMessage());
 		}
+		Computer computer = DTOMapper.toComputer(computerDTO);
+		ComputerDTO computerUpdate = DTOMapper.fromComputer(computerService.updateComputer(computer));
+		return new ResponseEntity<>(computerUpdate, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteComputer(@PathVariable("id") Long id) {
-		try {
-			if(computerService.deleteComputer(id)) {
-				return ResponseEntity.ok().build();
-			}else {
-				return ResponseEntity.notFound().build();
-			}
-		} catch (InvalidIdException e) {
-			LOGGER.debug(e.toString());
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+	public ResponseEntity<Void> deleteComputer(@PathVariable("id") Long id) throws InvalidIdException {
+		if (computerService.deleteComputer(id)) {
+			return ResponseEntity.ok().build();
+		} else {
+			return ResponseEntity.noContent().build();
 		}
+
 	}
-	
+
 	@DeleteMapping
 	public ResponseEntity<Void> deleteComputers(@RequestBody Collection<Long> idList) {
 		Set<Long> ids = idList.stream().collect(Collectors.toSet());
-		if(computerService.deleteComputerList(ids)) {
+		if (computerService.deleteComputerList(ids)) {
 			return ResponseEntity.ok().build();
-		}else {
-			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.noContent().build();
 		}
 	}
-	
-	
-	@GetMapping(value="/count", params = "search")
-	public ResponseEntity<Integer> countComputerSearch(@RequestParam(name="search") String search){
+
+	@GetMapping(value = "/count", params = "search")
+	public ResponseEntity<Integer> countComputerSearch(@RequestParam(name = "search") String search) {
 		return new ResponseEntity<>(computerService.getCountComputersByName(search), HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/count")
-	public ResponseEntity<Integer> countComputer(){
+	public ResponseEntity<Integer> countComputer() {
 		return new ResponseEntity<>(computerService.getCountComputers(), HttpStatus.OK);
 	}
-
 
 }
