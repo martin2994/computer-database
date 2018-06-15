@@ -12,7 +12,9 @@ import com.excilys.cdb.exceptions.ExceptionMessage;
 import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 import com.excilys.cdb.validators.CompanyValidator;
 
@@ -48,7 +50,7 @@ public class CompanyService {
 		companies = companyDAO.findAll();
 		return companies;
 	}
-
+	
 	/**
 	 * Récupère la liste des companies par page.
 	 * 
@@ -66,6 +68,40 @@ public class CompanyService {
 			cPage = companyDAO.findPerPage(page, resultPerPage);
 		} else {
 			LOGGER.info("INVALID COMPANY PAGE");
+		}
+		return cPage;
+	}
+	
+	/**
+	 * Récupère la liste de toutes les computers par un id de company.
+	 * 
+	 * @return la liste des computers
+	 */
+	public List<Computer> getComputersByCompanyId(long id) {
+		List<Computer> computers = new ArrayList<>();
+		computers = companyDAO.getComputerByCompanyId(id);
+		return computers;
+	}
+	
+	/**
+	 * Récupère la liste des computers en fonction de id company par page.
+	 * 
+	 * @param id
+	 *            id de company
+	 * @param page
+	 *            la page à afficher
+	 * @param resultPerPage
+	 *            le nombre de computers par page
+	 * @return La liste des company
+	 * @throws InvalidComputerException
+	 *             Exception lancée quand la requete echoue
+	 */
+	public Page<Computer> getComputersByCompanyId(long id, int page, int resultPerPage) throws InvalidComputerException {
+		Page<Computer> cPage = new Page<>();
+		if (page >= 0 && resultPerPage >= 1) {
+			cPage = companyDAO.getComputerByCompanyIdPerPage(id, page, resultPerPage);
+		} else {
+			LOGGER.info("INVALID COMPUTER PAGE");
 		}
 		return cPage;
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -13,7 +14,9 @@ import com.excilys.cdb.dao.DAO;
 import com.excilys.cdb.exceptions.ExceptionMessage;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.utils.Page;
 
 /**
@@ -25,8 +28,12 @@ public class CompanyDAO implements DAO<Company> {
 
 
     private final String ALL_COMPANIES = "FROM Company";
+    
+    private final String COMPUTERS_FOR_ONE_COMPANY = "FROM Computer WHERE company_id=:company_id ORDER BY name";
 
     private final String MAX_PAGE = "SELECT COUNT(id) FROM Company";
+    
+    private final String MAX_PAGE_BY_ID = "SELECT COUNT(id) FROM Computer WHERE company_id=:company_id";
 
     private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
 
@@ -81,6 +88,65 @@ public class CompanyDAO implements DAO<Company> {
         }
         companies.setMaxPage(count());
         return companies;
+    }
+    
+    /**
+     * Permet de récupérer la liste des computers avec un company_id spécifique.
+     * @param id
+     *            id à rechercher
+     * @return la liste des computers
+     * @throws InvalidComputerException
+     *             Exception lancée quand la requete est mal formée
+     */
+    public List<Computer> getComputerByCompanyId(long id) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> typeQuery = session.createQuery(COMPUTERS_FOR_ONE_COMPANY, Computer.class);
+            return typeQuery.setParameter("company_id", id).getResultList();
+        }
+    }
+    
+    /**
+     * Permet de récupérer la liste des computers par page avec un company_id spécifique.
+     * @param id
+     *            id à rechercher
+     * @param page
+     *            la page à récupérer
+     * @param resultPerPage
+     *            le nombre d'élément par page
+     * @return la liste des computers
+     * @throws InvalidComputerException
+     *             Exception lancée quand la requete est mal formée
+     */
+    public Page<Computer> getComputerByCompanyIdPerPage(long id, int page, int resultPerPage)
+            throws InvalidComputerException {
+        Page<Computer> computers = new Page<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            TypedQuery<Computer> typeQuery = session.createQuery(COMPUTERS_FOR_ONE_COMPANY, Computer.class).setFirstResult(page * resultPerPage).setMaxResults(resultPerPage);
+            typeQuery.setParameter("company_id", id);
+            computers.setResults(typeQuery.getResultList());
+            computers.setCurrentPage(page);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidComputerException(ExceptionMessage.BAD_ACCESS.getMessage());
+        }
+        computers.setMaxPage(countById(id));
+        return computers;
+    }
+    
+    /**
+     * Récupère le nombre de d'élement d'une recherche.
+     * @param id
+     *            id à rechercher
+     * @return le nombre de computer
+     */
+    public int countById(long id) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery(MAX_PAGE_BY_ID);
+            query.setParameter("company_id", id);
+            return (int) (long) query.getResultList().get(0);
+        }
     }
 
     /**
