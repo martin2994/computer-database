@@ -32,6 +32,7 @@ public interface DAO<T> {
      *          Exception lancée en cas d'erreur
      */
     Page<T> findPerPage(int page, int resultPerPage) throws Exception;
+    
 
     /**
      * Récupère l'objet voulu.

@@ -23,6 +23,8 @@ public class Page<T> {
     private int currentPage;
 
     private int maxPage;
+    
+    private int numberOfElements;
 
     /**
      * constructeur qui initialise la liste.
@@ -71,7 +73,15 @@ public class Page<T> {
         return resultPerPage;
     }
 
-    public void setResultPerPage(int resutlPerPage) {
+    public int getNumberOfElements() {
+			return numberOfElements;
+		}
+
+		public void setNumberOfElements(int numberOfElements) {
+			this.numberOfElements = numberOfElements;
+		}
+
+		public void setResultPerPage(int resutlPerPage) {
         this.resultPerPage = resutlPerPage;
     }
 

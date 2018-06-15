@@ -25,8 +25,12 @@ public class CompanyDAO implements DAO<Company> {
 
 
     private final String ALL_COMPANIES = "FROM Company";
+    
+    private final String COMPANIES_BY_NAME = "FROM Company as company WHERE name LIKE :search ORDER BY name";
 
     private final String MAX_PAGE = "SELECT COUNT(id) FROM Company";
+    
+    private final String MAX_PAGE_BY_NAME = "SELECT COUNT(id) FROM Company WHERE name LIKE :search";
 
     private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
 
@@ -79,9 +83,39 @@ public class CompanyDAO implements DAO<Company> {
         } catch (IllegalArgumentException e) {
             throw new InvalidCompanyException(ExceptionMessage.BAD_ACCESS.getMessage());
         }
-        companies.setMaxPage(count());
+        int nbElements = count();
+        companies.setMaxPage(nbElements);
+        companies.setNumberOfElements(nbElements);
         return companies;
     }
+    
+    /**
+     * 
+     * @param page
+     * @param resultPerPage
+     * @param search
+     * @return
+     * @throws Exception
+     */
+		public Page<Company> findPerPageByName(int page, int resultPerPage, String search) throws Exception {
+    	 Page<Company> companies = new Page<>();
+    	 String allSearch = "%" + search + "%";
+       try (Session session = sessionFactory.getCurrentSession()) {
+           session.beginTransaction();
+           companies.setResults(session.createQuery(COMPANIES_BY_NAME, Company.class)
+          		 .setFirstResult(page * resultPerPage)
+               .setMaxResults(resultPerPage)
+               .setParameter("search", allSearch)
+               .getResultList());
+           companies.setCurrentPage(page);
+       } catch (IllegalArgumentException e) {
+           throw new InvalidCompanyException(ExceptionMessage.BAD_ACCESS.getMessage());
+       }
+       int nbElements = countByName(search);
+       companies.setMaxPage(nbElements);
+       companies.setNumberOfElements(nbElements);
+       return companies;
+		}
 
     /**
      * Récupère une company particulière.
@@ -106,6 +140,19 @@ public class CompanyDAO implements DAO<Company> {
             session.beginTransaction();
             return (int) (long) session.createQuery(MAX_PAGE).getResultList().get(0);
         }
+    }
+    
+    /**
+     * Récupère le nombre d'élement avec recherche.
+     */
+    public int countByName(String search) {
+    	String allSearch = "%" + search + "%";
+      try (Session session = sessionFactory.getCurrentSession()) {
+          session.beginTransaction();
+          Query query = session.createQuery(MAX_PAGE_BY_NAME);
+          query.setParameter("search", allSearch);
+          return (int) (long) query.getResultList().get(0);
+      }
     }
 
     @Override
@@ -173,4 +220,5 @@ public class CompanyDAO implements DAO<Company> {
             return session.get(Company.class, id) != null;
         }
     }
+
 }

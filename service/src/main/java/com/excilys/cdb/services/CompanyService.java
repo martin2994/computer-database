@@ -3,8 +3,10 @@ package com.excilys.cdb.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mockito.InjectMocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
@@ -69,6 +71,27 @@ public class CompanyService {
 		}
 		return cPage;
 	}
+	
+	/**
+	 * Récupère la liste des companies par page.
+	 * 
+	 * @param page
+	 *            la page à afficher
+	 * @param resultPerPage
+	 *            le nombre de computers par page
+	 * @return La liste des company
+	 * @throws Exception 
+	 */
+	public Page<Company> getCompaniesByName(int page, int resultPerPage, String search) throws Exception {
+		Page<Company> cPage = new Page<>();
+		if (page >= 0 && resultPerPage >= 1) {
+			cPage = companyDAO.findPerPageByName(page, resultPerPage,search);
+		} else {
+			LOGGER.info("INVALID COMPANY PAGE");
+		}
+		return cPage;
+	}
+	
 
 	/**
 	 * Récupère une company en fonction de son id.
