@@ -25,7 +25,10 @@ import com.excilys.cdb.exceptions.ExceptionMessage;
 import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
+
+import com.excilys.cdb.exceptions.computer.InvalidComputerException;
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
 import com.excilys.cdb.utils.Page;
 
@@ -42,6 +45,13 @@ public class CompanyController {
 		this.companyService = companyService;
 	}
 
+	@GetMapping(path = "/{id}/computers", params = { "page", "resultPerPage" })
+	public ResponseEntity<Collection<Computer>> getComputersByCompanyIdPage(@PathVariable("id") Long id, @RequestParam(name = "page", required = true) int page,
+			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidComputerException {
+		List<Computer> computers = companyService.getComputersByCompanyId(id, page, resultPerPage).getResults();
+		return new ResponseEntity<>(computers, HttpStatus.OK);
+	}
+	
 	@GetMapping(params = { "page", "resultPerPage" })
 	public ResponseEntity<Page<Company>> getCompaniesPage(@RequestParam(name = "page", required = true) int page,
 			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidCompanyException {
@@ -70,6 +80,15 @@ public class CompanyController {
 		company = companyService.getCompany(id);
 		LOGGER.debug(company.toString());
 		return new ResponseEntity<>(company, HttpStatus.OK);
+	}
+	
+	@GetMapping("/{id}/computers")
+	public ResponseEntity<Collection<Computer>> getComputersByCompanyId(@PathVariable("id") Long id)
+			throws InvalidCompanyException, NoObjectException, InvalidIdException {
+		List<Computer> computers;
+		computers = companyService.getComputersByCompanyId(id);
+		LOGGER.debug(computers.toString());
+		return new ResponseEntity<>(computers, HttpStatus.OK);
 	}
 
 	@PostMapping
