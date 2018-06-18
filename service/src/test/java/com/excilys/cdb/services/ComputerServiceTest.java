@@ -361,7 +361,7 @@ public class ComputerServiceTest {
     public void testUpdateComputerBadId() throws InvalidComputerException, InvalidCompanyException, NoObjectException, InvalidIdException {
         computer.setId(1L);
         Mockito.when(computerDAO.isExist(1L)).thenReturn(false);
-    	exception.expect(InvalidComputerException.class);
+    	exception.expect(InvalidIdException.class);
         computerService.updateComputer(computer);
         Mockito.verify(computerDAO).isExist(1L);
     }
