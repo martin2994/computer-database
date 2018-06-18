@@ -7,7 +7,7 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controller", "com.excilys.cdb.services" })
+@ComponentScan(basePackages = {"com.excilys.cdb.configpersistence", "com.excilys.cdb.controller", "com.excilys.cdb.services", "com.excilys.cdb.config", "com.excilys.cdb.security" })
 public class WebAppInit extends AbstractAnnotationConfigDispatcherServletInitializer {
 	@Override
     protected String[] getServletMappings() {
