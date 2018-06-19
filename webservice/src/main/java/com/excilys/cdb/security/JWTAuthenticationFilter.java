@@ -38,10 +38,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		logger.debug("processing authentication for '{}'", request.getRequestURL());
 
-		final String requestHeader = request.getHeader(this.tokenHeader);
+		final String requestHeader = request.getHeader(tokenHeader);
 
 		String username = null;
 		String authToken = null;
+		System.out.println(tokenHeader + " " + requestHeader);
 		if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
 			authToken = requestHeader.substring(7);
 			try {

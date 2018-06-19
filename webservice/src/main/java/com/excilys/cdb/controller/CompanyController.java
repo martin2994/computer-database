@@ -35,8 +35,6 @@ import com.excilys.cdb.utils.Page;
 
 @RestController
 @RequestMapping("/company")
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-@CrossOrigin("http://localhost:4200")
 public class CompanyController {
 
 	private CompanyService companyService;
