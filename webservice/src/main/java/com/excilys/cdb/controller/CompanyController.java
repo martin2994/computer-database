@@ -2,6 +2,7 @@ package com.excilys.cdb.controller;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.excilys.cdb.dtos.ComputerDTO;
 import com.excilys.cdb.exceptions.ExceptionMessage;
 import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
-
 import com.excilys.cdb.exceptions.computer.InvalidComputerException;
+import com.excilys.cdb.mapper.DTOMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.CompanyService;
@@ -35,8 +37,6 @@ import com.excilys.cdb.utils.Page;
 
 @RestController
 @RequestMapping("/company")
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-@CrossOrigin("http://localhost:4200")
 public class CompanyController {
 
 	private CompanyService companyService;
@@ -48,23 +48,27 @@ public class CompanyController {
 	}
 
 	@GetMapping(path = "/{id}/computers", params = { "page", "resultPerPage" })
-	public ResponseEntity<Collection<Computer>> getComputersByCompanyIdPage(@PathVariable("id") Long id, @RequestParam(name = "page", required = true) int page,
+	public ResponseEntity<Collection<ComputerDTO>> getComputersByCompanyIdPage(@PathVariable("id") Long id,
+			@RequestParam(name = "page", required = true) int page,
 			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidComputerException {
 		List<Computer> computers = companyService.getComputersByCompanyId(id, page, resultPerPage).getResults();
-		return new ResponseEntity<>(computers, HttpStatus.OK);
+		List<ComputerDTO> list_computers = computers.stream().map(computer -> DTOMapper.fromComputer(computer))
+				.collect(Collectors.toList());
+
+		return new ResponseEntity<>(list_computers, HttpStatus.OK);
 	}
-	
+
 	@GetMapping(params = { "page", "resultPerPage" })
 	public ResponseEntity<Page<Company>> getCompaniesPage(@RequestParam(name = "page", required = true) int page,
 			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidCompanyException {
 		Page<Company> companies = companyService.getCompanies(page, resultPerPage);
 		return new ResponseEntity<>(companies, HttpStatus.OK);
 	}
-	
-//	@GetMapping(params = { "page", "resultPerPage" , "search"})
-	@RequestMapping(params = { "page","resultPerPage", "search" }, method = RequestMethod.GET )
+
+	@RequestMapping(params = { "page", "resultPerPage", "search" }, method = RequestMethod.GET)
 	public ResponseEntity<Page<Company>> getCompanieSPageByName(@RequestParam(name = "page", required = true) int page,
-			@RequestParam(name = "resultPerPage", required = true) int resultPerPage,@RequestParam(name = "search", required = true) String search) throws Exception {
+			@RequestParam(name = "resultPerPage", required = true) int resultPerPage,
+			@RequestParam(name = "search", required = true) String search) throws Exception {
 		Page<Company> companies = companyService.getCompaniesByName(page, resultPerPage, search);
 		return new ResponseEntity<>(companies, HttpStatus.OK);
 	}
@@ -83,14 +87,16 @@ public class CompanyController {
 		LOGGER.debug(company.toString());
 		return new ResponseEntity<>(company, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/{id}/computers")
-	public ResponseEntity<Collection<Computer>> getComputersByCompanyId(@PathVariable("id") Long id)
+	public ResponseEntity<Collection<ComputerDTO>> getComputersByCompanyId(@PathVariable("id") Long id)
 			throws InvalidCompanyException, NoObjectException, InvalidIdException {
-		List<Computer> computers;
-		computers = companyService.getComputersByCompanyId(id);
-		LOGGER.debug(computers.toString());
-		return new ResponseEntity<>(computers, HttpStatus.OK);
+		List<Computer> computers = companyService.getComputersByCompanyId(id);
+
+		List<ComputerDTO> list_computers = computers.stream().map(computer -> DTOMapper.fromComputer(computer))
+				.collect(Collectors.toList());
+
+		return new ResponseEntity<>(list_computers, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -108,7 +114,7 @@ public class CompanyController {
 	@PutMapping("/{id}")
 	public ResponseEntity<Company> updateCompany(@PathVariable("id") Long id, @RequestBody Company company)
 			throws InvalidCompanyException, NoObjectException, InvalidIdException {
-		if(id != company.getId()) {
+		if (id != company.getId()) {
 			throw new InvalidIdException(ExceptionMessage.INVALID_ID.getMessage());
 		}
 		Company companyUpdate = companyService.updateCompany(company);
@@ -127,6 +133,11 @@ public class CompanyController {
 	@GetMapping("/count")
 	public ResponseEntity<Integer> countCompanies() {
 		return new ResponseEntity<>(companyService.getCountCompanies(), HttpStatus.OK);
+	}
+
+	@GetMapping("/{id}/count")
+	public ResponseEntity<Integer> countComputersByCompanyId(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(companyService.getCountComputersByCompanyId(id), HttpStatus.OK);
 	}
 
 }

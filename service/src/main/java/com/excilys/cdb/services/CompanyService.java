@@ -3,10 +3,8 @@ package com.excilys.cdb.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mockito.InjectMocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.dao.impl.CompanyDAO;
@@ -52,7 +50,7 @@ public class CompanyService {
 		companies = companyDAO.findAll();
 		return companies;
 	}
-	
+
 	/**
 	 * Récupère la liste des companies par page.
 	 * 
@@ -73,7 +71,7 @@ public class CompanyService {
 		}
 		return cPage;
 	}
-	
+
 	/**
 	 * Récupère la liste des companies par page.
 	 * 
@@ -86,7 +84,7 @@ public class CompanyService {
 		computers = companyDAO.getComputerByCompanyId(id);
 		return computers;
 	}
-	
+
 	/**
 	 * Récupère la liste des computers en fonction de id company par page.
 	 * 
@@ -97,23 +95,24 @@ public class CompanyService {
 	 * @param resultPerPage
 	 *            le nombre de computers par page
 	 * @return La liste des company
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Page<Company> getCompaniesByName(int page, int resultPerPage, String search) throws Exception {
 		Page<Company> cPage = new Page<>();
 		if (page >= 0 && resultPerPage >= 1) {
-			cPage = companyDAO.findPerPageByName(page, resultPerPage,search);
+			cPage = companyDAO.findPerPageByName(page, resultPerPage, search);
 		} else {
 			LOGGER.info("INVALID COMPANY PAGE");
 		}
 		return cPage;
 	}
-	
+
 	/**
 	 * @throws InvalidComputerException
 	 *             Exception lancée quand la requete echoue
 	 */
-	public Page<Computer> getComputersByCompanyId(long id, int page, int resultPerPage) throws InvalidComputerException {
+	public Page<Computer> getComputersByCompanyId(long id, int page, int resultPerPage)
+			throws InvalidComputerException {
 		Page<Computer> cPage = new Page<>();
 		if (page >= 0 && resultPerPage >= 1) {
 			cPage = companyDAO.getComputerByCompanyIdPerPage(id, page, resultPerPage);
@@ -143,10 +142,14 @@ public class CompanyService {
 
 	/**
 	 * Permet d'ajouter une nouvelle company.
-	 * @param company les infos de la company
+	 * 
+	 * @param company
+	 *            les infos de la company
 	 * @return l'id de la nouvelle company
-	 * @throws InvalidCompanyException Exception lancée quand les infos sont invalides
-	 * @throws NoObjectException Exception lancé quand il n'y a pas de résultat
+	 * @throws InvalidCompanyException
+	 *             Exception lancée quand les infos sont invalides
+	 * @throws NoObjectException
+	 *             Exception lancé quand il n'y a pas de résultat
 	 */
 	public long createCompany(Company company) throws InvalidCompanyException, NoObjectException {
 		CompanyValidator.isValidCompany(company);
@@ -155,13 +158,19 @@ public class CompanyService {
 
 	/**
 	 * Permet de modifier une company.
-	 * @param company les nouvelles infos de la company
+	 * 
+	 * @param company
+	 *            les nouvelles infos de la company
 	 * @return la nouvelle company
-	 * @throws InvalidCompanyException Exception lancée quand les infos sont invalides
-	 * @throws NoObjectException Exception lancé quand il n'y a pas de résultat
-	 * @throws InvalidIdException Exception lancée quand l'id est invalide
+	 * @throws InvalidCompanyException
+	 *             Exception lancée quand les infos sont invalides
+	 * @throws NoObjectException
+	 *             Exception lancé quand il n'y a pas de résultat
+	 * @throws InvalidIdException
+	 *             Exception lancée quand l'id est invalide
 	 */
-	public Company updateCompany(Company company) throws InvalidCompanyException, NoObjectException, InvalidIdException {
+	public Company updateCompany(Company company)
+			throws InvalidCompanyException, NoObjectException, InvalidIdException {
 		CompanyValidator.isValidCompany(company);
 		if (!companyDAO.isExist(company.getId())) {
 			LOGGER.info("INVALID COMPANY FOR UPDATE COMPUTER");
@@ -196,6 +205,15 @@ public class CompanyService {
 	 */
 	public int getCountCompanies() {
 		return companyDAO.count();
+	}
+
+	/**
+	 * Permet d'avoir le nombre de computers sachant la company.
+	 * 
+	 * @return le nombre de computers
+	 */
+	public int getCountComputersByCompanyId(long id) {
+		return companyDAO.countComputersByCompanyId(id);
 	}
 
 }

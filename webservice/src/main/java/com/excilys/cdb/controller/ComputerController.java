@@ -34,10 +34,8 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.services.ComputerService;
 import com.excilys.cdb.utils.Page;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/computer")
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class ComputerController {
 
 	private ComputerService computerService;
