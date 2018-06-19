@@ -10,6 +10,7 @@ drop schema if exists `computer-database-db`;
   create table company (
     id                        bigint not null auto_increment,
     name                      varchar(255),
+    logo                      varchar(255),
     constraint pk_company primary key (id))
   ;
 

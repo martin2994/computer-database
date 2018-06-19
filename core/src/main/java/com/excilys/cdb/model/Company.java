@@ -22,6 +22,25 @@ public class Company {
 
     @Column(name = "name")
     private String name;
+    
+    @Column(name = "logo")
+    private String logo;
+    
+    /**
+     * Constructeur avec parametre.
+     * @param id
+     *            l'id de la nouvelle Company
+     * @param name
+     *            le nom de la nouvelle Company
+     * @param logo
+     *            l'url du logo de la nouvelle Company
+     */
+    public Company(long id, String name, String logo) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.logo = logo;
+    }
 
     /**
      * Constructeur avec parametre.
@@ -42,20 +61,46 @@ public class Company {
     public Company() {
     }
 
+    /**
+     * @return the id
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * @param id the id to set
+     */
     public void setId(long id) {
         this.id = id;
     }
 
+    /**
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @param name the name to set
+     */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the logo
+     */
+    public String getLogo() {
+        return logo;
+    }
+
+    /**
+     * @param logo the logo to set
+     */
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
     @Override
@@ -63,41 +108,37 @@ public class Company {
         final int prime = 31;
         int result = 1;
         result = prime * result + (int) (id ^ (id >>> 32));
+        result = prime * result + ((logo == null) ? 0 : logo.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Company other = (Company) obj;
-        if (id != other.id) {
+        if (id != other.id)
             return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
+        if (logo == null) {
+            if (other.logo != null)
                 return false;
-            }
-        } else if (!name.equals(other.name)) {
+        } else if (!logo.equals(other.logo))
             return false;
-        }
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
         return true;
     }
 
     @Override
     public String toString() {
-        if (id == 0) {
-            return null;
-        }
-        return "Company [id=" + id + ", name=" + name + "]";
+        return "Company [id=" + id + ", name=" + name + ", logo=" + logo + "]";
     }
-
 }

@@ -43,7 +43,7 @@ public class CompanyDAO implements DAO<Company> {
 
     private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM Computer WHERE manufacturer.id = :id";
 
-    private final String UPDATE_COMPANY = "UPDATE Company SET name=:name WHERE id=:id";
+    private final String UPDATE_COMPANY = "UPDATE Company SET name=:name, logo=:logo WHERE id=:id";
 
     private SessionFactory sessionFactory;
 
@@ -265,6 +265,7 @@ public class CompanyDAO implements DAO<Company> {
             Query query = session.createQuery(UPDATE_COMPANY);
             query.setParameter("id", company.getId());
             query.setParameter("name", company.getName());
+            query.setParameter("logo", company.getLogo());
             result = query.executeUpdate();
             if (result > 0) {
                 companyOpt = Optional.ofNullable(company);
