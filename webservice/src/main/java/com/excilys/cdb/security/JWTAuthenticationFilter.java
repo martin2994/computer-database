@@ -1,68 +1,77 @@
 package com.excilys.cdb.security;
 
-import static com.excilys.cdb.security.SecurityConstants.EXPIRATION_TIME;
-import static com.excilys.cdb.security.SecurityConstants.HEADER_STRING;
-import static com.excilys.cdb.security.SecurityConstants.SECRET;
-import static com.excilys.cdb.security.SecurityConstants.TOKEN_PREFIX;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.AuthenticationManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.excilys.cdb.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private AuthenticationManager authenticationManager;
+import io.jsonwebtoken.ExpiredJwtException;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private UserDetailsService userDetailsService;
+	private JwtTokenUtil jwtTokenUtil;
+	private String tokenHeader;
+
+	public JWTAuthenticationFilter(UserDetailsService userDetailsService, JwtTokenUtil jwtTokenUtil, String tokenHeader) {
+        this.userDetailsService = userDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.tokenHeader = tokenHeader;
     }
 
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
-        try {
-            User creds = new ObjectMapper()
-                    .readValue(req.getInputStream(), User.class);
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
+		logger.debug("processing authentication for '{}'", request.getRequestURL());
 
-            return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            creds.getUsername(),
-                            creds.getPassword(),
-                            new ArrayList<>())
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		final String requestHeader = request.getHeader(tokenHeader);
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest req,
-                                            HttpServletResponse res,
-                                            FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+		String username = null;
+		String authToken = null;
+		System.out.println(tokenHeader + " " + requestHeader);
+		if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
+			authToken = requestHeader.substring(7);
+			try {
+				username = jwtTokenUtil.getUsernameFromToken(authToken);
+			} catch (IllegalArgumentException e) {
+				logger.error("an error occured during getting username from token", e);
+			} catch (ExpiredJwtException e) {
+				logger.warn("the token is expired and not valid anymore", e);
+			}
+		} else {
+			logger.warn("couldn't find bearer string, will ignore the header");
+		}
 
-        String token = Jwts.builder()
-                .setSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-    }
+		logger.debug("checking authentication for user '{}'", username);
+		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+			logger.debug("security context was null, so authorizating user");
+
+
+			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+			if (jwtTokenUtil.validateToken(authToken, userDetails)) {
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						userDetails, null, userDetails.getAuthorities());
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				logger.info("authorizated user '{}', setting security context", username);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		}
+
+		chain.doFilter(request, response);
+	}
 }
