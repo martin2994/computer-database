@@ -53,11 +53,7 @@ public class CompanyServiceTest {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-    
-    /**
-     * LOGGER.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyServiceTest.class);
+   
 
     /**
      * Initialise les données Mockito et objet.
@@ -84,7 +80,6 @@ public class CompanyServiceTest {
         List<Company> companies = Collections.nCopies(5, new Company(1, "test"));
         Mockito.when(companyDAO.findAll()).thenReturn(companies);
         List<Company> companiesTest = companyService.getCompanies();
-        LOGGER.info(companiesTest.toString());
         assertTrue(companiesTest.size() == 5 && companiesTest.get(0).equals(company));
         Mockito.verify(companyDAO).findAll();
     }

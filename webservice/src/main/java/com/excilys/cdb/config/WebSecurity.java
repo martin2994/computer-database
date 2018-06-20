@@ -61,7 +61,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.cors().and().authorizeRequests().antMatchers("/auth/**").permitAll().anyRequest().authenticated().and().csrf().disable();
+        httpSecurity.cors().and().authorizeRequests().antMatchers("/auth/**", "/user").permitAll().anyRequest().authenticated().and().csrf().disable();
 
         JWTAuthenticationFilter authenticationTokenFilter = new JWTAuthenticationFilter(userDetailsService(), jwtTokenUtil, tokenHeader);
         httpSecurity
