@@ -1,5 +1,7 @@
 package com.excilys.cdb.dao.impl;
 
+import java.util.Optional;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.DataException;
@@ -30,10 +32,11 @@ public class UserDAO {
 		this.sessionFactory = sessionFactory;
 	}
 
-	public User findUserByUsername(String username) {
+	public Optional<User> findUserByUsername(String username) {
+		Optional<User> user = Optional.empty();
 		try (Session session = sessionFactory.getCurrentSession()) {
 			session.beginTransaction();
-			User user = session.get(User.class, username);
+			user = Optional.ofNullable(session.get(User.class, username));
 			return user;
 		}
 	}

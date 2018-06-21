@@ -68,5 +68,11 @@ public class DTOMapper {
     	user.setAuthorities(roles);
     	return user;
     }
+    
+    public static UserDTO fromUser(User user) {
+    	UserDTO userDTO = new UserDTO();
+    	userDTO.setUsername(user.getUsername());
+    	return userDTO;
+    }
 
 }

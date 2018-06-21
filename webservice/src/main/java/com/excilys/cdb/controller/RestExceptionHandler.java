@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.excilys.cdb.exceptions.AuthentificationException;
 import com.excilys.cdb.exceptions.InvalidIdException;
 import com.excilys.cdb.exceptions.NoObjectException;
 import com.excilys.cdb.exceptions.company.InvalidCompanyException;
@@ -23,7 +24,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return handleExceptionInternal(exception, reponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
 	
-	@ExceptionHandler(value = { InvalidComputerException.class , InvalidCompanyException.class })
+	@ExceptionHandler(value = { InvalidComputerException.class , InvalidCompanyException.class, AuthentificationException.class })
 	protected ResponseEntity<Object> handleNotAcceptable(Exception exception, WebRequest request) {
 		String reponse = "Invalid informations";
 		System.out.println(exception.toString());

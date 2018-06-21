@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.excilys.cdb.security.JwtAuthentificationRequest;
+import com.excilys.cdb.exceptions.AuthentificationException;
 import com.excilys.cdb.security.JWTAuthentificationResponse;
 import com.excilys.cdb.security.JwtTokenUtil;
 
@@ -47,7 +48,7 @@ public class AuthentificationController {
 	}
 
     @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthentificationRequest authenticationRequest) throws AuthenticationException {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthentificationRequest authenticationRequest) throws AuthenticationException, AuthentificationException {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
@@ -80,19 +81,16 @@ public class AuthentificationController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
-    /**
-     * Authenticates the user. If something is wrong, an {@link AuthenticationException} will be thrown
-     */
-    private void authenticate(String username, String password) {
+    private void authenticate(String username, String password) throws AuthentificationException {
         Objects.requireNonNull(username);
         Objects.requireNonNull(password);
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            //throw new AuthenticationException("User is disabled!", e);
+            throw new AuthentificationException("User is disabled!");
         } catch (BadCredentialsException e) {
-            //throw new AuthenticationException("Bad credentials!", e);
+            throw new AuthentificationException("Bad credentials!");
         }
 }
 }
