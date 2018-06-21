@@ -36,16 +36,18 @@ public class CompanyDAO implements DAO<Company> {
 
 	private final String COMPUTERS_FOR_ONE_COMPANY = "FROM Computer WHERE company_id=:company_id ORDER BY name";
 
-	private final String MAX_PAGE_BY_ID = "SELECT COUNT(id) FROM Computer WHERE company_id=:company_id";
+	private final String SEARCH_COMPUTERS_FOR_ONE_COMPANY = "FROM Computer WHERE company_id=:company_id AND name LIKE :search ORDER BY name";
 
 	private final String DELETE_COMPANY = "DELETE FROM Company WHERE id = :id";
 
 	private final String DELETE_COMPANY_COMPUTERS = "DELETE FROM Computer WHERE manufacturer.id = :id";
 
-    private final String UPDATE_COMPANY = "UPDATE Company SET name=:name, logo=:logo WHERE id=:id";
+	private final String UPDATE_COMPANY = "UPDATE Company SET name=:name, logo=:logo WHERE id=:id";
 
 	private final String MAX_PAGE_BY_COMPANY_ID = "SELECT COUNT(id) FROM Computer WHERE company_id=:id";
 
+	private final String MAX_COMPUTER_PAGE_BY_COMPANY_ID_AND_NAME = "SELECT COUNT(id) FROM Computer WHERE company_id=:id AND name LIKE :name";
+	
 	private SessionFactory sessionFactory;
 
 	/**
@@ -167,10 +169,12 @@ public class CompanyDAO implements DAO<Company> {
 			typeQuery.setParameter("company_id", id);
 			computers.setResults(typeQuery.getResultList());
 			computers.setCurrentPage(page);
+			computers.setResultPerPage(resultPerPage);
 		} catch (IllegalArgumentException e) {
 			throw new InvalidComputerException(ExceptionMessage.BAD_ACCESS.getMessage());
 		}
 		computers.setMaxPage(countById(id));
+		computers.setNumberOfElements(countById(id));
 		return computers;
 	}
 
@@ -184,12 +188,30 @@ public class CompanyDAO implements DAO<Company> {
 	public int countById(long id) {
 		try (Session session = sessionFactory.getCurrentSession()) {
 			session.beginTransaction();
-			Query query = session.createQuery(MAX_PAGE_BY_ID);
-			query.setParameter("company_id", id);
+			Query query = session.createQuery(MAX_PAGE_BY_COMPANY_ID);
+			query.setParameter("id", id);
 			return (int) (long) query.getResultList().get(0);
 		}
 	}
 
+	/**
+	 * Récupère le nombre de d'élement d'une recherche.
+	 * 
+	 * @param id
+	 *            id à rechercher
+	 * @return le nombre de computer
+	 */
+	public int countByIdAndName(long id, String name) {
+		try (Session session = sessionFactory.getCurrentSession()) {
+			session.beginTransaction();
+			Query query = session.createQuery(MAX_COMPUTER_PAGE_BY_COMPANY_ID_AND_NAME);
+			query.setParameter("id", id);
+			query.setParameter("name", name);
+			return (int) (long) query.getResultList().get(0);
+		}
+	}
+
+	
 	/**
 	 * Récupère une company particulière.
 	 * 
@@ -260,27 +282,27 @@ public class CompanyDAO implements DAO<Company> {
 		return result;
 	}
 
-    @Override
-    public Optional<Company> update(Company company) throws NoObjectException {
-        Optional<Company> companyOpt = Optional.empty();
-        int result = 0;
-        if (company == null) {
-            String message = ExceptionMessage.NO_COMPANY_TO_UPDATE.getMessage();
-            throw new NoObjectException(message);
-        }
-        try (Session session = sessionFactory.getCurrentSession()) {
-            session.beginTransaction();
-            Query query = session.createQuery(UPDATE_COMPANY);
-            query.setParameter("id", company.getId());
-            query.setParameter("name", company.getName());
-            query.setParameter("logo", company.getLogo());
-            result = query.executeUpdate();
-            if (result > 0) {
-                companyOpt = Optional.ofNullable(company);
-            }
-        }
-        return companyOpt;
-    }
+	@Override
+	public Optional<Company> update(Company company) throws NoObjectException {
+		Optional<Company> companyOpt = Optional.empty();
+		int result = 0;
+		if (company == null) {
+			String message = ExceptionMessage.NO_COMPANY_TO_UPDATE.getMessage();
+			throw new NoObjectException(message);
+		}
+		try (Session session = sessionFactory.getCurrentSession()) {
+			session.beginTransaction();
+			Query query = session.createQuery(UPDATE_COMPANY);
+			query.setParameter("id", company.getId());
+			query.setParameter("name", company.getName());
+			query.setParameter("logo", company.getLogo());
+			result = query.executeUpdate();
+			if (result > 0) {
+				companyOpt = Optional.ofNullable(company);
+			}
+		}
+		return companyOpt;
+	}
 
 	/**
 	 * Regarde si la company existe.
@@ -297,13 +319,25 @@ public class CompanyDAO implements DAO<Company> {
 		}
 	}
 
-	public int countComputersByCompanyId(long id) {
+	public Page<Computer> findComputerByCompanyIdPerPage(Long id, int page, int resultPerPage, String search)
+			throws InvalidComputerException {
+		Page<Computer> computers = new Page<>();
 		try (Session session = sessionFactory.getCurrentSession()) {
 			session.beginTransaction();
-			Query query = session.createQuery(MAX_PAGE_BY_COMPANY_ID);
-			query.setParameter("id", id);
-			return (int) (long) query.getResultList().get(0);
+			TypedQuery<Computer> typeQuery = session.createQuery(SEARCH_COMPUTERS_FOR_ONE_COMPANY, Computer.class)
+					.setFirstResult(page * resultPerPage).setMaxResults(resultPerPage);
+			typeQuery.setParameter("company_id", id);
+			String tsearch = "%" + search + "%";
+			typeQuery.setParameter("search", tsearch);
+			computers.setResults(typeQuery.getResultList());
+			computers.setCurrentPage(page);
+			computers.setResultPerPage(resultPerPage);
+		} catch (IllegalArgumentException e) {
+			throw new InvalidComputerException(ExceptionMessage.BAD_ACCESS.getMessage());
 		}
+		computers.setMaxPage(countById(id));
+		computers.setNumberOfElements(countByIdAndName(id, "%" + search + "%"));
+		return computers;
 	}
 
 }

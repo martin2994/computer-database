@@ -216,4 +216,15 @@ public class CompanyService {
 		return companyDAO.countComputersByCompanyId(id);
 	}
 
+	public Page<Computer> findComputersByCompanyId(Long id, int page, int resultPerPage, String search) 
+			throws InvalidComputerException {
+		Page<Computer> cPage = new Page<>();
+		if (page >= 0 && resultPerPage >= 1) {
+			cPage = companyDAO.findComputerByCompanyIdPerPage(id, page, resultPerPage, search);
+		} else {
+			LOGGER.info("INVALID COMPUTER PAGE");
+		}
+		return cPage;
+	}
+
 }

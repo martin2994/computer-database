@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,13 +46,28 @@ public class CompanyController {
 	}
 
 	@GetMapping(path = "/{id}/computers", params = { "page", "resultPerPage" })
-	public ResponseEntity<Collection<ComputerDTO>> getComputersByCompanyIdPage(@PathVariable("id") Long id,
+	public ResponseEntity<Page<ComputerDTO>> getComputersByCompanyIdPage(@PathVariable("id") Long id,
 			@RequestParam(name = "page", required = true) int page,
-			@RequestParam(name = "resultPerPage", required = true) int resultPerPage) throws InvalidComputerException {
-		List<Computer> computers = companyService.getComputersByCompanyId(id, page, resultPerPage).getResults();
-		List<ComputerDTO> list_computers = computers.stream().map(computer -> DTOMapper.fromComputer(computer))
-				.collect(Collectors.toList());
+			@RequestParam(name = "resultPerPage", required = true) int resultPerPage,
+			@RequestParam(name = "search", required = false) String search) throws InvalidComputerException {
+		
+		Page<Computer> computers;
+		
+		if (search == null) {
+			computers = companyService.getComputersByCompanyId(id, page, resultPerPage);
+		} else {
+			computers = companyService.findComputersByCompanyId(id, page, resultPerPage, search);	
+		}
+		
+		Page<ComputerDTO> list_computers = new Page<>();
+		list_computers.setCurrentPage(page);
+		list_computers.setResultPerPage(resultPerPage);
+		list_computers.setNumberOfElements(computers.getNumberOfElements());
+		list_computers.setMaxPage(computers.getMaxPage());
 
+		list_computers.setResults(computers.getResults().stream().map(computer -> DTOMapper.fromComputer(computer))
+				.collect(Collectors.toList()));
+		
 		return new ResponseEntity<>(list_computers, HttpStatus.OK);
 	}
 
