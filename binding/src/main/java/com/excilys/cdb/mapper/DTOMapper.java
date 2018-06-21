@@ -2,10 +2,15 @@ package com.excilys.cdb.mapper;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.excilys.cdb.dtos.ComputerDTO;
+import com.excilys.cdb.dtos.UserDTO;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.model.Role;
+import com.excilys.cdb.model.User;
 
 public class DTOMapper {
 
@@ -50,6 +55,18 @@ public class DTOMapper {
         }
         return new Computer.Builder(computerDTO.getName()).id(id).introduced(introducedDate)
                 .discontinued(discontinuedDate).manufacturer(company).build();
+    }
+    
+    public static User toUser(UserDTO userDTO) {
+    	User user = new User();
+    	user.setUsername(userDTO.getUsername());
+    	user.setPassword(userDTO.getPassword());
+    	user.setEnabled(true);
+    	Role role = new Role("ROLE_USER", user);
+    	List<Role> roles = new ArrayList<>();
+    	roles.add(role);
+    	user.setAuthorities(roles);
+    	return user;
     }
 
 }
