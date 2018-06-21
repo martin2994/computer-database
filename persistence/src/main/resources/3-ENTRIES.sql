@@ -17,7 +17,7 @@ insert into company (id,name,logo) values ( 16,'Nokia','http://www.smsenvoi.com/
 insert into company (id,name,logo) values ( 17,'Sony','http://kahvel.ee/wp-content/uploads/2012/06/0ef1dd295bb255e1c0cf594d4d12f9f3.jpg');
 insert into company (id,name,logo) values ( 18,'OQO','https://upload.wikimedia.org/wikipedia/en/2/2a/Oqo_logo.png');
 insert into company (id,name,logo) values ( 19,'NeXT','https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/NeXT_logo.svg/280px-NeXT_logo.svg.png');    
-insert into company (id,name,logo) values ( 20,'Atari','https://upload.wikimedia.org/wikipedia/fr/thumb/e/e6/Atari_Inc._%282003%29_Logo_1.png/280px-Atari_Inc._%282003%29_Logo_1.png');
+insert into company (id,name,logo) values ( 20,'Atari','http://teambeyond.net/wp-content/uploads/2017/07/Atari-Logo.jpg');
 insert into company (id,name,logo) values ( 22,'Acorn computer','http://www.computinghistory.org.uk/userdata/images/large/41/26/product-74126.gif');
 insert into company (id,name,logo) values ( 23,'Timex Sinclair','https://www.freeiconspng.com/uploads/no-image-icon-15.png');
 insert into company (id,name,logo) values ( 24,'Nintendo','http://consumersresearch.org/wp-content/uploads/2017/03/fb-400x400.jpg');

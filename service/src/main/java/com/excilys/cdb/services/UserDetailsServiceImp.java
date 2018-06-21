@@ -25,7 +25,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userDAO.findUserByUsername(username);
+		User user = userDAO.findUserByUsername(username).orElse(null);
 		UserBuilder builder = null;
 		if (user != null) {
 			builder = org.springframework.security.core.userdetails.User.withUsername(username);
@@ -46,6 +46,11 @@ public class UserDetailsServiceImp implements UserDetailsService {
 		}else {
 			throw new NoObjectException(ExceptionMessage.INVALID_INFO.getMessage());
 		}
+	}
+	
+	public User getUser(String username) {
+		User user = userDAO.findUserByUsername(username).orElse(new User());
+		return user;
 	}
 
 }
