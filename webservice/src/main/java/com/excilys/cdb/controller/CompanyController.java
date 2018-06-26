@@ -148,9 +148,4 @@ public class CompanyController {
 		return new ResponseEntity<>(companyService.getCountCompanies(), HttpStatus.OK);
 	}
 
-	@GetMapping("/{id}/count")
-	public ResponseEntity<Integer> countComputersByCompanyId(@PathVariable("id") Long id) {
-		return new ResponseEntity<>(companyService.getCountComputersByCompanyId(id), HttpStatus.OK);
-	}
-
 }

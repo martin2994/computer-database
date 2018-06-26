@@ -207,15 +207,6 @@ public class CompanyService {
 		return companyDAO.count();
 	}
 
-	/**
-	 * Permet d'avoir le nombre de computers sachant la company.
-	 * 
-	 * @return le nombre de computers
-	 */
-	public int getCountComputersByCompanyId(long id) {
-		return companyDAO.countComputersByCompanyId(id);
-	}
-
 	public Page<Computer> findComputersByCompanyId(Long id, int page, int resultPerPage, String search) 
 			throws InvalidComputerException {
 		Page<Computer> cPage = new Page<>();

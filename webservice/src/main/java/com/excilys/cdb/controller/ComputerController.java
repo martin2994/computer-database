@@ -78,6 +78,7 @@ public class ComputerController {
 	public ResponseEntity<Void> addComputer(@RequestBody ComputerDTO computerDTO, UriComponentsBuilder ucb)
 			throws InvalidComputerException, InvalidCompanyException, InvalidIdException {
 		Computer computer = DTOMapper.toComputer(computerDTO);
+		System.out.println(computerDTO);
 		long idNewComputer = computerService.createComputer(computer);
 		if (idNewComputer > 0) {
 			UriComponents uriComponents = ucb.path("/{id}").buildAndExpand(idNewComputer);

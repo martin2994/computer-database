@@ -49,7 +49,7 @@ public class DTOMapper {
             discontinuedDate = LocalDate.parse(computerDTO.getDiscontinued());
         }
         Company company = null;
-        if (computerDTO.getManufacturer() != null && computerDTO.getManufacturerId() != 0) {
+        if (computerDTO.getManufacturerId() != 0) {
             company = new Company();
             company.setId(computerDTO.getManufacturerId());
         }
